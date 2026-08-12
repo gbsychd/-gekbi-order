@@ -3,2199 +3,388 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>隔壁宵夜彰化店｜手機點餐</title>
-
+<title>隔壁宵夜彰化店｜線上點餐</title>
 <style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:#f5f5f5;color:#222}
+header{background:#111;color:#fff;text-align:center;padding:28px 16px}
+header h1{margin:0;font-size:30px;font-weight:800}
+header p{margin:8px 0 0;color:#ccc;font-size:16px}
+.container{max-width:760px;margin:auto;padding:16px 16px 150px}
+.notice,.cart{background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.notice{margin-bottom:24px;text-align:center;font-size:17px;line-height:1.8}
+.notice-title{font-size:23px;font-weight:800}.address{color:#777;font-size:14px;margin-top:6px}
+.pickup-notice{margin-top:12px;padding:12px;border-radius:10px;background:#fff4e8;color:#c84f00;font-size:15px;font-weight:700;line-height:1.6}
+.category{font-size:24px;font-weight:800;margin:30px 2px 12px}
+.item{background:#fff;border-radius:16px;padding:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 2px 9px rgba(0,0,0,.06)}
+.item-info{flex:1;min-width:0}.item-name{font-size:18px;font-weight:700;line-height:1.5}.price{margin-top:5px;font-size:19px;color:#d35400;font-weight:800}
+.add-btn{border:0;background:#111;color:#fff;border-radius:12px;padding:12px 17px;font-size:16px;min-width:76px;cursor:pointer}.add-btn:active{transform:scale(.96)}
+.inline-option-box{background:#fff;border-radius:15px;padding:17px;margin:-3px 0 14px;border:2px solid #eee;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.option-title{font-size:18px;font-weight:800;margin-bottom:14px}.option-group{margin-bottom:16px}.option-group-title{font-size:16px;font-weight:700;margin-bottom:9px}.option-list{display:flex;flex-wrap:wrap;gap:8px}
+.option-btn{border:1px solid #ddd;background:#fff;color:#222;border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer}.option-btn.selected{background:#111;color:#fff;border-color:#111}.option-price{color:#d35400;font-weight:700}.option-btn.selected .option-price{color:#fff}
+.confirm-option,.submit-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:5px}.cancel-option{width:100%;border:1px solid #ddd;background:#fff;color:#555;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
+.hidden-title{margin-top:42px;background:#111;color:#fff;padding:15px;border-radius:14px;font-size:23px;font-weight:800;text-align:center}.hidden-subtitle{text-align:center;color:#777;font-size:14px;margin:8px 0 15px}
+.cart{margin-top:35px}.cart h2{margin:0 0 15px;font-size:25px}.cart-row{padding:14px 0;border-bottom:1px solid #eee}.cart-main{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.cart-name{font-weight:700;font-size:16px;line-height:1.5}.cart-price{font-weight:700;white-space:nowrap}.cart-options{color:#777;font-size:13px;margin-top:5px;line-height:1.6}.cart-controls{margin-top:9px;display:flex;justify-content:flex-end;align-items:center;gap:7px}.cart-controls button{border:0;background:#eee;font-size:15px;padding:7px 10px;border-radius:7px}.total{text-align:right;font-size:23px;font-weight:800;margin:20px 0}
+.order-form label{display:block;margin:15px 0 0;font-size:16px;font-weight:600}input,select{width:100%;padding:14px;margin-top:7px;border:1px solid #ddd;border-radius:11px;font-size:16px;background:#fff}.submit-btn{padding:16px;font-size:18px;margin-top:18px}.success{display:none;margin-top:15px;padding:15px;border-radius:12px;background:#eaf8ed;color:#217a35;line-height:1.7}
+.bottom-cart{position:fixed;left:12px;right:12px;bottom:12px;background:#111;color:#fff;padding:15px 18px;border-radius:17px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 5px 20px rgba(0,0,0,.25);z-index:100}.bottom-cart button{border:0;background:#d35400;color:#fff;padding:12px 18px;border-radius:11px;font-size:16px;font-weight:700}
+@media(max-width:480px){header h1{font-size:28px}.item-name{font-size:17px}.add-btn{min-width:72px;padding:11px 13px}.category{font-size:23px}}
 
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
-  background:#f5f5f5;
-  color:#222;
-}
-
-header{
-  background:#111;
-  color:#fff;
-  text-align:center;
-  padding:28px 16px;
-}
-
-header h1{
-  margin:0;
-  font-size:30px;
-  font-weight:800;
-}
-
-header p{
-  margin:8px 0 0;
-  color:#ccc;
-  font-size:16px;
-}
-
-.container{
-  max-width:760px;
-  margin:auto;
-  padding:16px 16px 150px;
-}
-
-.notice{
-  background:#fff;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:24px;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
-  text-align:center;
-  font-size:17px;
-  line-height:1.8;
-}
-
-.notice-title{
-  font-size:23px;
-  font-weight:800;
-}
-
-.address{
-  color:#777;
-  font-size:14px;
-  margin-top:6px;
-}
-
-.pickup-notice{
-  margin-top:12px;
-  padding:12px;
-  border-radius:10px;
-  background:#fff4e8;
-  color:#c84f00;
-  font-size:15px;
-  font-weight:700;
-  line-height:1.6;
-}
-
-.category{
-  font-size:24px;
-  font-weight:800;
-  margin:30px 2px 12px;
-}
-
-.item{
-  background:#fff;
-  border-radius:16px;
-  padding:17px;
-  margin-bottom:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  box-shadow:0 2px 9px rgba(0,0,0,.06);
-}
-
-.item-info{
-  flex:1;
-  min-width:0;
-}
-
-.item-name{
-  font-size:18px;
-  font-weight:700;
-  line-height:1.5;
-}
-
-.price{
-  margin-top:5px;
-  font-size:19px;
-  color:#d35400;
-  font-weight:800;
-}
-
-.add-btn{
-  border:0;
-  background:#111;
-  color:white;
-  border-radius:12px;
-  padding:12px 17px;
-  font-size:16px;
-  min-width:76px;
-  cursor:pointer;
-}
-
-.add-btn:active{
-  transform:scale(.96);
-}
-
-.small{
-  color:#777;
-  font-size:13px;
-  line-height:1.7;
-  margin:4px 2px 14px;
-}
-
-.inline-option-box{
-  background:#fff;
-  border-radius:15px;
-  padding:17px;
-  margin:-3px 0 14px;
-  border:2px solid #eee;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
-}
-
-.option-title{
-  font-size:18px;
-  font-weight:800;
-  margin-bottom:14px;
-}
-
-.option-group{
-  margin-bottom:16px;
-}
-
-.option-group-title{
-  font-size:16px;
-  font-weight:700;
-  margin-bottom:9px;
-}
-
-.option-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.option-btn{
-  border:1px solid #ddd;
-  background:#fff;
-  color:#222;
-  border-radius:10px;
-  padding:10px 12px;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.option-btn.selected{
-  background:#111;
-  color:#fff;
-  border-color:#111;
-}
-
-.option-price{
-  color:#d35400;
-  font-weight:700;
-}
-
-.option-btn.selected .option-price{
-  color:#fff;
-}
-
-.confirm-option{
-  width:100%;
-  border:0;
-  background:#d35400;
-  color:#fff;
-  border-radius:12px;
-  padding:14px;
-  font-size:17px;
-  font-weight:800;
-  margin-top:5px;
-}
-
-.cancel-option{
-  width:100%;
-  border:1px solid #ddd;
-  background:#fff;
-  color:#555;
-  border-radius:12px;
-  padding:12px;
-  font-size:16px;
-  margin-top:8px;
-}
-
-.hidden-title{
-  margin-top:42px;
-  background:#111;
-  color:#fff;
-  padding:15px;
-  border-radius:14px;
-  font-size:23px;
-  font-weight:800;
-  text-align:center;
-}
-
-.hidden-subtitle{
-  text-align:center;
-  color:#777;
-  font-size:14px;
-  margin:8px 0 15px;
-}
-
-.cart{
-  background:#fff;
-  border-radius:18px;
-  padding:20px;
-  margin-top:35px;
-  box-shadow:0 2px 12px rgba(0,0,0,.07);
-}
-
-.cart h2{
-  margin:0 0 15px;
-  font-size:25px;
-}
-
-.cart-row{
-  padding:14px 0;
-  border-bottom:1px solid #eee;
-}
-
-.cart-main{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.cart-name{
-  font-weight:700;
-  font-size:16px;
-  line-height:1.5;
-}
-
-.cart-price{
-  font-weight:700;
-  white-space:nowrap;
-}
-
-.cart-options{
-  color:#777;
-  font-size:13px;
-  margin-top:5px;
-  line-height:1.6;
-}
-
-.cart-controls{
-  margin-top:9px;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:7px;
-}
-
-.cart-controls button{
-  border:0;
-  background:#eee;
-  font-size:15px;
-  padding:7px 10px;
-  border-radius:7px;
-}
-
-.total{
-  text-align:right;
-  font-size:23px;
-  font-weight:800;
-  margin:20px 0;
-}
-
-.order-form label{
-  display:block;
-  margin:15px 0 0;
-  font-size:16px;
-  font-weight:600;
-}
-
-input,
-textarea{
-  width:100%;
-  padding:14px;
-  margin-top:7px;
-  border:1px solid #ddd;
-  border-radius:11px;
-  font-size:16px;
-  background:#fff;
-}
-
-.submit-btn{
-  width:100%;
-  border:0;
-  background:#d35400;
-  color:#fff;
-  padding:16px;
-  border-radius:12px;
-  font-size:18px;
-  font-weight:800;
-  margin-top:18px;
-}
-
-.success{
-  display:none;
-  margin-top:15px;
-  padding:15px;
-  border-radius:12px;
-  background:#eaf8ed;
-  color:#217a35;
-  line-height:1.7;
-}
-
-.bottom-cart{
-  position:fixed;
-  left:12px;
-  right:12px;
-  bottom:12px;
-  background:#111;
-  color:white;
-  padding:15px 18px;
-  border-radius:17px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 5px 20px rgba(0,0,0,.25);
-  z-index:100;
-}
-
-.bottom-cart button{
-  border:0;
-  background:#d35400;
-  color:white;
-  padding:12px 18px;
-  border-radius:11px;
-  font-size:16px;
-  font-weight:700;
-}
-
-@media(max-width:480px){
-
-  header h1{
-    font-size:28px;
-  }
-
-  .item-name{
-    font-size:17px;
-  }
-
-  .add-btn{
-    min-width:72px;
-    padding:11px 13px;
-  }
-
-  .category{
-    font-size:23px;
-  }
-
-}
-
+.order-closed{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.order-closed-card{width:min(520px,100%);background:#fff;border-radius:20px;padding:30px 24px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.order-closed-card h2{margin:0 0 12px;font-size:25px}.order-closed-card p{margin:8px 0;line-height:1.7;color:#555}
+.order-closed-time{font-size:19px;font-weight:800;color:#d35400;margin:16px 0}
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>隔壁宵夜彰化店</h1>
-  <p>手機點餐系統｜外帶專用</p>
-</header>
-
+<div class="order-closed" id="orderClosed">
+  <div class="order-closed-card">
+    <h2>目前非線上點餐時間</h2>
+    <p>線上點餐系統開放時間</p>
+    <div class="order-closed-time">每日 18:00 ～ 隔日 01:10</div>
+    <p>目前暫停接受線上點餐，請於開放時間再進行點餐。</p>
+  </div>
+</div>
+<header><h1>隔壁宵夜彰化店</h1><p>線上點餐系統 自取外帶專用</p></header>
 <div class="container">
-
 <div class="notice">
-
-  <div class="notice-title">
-    🥡 外帶點餐
-  </div>
-
-  選擇餐點 → 選擇細項 → 加入購物車 → 填寫資料 → 完成訂單
-
-  <div class="address">
-    彰化市仁愛路149號｜04-7222297
-  </div>
-
-  <div class="pickup-notice">
-    📢 訂單送出後，請等待店家通知「餐點完成」即可取餐
-  </div>
-
+<div class="notice-title">🥡 自取自取外帶點餐</div>
+選擇餐點 → 選擇細項 → 加入購物車 → 填寫資料 → 送出訂單
+<div class="address">彰化市仁愛路149號｜04-7222297</div>
+<div class="pickup-notice">📢 訂單送出後，請等待店家通知「餐點完成」即可取餐</div>
 </div>
-
 <div id="menu"></div>
-
 <div class="cart" id="cartBox">
-
-  <h2>🛒 訂單</h2>
-
-  <div id="cartItems">
-    尚未選擇餐點
-  </div>
-
-  <div class="total">
-    合計：$<span id="total">0</span>
-  </div>
-
-  <div class="order-form">
-
-    <label>取餐人姓名</label>
-
-    <input
-      id="customerName"
-      type="text"
-      placeholder="請輸入姓名">
-
-    <label>手機號碼</label>
-
-    <input
-      id="phone"
-      type="tel"
-      placeholder="請輸入手機號碼">
-
-    <label>備註</label>
-
-    <textarea
-      id="note"
-      rows="3"
-      placeholder="例如：不要香菜、辣度需求等"></textarea>
-
-    <button
-      class="submit-btn"
-      onclick="submitOrder()">
-      確認送出訂單
-    </button>
-
-    <div
-      class="success"
-      id="successMessage">
-
-      訂單已送出！<br>
-      請等待店家通知「餐點完成」後再前往取餐。
-
-    </div>
-
-  </div>
-
-</div>
-
-</div>
-
-<div class="bottom-cart">
-
-  <div>
-    🛒 已選 <span id="count">0</span> 項
-  </div>
-
-  <button
-    onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">
-    查看訂單
-  </button>
-
-</div>
-
-
+<h2>🛒 訂單</h2><div id="cartItems">尚未選擇餐點</div>
+<div class="total">合計：$<span id="total">0</span></div>
+<div class="order-form">
+<label>姓／先生or小姐</label><input id="customerName" type="text" placeholder="請輸入姓氏＋先生或小姐">
+<label>手機號碼(取餐請報後3碼)</label><input id="phone" type="tel" placeholder="請輸入手機號碼">
+<label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
+<select id="pickupTime"><option value="">不指定取餐時間</option></select>
+<button class="submit-btn" onclick="submitOrder()">送出訂單</button>
+<div class="success" id="successMessage">訂單已送出！<br>請等待店家通知「餐點完成」後再前往取餐。</div>
+</div></div></div>
+<div class="bottom-cart"><div>🛒 已選 <span id="count">0</span> 項</div><button onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">查看訂單</button></div>
 <script>
-
-/* =====================================
-   正式菜單
-===================================== */
-
-const menus = [
-
-  [
-    "🥛 隔壁奶酥",
-
-    [
-      ["經典原味厚奶酥",60],
-      ["日式抹茶厚奶酥",60],
-      ["可可朗尼厚奶酥",60],
-      ["香濃花生厚奶酥",60],
-      ["經典芝麻麻厚奶酥",60],
-      ["香蒜厚片",50]
-    ],
-
-    {
-      type:"奶酥",
-
-      options:[
-        ["起司",10],
-        ["麻糬",15],
-        ["酥皮",15]
-      ]
-    }
-  ],
-
-
-  [
-    "🥚 美味蛋餅",
-
-    [
-      ["原味蛋餅",35],
-      ["起司蛋餅",40],
-      ["火腿蛋餅",45],
-      ["熱狗蛋餅",50],
-      ["培根蛋餅",50],
-      ["鮪魚蛋餅",50],
-      ["薯餅蛋餅",55],
-      ["豬排蛋餅",55],
-      ["咔啦雞排蛋餅",60],
-      ["可可脆脆蛋餅",65]
-    ],
-
-    {
-      type:"蛋餅",
-
-      options:[
-        ["雙蛋",15],
-        ["起司",10]
-      ]
-    }
-  ],
-
-
-  [
-    "🍞 經典吐司",
-
-    [
-      ["起司蛋吐司",45],
-      ["火腿蛋吐司",50],
-      ["培根蛋吐司",55],
-      ["鮪魚蛋吐司",55],
-      ["薯餅蛋吐司",60],
-      ["豬排蛋吐司",60],
-      ["咔啦雞排蛋吐司",65],
-      ["熱狗捲",35],
-      ["果醬吐司（巧克力／花生／草莓）",25]
-    ],
-
-    {
-      type:"吐司",
-
-      options:[
-        ["起司",10]
-      ]
-    }
-  ],
-
-
-  [
-    "🥤 飲品",
-
-    [
-      ["紅茶",25],
-      ["麥茶",25],
-      ["奶茶",35],
-      ["冷泡茶",45]
-    ],
-
-    null
-  ],
-
-
-  [
-    "🍜 個人特餐－附紅茶",
-
-    [
-      ["豬排黑胡椒麵",100],
-      ["豬排蘑菇麵",100],
-      ["豬排炒泡麵",105]
-    ],
-
-    {
-      type:"個人特餐",
-
-      options:[
-        ["加麵",15],
-        ["奶茶",10],
-        ["冷泡茶",15],
-        ["麻辣",5],
-        ["香辣",15]
-      ]
-    }
-  ],
-
-
-  [
-    "🍜 招牌麵食（乾）",
-
-    [
-      ["古早味紅蔥雞絲麵",50],
-      ["古早味剝椒雞絲麵",60],
-      ["招牌炒泡麵",80],
-      ["沙茶炒泡麵",85],
-      ["招牌麻辣炒泡麵",85],
-      ["香辣炒泡麵",95],
-      ["豬排拌拌麵（大）",90]
-    ],
-
-    {
-      type:"麵食",
-
-      options:[
-        ["加麵",15],
-        ["起司",10]
-      ]
-    }
-  ],
-
-
-  [
-    "🍲 燉製鍋燒（湯）",
-
-    [
-      ["原味鍋燒",95],
-      ["沙茶鍋燒",105],
-      ["麻辣鍋燒",105],
-      ["咖哩鍋燒",115],
-      ["起司牛奶鍋燒",125],
-      ["泰式冬陰鍋燒",130]
-    ],
-
-    {
-      type:"鍋燒"
-    }
-  ],
-
-
-  [
-    "🍟 點心炸物",
-
-    [
-      ["荷包蛋",20],
-      ["單點豬排",30],
-      ["熱狗",30],
-      ["薯餅",30],
-      ["小肉豆",35],
-      ["甜不辣",40],
-      ["炸湯圓",40],
-      ["薯條",40],
-      ["玉米布丁酥",40],
-      ["小雞球",45],
-      ["麥香雞塊",45],
-      ["咔啦雞排（辣）",45],
-      ["酥炸杏鮑菇",45],
-      ["雙色地瓜QQ球",45],
-      ["芋泥球",45],
-      ["魷米花",50],
-      ["土魠魚塊（炸）",55],
-      ["炸元寶",65],
-      ["日式炸豬排",70]
-    ],
-
-    null
-  ]
-
+const menus=[
+["🥛 隔壁奶酥",[["經典原味厚奶酥",60],["日式抹茶厚奶酥",60],["可可朗尼厚奶酥",60],["香濃花生厚奶酥",60],["經典芝麻麻厚奶酥",60],["香蒜厚片",50]],{type:"奶酥",options:[["起司",10],["麻糬",15],["酥皮",15]]}],
+["🥚 美味蛋餅",[["原味蛋餅",35],["起司蛋餅",40],["火腿蛋餅",45],["熱狗蛋餅",50],["培根蛋餅",50],["鮪魚蛋餅",50],["薯餅蛋餅",55],["豬排蛋餅",55],["咔啦雞排蛋餅",60],["可可脆脆蛋餅",65]],{type:"蛋餅",options:[["雙蛋",15],["起司",10]]}],
+["🍞 經典吐司",[["起司蛋吐司",45],["火腿蛋吐司",50],["培根蛋吐司",55],["鮪魚蛋吐司",55],["薯餅蛋吐司",60],["豬排蛋吐司",60],["咔啦雞排蛋吐司",65],["熱狗捲",35],["果醬吐司",25]],{type:"吐司",options:[["起司",10]],jam:true}],
+["🥤 飲品",[["紅茶",25],["麥茶",25],["奶茶",35],["冷泡茶",45]],null],
+["🍜 個人特餐－附紅茶",[["豬排黑胡椒麵",100],["豬排蘑菇麵",100],["豬排炒泡麵",105]],{type:"個人特餐",options:[["加麵",15],["奶茶",10],["冷泡茶",15],["麻辣",5],["香辣",15]]}],
+["🍜 招牌麵食（乾）",[["古早味紅蔥雞絲麵",50],["古早味剝椒雞絲麵",60],["招牌炒泡麵",80],["沙茶炒泡麵",85],["招牌麻辣炒泡麵",85],["香辣炒泡麵",95],["豬排拌拌麵（大）",90]],{type:"麵食",options:[["加麵",15],["起司",10]],noNoodleExtra:["豬排拌拌麵（大）"]}],
+["🍲 秘製鍋燒(湯)",[["原味鍋燒",95],["沙茶鍋燒",105],["麻辣鍋燒",105],["咖哩鍋燒",115],["起司牛奶鍋燒",125],["泰式冬陰鍋燒",130]],{type:"鍋燒"}],
+["🍟 點心炸物",[["荷包蛋",20],["單點豬排",30],["熱狗",30],["薯餅",30],["小肉豆",35],["甜不辣",40],["炸湯圓",40],["薯條",40],["玉米布丁酥",40],["小雞球",45],["麥香雞塊",45],["咔啦雞排（辣）",45],["酥炸杏鮑菇",45],["雙色地瓜QQ球",45],["芋泥球",45],["魷米花",50],["土魠魚塊（炸）",55],["炸元寶",65],["日式炸豬排",70]],null]
 ];
-
-
-/* =====================================
-   隱藏版菜單
-===================================== */
-
-const hiddenMenus = [
-
-  [
-    "豬排大套餐",
-    190,
-
-    [
-      {
-        title:"主餐 3 選 1",
-        single:true,
-
-        options:[
-          ["豬排炒泡麵",0],
-          ["豬排蘑菇麵",0],
-          ["豬排黑胡椒麵",0]
-        ]
-      },
-
-      {
-        title:"奶酥 6 選 1",
-        single:true,
-
-        options:[
-          ["原味",0],
-          ["可可",0],
-          ["抹茶",0],
-          ["花生",0],
-          ["芝麻",0],
-          ["香蒜",0]
-        ]
-      },
-
-      {
-        title:"炸物 4 選 1",
-        single:true,
-
-        options:[
-          ["甜不辣",0],
-          ["美國脆薯",0],
-          ["小雞球",0],
-          ["芋泥球",0]
-        ]
-      },
-
-      {
-        title:"飲品",
-        single:true,
-
-        options:[
-          ["紅茶",0],
-          ["奶茶",10],
-          ["冷泡茶",15]
-        ]
-      }
-    ]
-  ],
-
-
-  [
-    "單人獨享餐",
-    125,
-
-    [
-      {
-        title:"主餐 2 選 1",
-        single:true,
-
-        options:[
-          ["古早味紅蔥雞絲麵",0],
-          ["古早味剝椒雞絲麵",10]
-        ]
-      },
-
-      {
-        title:"奶酥 6 選 1",
-        single:true,
-
-        options:[
-          ["原味",0],
-          ["可可",0],
-          ["抹茶",0],
-          ["花生",0],
-          ["芝麻",0],
-          ["香蒜",0]
-        ]
-      },
-
-      {
-        title:"飲品",
-        single:true,
-
-        options:[
-          ["紅茶",0],
-          ["奶茶",10],
-          ["冷泡茶",15]
-        ]
-      }
-    ]
-  ],
-
-
-  [
-    "單人經濟套餐",
-    135,
-
-    [
-      {
-        title:"主餐",
-        single:true,
-
-        options:[
-          ["招牌炒泡麵",0]
-        ]
-      },
-
-      {
-        title:"炸物",
-        single:true,
-
-        options:[
-          ["小肉豆",0]
-        ]
-      },
-
-      {
-        title:"飲品",
-        single:true,
-
-        options:[
-          ["紅茶",0],
-          ["奶茶",10],
-          ["冷泡茶",15]
-        ]
-      }
-    ]
-  ],
-
-
-  [
-    "日式炸豬排烏龍麵",
-    135,
-
-    [
-      {
-        title:"口味",
-        single:true,
-
-        options:[
-          ["白醬",0],
-          ["蘑菇",0],
-          ["黑胡椒",0]
-        ]
-      }
-    ]
-  ]
-
+const hiddenMenus=[
+["豬排大套餐",190,[
+{title:"主餐 3 選 1",single:true,options:[["豬排炒泡麵",0],["豬排蘑菇麵",0],["豬排黑胡椒麵",0]],main:true},
+{title:"奶酥(不吃請勿選擇)",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]],cream:true},
+{title:"炸物 4 選 1(奶酥不吃請選兩樣)",single:false,max:1,options:[["甜不辣",0],["美國脆薯",0],["小雞球",0],["芋泥球",0]],fried:true},
+{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}
+]],
+["單人獨享餐",125,[{title:"主餐 2 選 1",single:true,options:[["古早味紅蔥雞絲麵",0],["古早味剝椒雞絲麵",10]]},{title:"奶酥 6 選 1",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
+["單人經濟套餐",135,[{title:"主餐",single:true,options:[["招牌炒泡麵",0]]},{title:"炸物",single:true,options:[["小肉豆",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
+["日式炸豬排烏龍麵",135,[{title:"口味",single:true,options:[["白醬",0],["蘑菇",0],["黑胡椒",0]]}]]
 ];
-
-
-/* =====================================
-   購物車
-===================================== */
-
-let cart = [];
-
-
-/* =====================================
-   建立菜單
-===================================== */
-
-function renderMenu(){
-
-  let html = "";
-
-  menus.forEach(function(menu,menuIndex){
-
-    const category = menu[0];
-    const items = menu[1];
-    const config = menu[2];
-
-    html += `
-      <div class="category">
-        ${category}
-      </div>
-    `;
-
-
-    items.forEach(function(item,itemIndex){
-
-      const name = item[0];
-      const price = item[1];
-
-      const itemId =
-        "menu-" +
-        menuIndex +
-        "-" +
-        itemIndex;
-
-
-      html += `
-
-        <div
-          class="item"
-          id="${itemId}">
-
-          <div class="item-info">
-
-            <div class="item-name">
-              ${name}
-            </div>
-
-            <div class="price">
-              $${price}
-            </div>
-
-          </div>
-
-          <button
-            class="add-btn"
-            onclick="handleAdd('${escapeQuotes(name)}',${price},'${itemId}',${menuIndex},${itemIndex})">
-
-            加入
-
-          </button>
-
-        </div>
-
-      `;
-
-    });
-
-  });
-
-
-  /* 隱藏版 */
-
-  html += `
-
-    <div class="hidden-title">
-      🔥 隱藏版菜單
+let cart=[];
+function escapeQuotes(t){return t.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function escapeHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function optionButton(o,single,max){return `<button class="option-btn" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" onclick="toggleOption(this)">${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}</button>`}
+function renderMenu(){let html="";menus.forEach((m,mi)=>{html+=`<div class="category">${m[0]}</div>`;m[1].forEach((it,ii)=>{const id=`menu-${mi}-${ii}`;html+=`<div class="item" id="${id}"><div class="item-info"><div class="item-name">${it[0]}</div><div class="price">$${it[1]}</div></div><button class="add-btn" onclick="handleAdd('${escapeQuotes(it[0])}',${it[1]},'${id}',${mi},${ii})">加入</button></div>`})});html+=`<div class="hidden-title">🔥 隱藏版菜單</div><div class="hidden-subtitle">隱藏版餐點｜數量有限，售完為止</div>`;hiddenMenus.forEach((it,i)=>{const id=`hidden-${i}`;html+=`<div class="item" id="${id}"><div class="item-info"><div class="item-name">${it[0]}</div><div class="price">$${it[1]}</div></div><button class="add-btn" onclick="openHiddenOptions(${i},'${id}')">加入</button></div>`});document.getElementById('menu').innerHTML=html}
+function handleAdd(name,price,itemId,mi,ii){
+if(name==="香蒜厚片")return addToCart(name,price,[]); if(name==="原味蛋餅")return openOptions(name,price,{type:"蛋餅",options:[["雙蛋",15]]},itemId);
+const config=menus[mi][2];
+if(menus[mi][0].includes('鍋燒'))return openHotpotOptions(name,price,itemId);
+if(!config)return addToCart(name,price,[]);
+if(config.jam&&name==="果醬吐司")return openJamOptions(name,price,itemId);
+let localConfig=JSON.parse(JSON.stringify(config));
+if(name==="豬排黑胡椒麵"||name==="豬排蘑菇麵"){
+  localConfig.options=localConfig.options.filter(o=>o[0]!=="麻辣"&&o[0]!=="香辣"&&o[0]!=="加辣");
+}
+if(config.noNoodleExtra&&config.noNoodleExtra.includes(name))localConfig.options=localConfig.options.filter(o=>o[0]!=="加麵");
+openOptions(name,price,localConfig,itemId)}
+function openJamOptions(name,price,itemId){
+  const existing=document.getElementById('option-'+itemId);
+  if(existing){
+    existing.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  const html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}">
+    <div class="option-title">${name}｜選擇口味</div>
+    <div class="option-group">
+      <div class="option-group-title">果醬口味（請選1種）</div>
+      <div class="option-list">${[["巧克力",0],["花生",0],["草莓",0]].map(o=>optionButton(o,true)).join('')}</div>
     </div>
-
-    <div class="hidden-subtitle">
-      隱藏版餐點｜數量有限，售完為止
-    </div>
-
-  `;
-
-
-  hiddenMenus.forEach(function(item,index){
-
-    const name = item[0];
-    const price = item[1];
-
-    const itemId =
-      "hidden-" + index;
-
-
-    html += `
-
-      <div
-        class="item"
-        id="${itemId}">
-
-        <div class="item-info">
-
-          <div class="item-name">
-            ${name}
-          </div>
-
-          <div class="price">
-            $${price}
-          </div>
-
-        </div>
-
-        <button
-          class="add-btn"
-          onclick="openHiddenOptions(${index},'${itemId}')">
-
-          加入
-
-        </button>
-
-      </div>
-
-    `;
-
-  });
-
-
-  document.getElementById("menu").innerHTML =
-    html;
-
+    <button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+    <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button>
+  </div>`;
+  insertOptionBox(itemId,html);
 }
-
-
-/* =====================================
-   一般餐點加入
-===================================== */
-
-function handleAdd(
-  name,
-  price,
-  itemId,
-  menuIndex,
-  itemIndex
-){
-
-  const menu =
-    menus[menuIndex];
-
-  const config =
-    menu[2];
-
-
-  /* 鍋燒特殊處理 */
-
-  if(menu[0].includes("鍋燒")){
-
-    openHotpotOptions(
-      name,
-      price,
-      itemId
-    );
-
-    return;
-
-  }
-
-
-  /* 沒有細項 */
-
-  if(!config){
-
-    addToCart(
-      name,
-      price,
-      []
-    );
-
-    return;
-
-  }
-
-
-  openOptions(
-    name,
-    price,
-    config,
-    itemId
-  );
-
-}
-
-
-/* =====================================
-   鍋燒細項
-===================================== */
-
-function openHotpotOptions(
-  name,
-  price,
-  itemId
-){
-
-  const old =
-    document.getElementById(
-      "option-" + itemId
-    );
-
-
-  if(old){
-
-    old.remove();
-
-    return;
-
-  }
-
-
-  let html = `
-
-    <div
-      class="inline-option-box"
-      id="option-${itemId}"
-      data-base-name="${escapeHtml(name)}"
-      data-base-price="${price}">
-
-      <div class="option-title">
-        ${name}｜選擇細項
-      </div>
-
-
-      <div class="option-group">
-
-        <div class="option-group-title">
-          麵體
-        </div>
-
-        <div class="option-list">
-
-  `;
-
-
-  const noodles = [
-    ["意麵",0],
-    ["雞絲",0],
-    ["冬粉",0],
-    ["泡麵",0],
-    ["烏龍麵",20]
-  ];
-
-
-  noodles.forEach(function(option){
-
-    html += optionButton(
-      option,
-      true
-    );
-
-  });
-
-
-  html += `
-
-        </div>
-
-      </div>
-
-
-      <div class="option-group">
-
-        <div class="option-group-title">
-          加料
-        </div>
-
-        <div class="option-list">
-
-  `;
-
-
-  const extras = [
-    ["加麵",15],
-    ["起司",10],
-    ["豆皮",20]
-  ];
-
-
-  extras.forEach(function(option){
-
-    html += optionButton(
-      option,
-      false
-    );
-
-  });
-
-
-  html += `
-
-        </div>
-
-      </div>
-
-  `;
-
-
-  /*
-    只有起司牛奶鍋燒可以加麻辣
-  */
-
-  if(name === "起司牛奶鍋燒"){
-
-    html += `
-
-      <div class="option-group">
-
-        <div class="option-group-title">
-          口味
-        </div>
-
-        <div class="option-list">
-
-          ${optionButton(
-            ["麻辣",10],
-            false
-          )}
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  html += `
-
-      <button
-        class="confirm-option"
-        onclick="confirmInlineOptions('${itemId}')">
-
-        確認加入購物車
-
-      </button>
-
-      <button
-        class="cancel-option"
-        onclick="closeOptions('${itemId}')">
-
-        關閉
-
-      </button>
-
-    </div>
-
-  `;
-
-
-  insertOptionBox(
-    itemId,
-    html
-  );
-
-}
-
-
-/* =====================================
-   一般細項
-===================================== */
-
-function openOptions(
-  name,
-  price,
-  config,
-  itemId
-){
-
-  const old =
-    document.getElementById(
-      "option-" + itemId
-    );
-
-
-  if(old){
-
-    old.remove();
-
-    return;
-
-  }
-
-
-  let html = `
-
-    <div
-      class="inline-option-box"
-      id="option-${itemId}"
-      data-base-name="${escapeHtml(name)}"
-      data-base-price="${price}">
-
-      <div class="option-title">
-        ${name}｜選擇細項
-      </div>
-
-  `;
-
-
-  if(config.options){
-
-    html += `
-
-      <div class="option-group">
-
-        <div class="option-group-title">
-          可加購
-        </div>
-
-        <div class="option-list">
-
-    `;
-
-
-    config.options.forEach(function(option){
-
-      html += optionButton(
-        option,
-        false
-      );
-
-    });
-
-
-    html += `
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  html += `
-
-      <button
-        class="confirm-option"
-        onclick="confirmInlineOptions('${itemId}')">
-
-        確認加入購物車
-
-      </button>
-
-      <button
-        class="cancel-option"
-        onclick="closeOptions('${itemId}')">
-
-        關閉
-
-      </button>
-
-    </div>
-
-  `;
-
-
-  insertOptionBox(
-    itemId,
-    html
-  );
-
-}
-
-
-/* =====================================
-   隱藏版細項
-===================================== */
-
-function openHiddenOptions(
-  index,
-  itemId
-){
-
-  const item =
-    hiddenMenus[index];
-
-  const name =
-    item[0];
-
-  const price =
-    item[1];
-
-  const groups =
-    item[2];
-
-
-  const old =
-    document.getElementById(
-      "option-" + itemId
-    );
-
-
-  if(old){
-
-    old.remove();
-
-    return;
-
-  }
-
-
-  let html = `
-
-    <div
-      class="inline-option-box"
-      id="option-${itemId}"
-      data-base-name="${escapeHtml(name)}"
-      data-base-price="${price}">
-
-      <div class="option-title">
-        🔥 ${name}｜選擇內容
-      </div>
-
-  `;
-
-
-  groups.forEach(function(group){
-
-    html += `
-
-      <div class="option-group">
-
-        <div class="option-group-title">
-          ${group.title}
-        </div>
-
-        <div class="option-list">
-
-    `;
-
-
-    group.options.forEach(function(option){
-
-      html += optionButton(
-        option,
-        !!group.single
-      );
-
-    });
-
-
-    html += `
-
-        </div>
-
-      </div>
-
-    `;
-
-  });
-
-
-  html += `
-
-      <button
-        class="confirm-option"
-        onclick="confirmInlineOptions('${itemId}')">
-
-        確認加入購物車
-
-      </button>
-
-      <button
-        class="cancel-option"
-        onclick="closeOptions('${itemId}')">
-
-        關閉
-
-      </button>
-
-    </div>
-
-  `;
-
-
-  insertOptionBox(
-    itemId,
-    html
-  );
-
-}
-
-
-/* =====================================
-   建立選項按鈕
-===================================== */
-
-function optionButton(
-  option,
-  single
-){
-
-  const name =
-    option[0];
-
-  const price =
-    option[1];
-
-
-  return `
-
-    <button
-      class="option-btn"
-      data-name="${escapeHtml(name)}"
-      data-price="${price}"
-      data-single="${single ? "1" : "0"}"
-      onclick="toggleOption(this)">
-
-      ${name}
-
-      ${
-        price > 0
-        ?
-        `<span class="option-price">
-          +${price}
-        </span>`
-        :
-        ""
-      }
-
-    </button>
-
-  `;
-
-}
-
-
-/* =====================================
-   插入細項
-===================================== */
-
-function insertOptionBox(
-  itemId,
-  html
-){
-
-  const item =
-    document.getElementById(
-      itemId
-    );
-
-
-  item.insertAdjacentHTML(
-    "afterend",
-    html
-  );
-
-}
-
-
-/* =====================================
-   選擇細項
-===================================== */
-
-function toggleOption(button){
-
-  const single =
-    button.dataset.single === "1";
-
-
-  if(single){
-
-    const group =
-      button.parentElement;
-
-
-    group
-      .querySelectorAll(
-        ".option-btn"
-      )
-      .forEach(function(btn){
-
-        btn.classList.remove(
-          "selected"
-        );
-
-      });
-
-  }
-
-
-  button.classList.toggle(
-    "selected"
-  );
-
-}
-
-
-/* =====================================
-   確認細項
-===================================== */
-
-function confirmInlineOptions(
-  itemId
-){
-
-  const box =
-    document.getElementById(
-      "option-" + itemId
-    );
-
-
-  const name =
-    box.dataset.baseName;
-
-  const basePrice =
-    Number(
-      box.dataset.basePrice
-    );
-
-
-  const buttons =
-    box.querySelectorAll(
-      ".option-btn.selected"
-    );
-
-
-  let options = [];
-
-  let extra = 0;
-
-
-  buttons.forEach(function(button){
-
-    const optionName =
-      button.dataset.name;
-
-    const optionPrice =
-      Number(
-        button.dataset.price
-      );
-
-
-    options.push({
-      name:optionName,
-      price:optionPrice
-    });
-
-
-    extra +=
-      optionPrice;
-
-  });
-
-
-  /*
-    必須選擇麵體
-    只針對鍋燒
-  */
-
-  if(name.includes("鍋燒")){
-
-    const noodleSelected =
-      Array.from(
-        box.querySelectorAll(
-          ".option-btn.selected"
-        )
-      ).some(function(button){
-
-        return [
-          "意麵",
-          "雞絲",
-          "冬粉",
-          "泡麵",
-          "烏龍麵"
-        ].includes(
-          button.dataset.name
-        );
-
-      });
-
-
-    if(!noodleSelected){
-
-      alert(
-        "請先選擇麵體！"
-      );
-
-      return;
-
-    }
-
-  }
-
-
-  addToCart(
-    name,
-    basePrice + extra,
-    options
-  );
-
-
-  box.remove();
-
-}
-
-
-/* =====================================
-   關閉細項
-===================================== */
-
-function closeOptions(
-  itemId
-){
-
-  const box =
-    document.getElementById(
-      "option-" + itemId
-    );
-
-
-  if(box){
-
-    box.remove();
-
-  }
-
-}
-
-
-/* =====================================
-   加入購物車
-===================================== */
-
-function addToCart(
-  name,
-  price,
-  options
-){
-
-  cart.push({
-
-    name:name,
-
-    price:price,
-
-    options:
-      options || [],
-
-    qty:1
-
-  });
-
-
-  renderCart();
-
-}
-
-
-/* =====================================
-   購物車
-===================================== */
-
-function renderCart(){
-
-  const cartItems =
-    document.getElementById(
-      "cartItems"
-    );
-
-
-  if(cart.length === 0){
-
-    cartItems.innerHTML =
-      "尚未選擇餐點";
-
-    document.getElementById(
-      "total"
-    ).textContent =
-      "0";
-
-    document.getElementById(
-      "count"
-    ).textContent =
-      "0";
-
-    return;
-
-  }
-
-
-  let html = "";
-
-  let total = 0;
-
-  let count = 0;
-
-
-  cart.forEach(
-    function(item,index){
-
-      const itemTotal =
-        item.price *
-        item.qty;
-
-
-      total +=
-        itemTotal;
-
-      count +=
-        item.qty;
-
-
-      let optionText = "";
-
-
-      if(
-        item.options &&
-        item.options.length
-      ){
-
-        optionText =
-          item.options
-          .map(
-            function(option){
-
-              return option.name +
-                (
-                  option.price > 0
-                  ?
-                  " +" +
-                  option.price
-                  :
-                  ""
-                );
-
-            }
-          )
-          .join("、");
-
-      }
-
-
-      html += `
-
-        <div class="cart-row">
-
-          <div class="cart-main">
-
-            <div>
-
-              <div class="cart-name">
-
-                ${item.name}
-                × ${item.qty}
-
-              </div>
-
-              ${
-                optionText
-                ?
-                `
-                <div class="cart-options">
-
-                  細項：
-                  ${optionText}
-
-                </div>
-                `
-                :
-                ""
-              }
-
-            </div>
-
-            <div class="cart-price">
-
-              $${itemTotal}
-
-            </div>
-
-          </div>
-
-
-          <div class="cart-controls">
-
-            <button
-              onclick="changeQty(${index},-1)">
-              −
-            </button>
-
-            <button
-              onclick="changeQty(${index},1)">
-              ＋
-            </button>
-
-            <button
-              onclick="removeItem(${index})">
-              刪除
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-  );
-
-
-  cartItems.innerHTML =
-    html;
-
-
-  document.getElementById(
-    "total"
-  ).textContent =
-    total;
-
-
-  document.getElementById(
-    "count"
-  ).textContent =
-    count;
-
-}
-
-
-/* =====================================
-   數量
-===================================== */
-
-function changeQty(
-  index,
-  amount
-){
-
-  cart[index].qty +=
-    amount;
-
-
-  if(
-    cart[index].qty <= 0
-  ){
-
-    cart.splice(
-      index,
-      1
-    );
-
-  }
-
-
-  renderCart();
-
-}
-
-
-/* =====================================
-   刪除
-===================================== */
-
-function removeItem(
-  index
-){
-
-  cart.splice(
-    index,
-    1
-  );
-
-
-  renderCart();
-
-}
-
-
-/* =====================================
-   送出訂單
-===================================== */
-
-function submitOrder(){
-
-  if(cart.length === 0){
-
-    alert(
-      "請先選擇餐點！"
-    );
-
-    return;
-
-  }
-
-
-  const name =
-    document
-      .getElementById(
-        "customerName"
-      )
-      .value
-      .trim();
-
-
-  const phone =
-    document
-      .getElementById(
-        "phone"
-      )
-      .value
-      .trim();
-
-
-  const note =
-    document
-      .getElementById(
-        "note"
-      )
-      .value
-      .trim();
-
-
-  if(!name){
-
-    alert(
-      "請輸入取餐人姓名！"
-    );
-
-    return;
-
-  }
-
-
-  if(!phone){
-
-    alert(
-      "請輸入手機號碼！"
-    );
-
-    return;
-
-  }
-
-
-  let total = 0;
-
-
-  cart.forEach(
-    function(item){
-
-      total +=
-        item.price *
-        item.qty;
-
-    }
-  );
-
-
-  let message =
-    "隔壁宵夜彰化店\n\n";
-
-
-  message +=
-    "取餐人：" +
-    name +
-    "\n";
-
-
-  message +=
-    "手機：" +
-    phone +
-    "\n\n";
-
-
-  cart.forEach(
-    function(item){
-
-      message +=
-        item.name +
-        " × " +
-        item.qty +
-        " $" +
-        (
-          item.price *
-          item.qty
-        ) +
-        "\n";
-
-
-      if(
-        item.options &&
-        item.options.length
-      ){
-
-        message +=
-          "細項：" +
-          item.options
-          .map(
-            function(o){
-
-              return o.name +
-                (
-                  o.price > 0
-                  ?
-                  " +" +
-                  o.price
-                  :
-                  ""
-                );
-
-            }
-          )
-          .join("、") +
-          "\n";
-
-      }
-
-    }
-  );
-
-
-  message +=
-    "\n合計：$" +
-    total +
-    "\n";
-
-
-  if(note){
-
-    message +=
-      "備註：" +
-      note +
-      "\n";
-
-  }
-
-
-  message +=
-    "\n請等待店家通知「餐點完成」即可取餐。";
-
-
-  /*
-    目前先使用手機分享功能。
-    下一階段會接真正的店家訂單後台。
-  */
-
-  if(
-    navigator.share
-  ){
-
-    navigator.share({
-
-      title:
-        "隔壁宵夜彰化店訂單",
-
-      text:
-        message
-
-    })
-    .then(function(){
-
-      document
-        .getElementById(
-          "successMessage"
-        )
-        .style
-        .display =
-        "block";
-
-    })
-    .catch(function(){
-
-    });
-
+function openHotpotOptions(name,price,itemId){const old=document.getElementById('option-'+itemId);if(old){old.remove();return}const noodles=[["意麵",0],["雞絲",0],["冬粉",0],["泡麵",0],["烏龍麵",20]];const extras=[["加麵",15],["起司",10],["豆皮",20]];let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}"><div class="option-title">${name}｜選擇細項</div><div class="option-group"><div class="option-group-title">麵體</div><div class="option-list">${noodles.map(o=>optionButton(o,true)).join('')}</div></div><div class="option-group"><div class="option-group-title">加料</div><div class="option-list">${extras.map(o=>optionButton(o,false)).join('')}</div></div>`;if(name==='起司牛奶鍋燒')html+=`<div class="option-group"><div class="option-group-title">口味</div><div class="option-list">${optionButton(["麻辣",10],false)}</div></div>`;html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;insertOptionBox(itemId,html)}
+function openOptions(name,price,config,itemId){
+const old=document.getElementById('option-'+itemId);if(old){old.remove();return}
+let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}"><div class="option-title">${name}｜選擇細項</div>`;
+if(config.options){
+  if(config.type==="個人特餐"){
+    const drink=config.options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
+    const other=config.options.filter(o=>o[0]!=="奶茶"&&o[0]!=="冷泡茶"&&o[0]!=="麻辣"&&o[0]!=="香辣");
+    const spicy=config.options.filter(o=>o[0]==="麻辣"||o[0]==="香辣");
+    if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,false)).join('')}</div></div>`;
+    if(spicy.length)html+=`<div class="option-group" data-mutual="spicy"><div class="option-group-title">辣度（只能選1種）</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(drink.length)html+=`<div class="option-group" data-mutual="drink"><div class="option-group-title">飲品（只能選1種）</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
   }else{
+    html+=`<div class="option-group"><div class="option-group-title">可加購</div><div class="option-list">${config.options.map(o=>optionButton(o,false)).join('')}</div></div>`;
+  }
+}
+html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;
+insertOptionBox(itemId,html)}
+function openHiddenOptions(index,itemId){
+  const old=document.getElementById('option-'+itemId);
+  if(old){old.remove();return}
+  const item=hiddenMenus[index];
 
-    alert(
-      message
-    );
-
-
-    document
-      .getElementById(
-        "successMessage"
-      )
-      .style
-      .display =
-      "block";
-
+  if(index!==0){
+    let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(item[0])}" data-base-price="${item[1]}" data-package="${index}">
+      <div class="option-title">🔥 ${item[0]}｜選擇內容</div>`;
+    item[2].forEach(g=>{
+      html+=`<div class="option-group" data-group="${g.fried?'fried':g.cream?'cream':g.main?'main':g.drink?'drink':''}">
+        <div class="option-group-title">${g.title}</div>
+        <div class="option-list">${g.options.map(o=>optionButton(o,!!g.single,g.max)).join('')}</div>
+      </div>`;
+    });
+    html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+      <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;
+    insertOptionBox(itemId,html);
+    return;
   }
 
+  const mains=item[2][0].options;
+  let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(item[0])}" data-base-price="${item[1]}" data-package="0">
+    <div class="option-title">🔥 豬排大套餐｜選擇內容</div>
+    <div class="option-group" data-group="main">
+      <div class="option-group-title">主餐 3 選 1</div>
+      <div class="option-list">
+        ${mains.map(o=>`<button class="option-btn package-main-btn" data-name="${escapeHtml(o[0])}" data-price="0" data-single="1" onclick="selectPackageMain(this,'${itemId}')">${o[0]}</button>`).join('')}
+      </div>
+    </div>
+    <div id="package-main-detail-${itemId}"></div>
+    <div class="option-group" data-group="cream">
+      <div class="option-group-title">奶酥(不吃請勿選擇)</div>
+      <div class="option-list">
+        ${item[2][1].options.map(o=>optionButton(o,true)).join('')}
+      </div>
+    </div>
+    <div class="option-group" data-group="fried">
+      <div class="option-group-title">炸物 4 選 1(奶酥不吃請選兩樣)</div>
+      <div class="option-list">
+        ${item[2][2].options.map(o=>optionButton(o,false,1)).join('')}
+      </div>
+    </div>
+    <div class="option-group" data-group="drink">
+      <div class="option-group-title">飲品</div>
+      <div class="option-list">
+        ${item[2][3].options.map(o=>optionButton(o,true)).join('')}
+      </div>
+    </div>
+    <button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+    <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button>
+  </div>`;
+  insertOptionBox(itemId,html);
 }
 
+function selectPackageMain(btn,itemId){
+  const box=document.getElementById('option-'+itemId);
+  box.querySelectorAll('.package-main-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
 
-/* =====================================
-   防止字串問題
-===================================== */
+  const mainName=btn.dataset.name;
+  let options=[];
 
-function escapeQuotes(
-  text
-){
+  // Exact single-item options for each pork chop main.
+  if(mainName==='豬排炒泡麵'){
+    options=[["加麵",15],["奶茶",10],["冷泡茶",15],["麻辣",5],["香辣",15]];
+  }else if(mainName==='豬排蘑菇麵'){
+    options=[["加麵",15],["奶茶",10],["冷泡茶",15]];
+  }else if(mainName==='豬排黑胡椒麵'){
+    options=[["加麵",15],["奶茶",10],["冷泡茶",15]];
+  }
 
-  return text
-    .replace(
-      /\\/g,
-      "\\\\"
-    )
-    .replace(
-      /'/g,
-      "\\'"
-    );
+  const target=document.getElementById('package-main-detail-'+itemId);
 
+  const drink=options.filter(o=>o[0]==='奶茶'||o[0]==='冷泡茶');
+  const spicy=options.filter(o=>o[0]==='麻辣'||o[0]==='香辣');
+  const noodle=options.filter(o=>o[0]==='加麵');
+
+  let html=`<div class="inline-option-box package-main-detail-box" data-main="${escapeHtml(mainName)}">
+    <div class="option-title">${mainName}｜細項</div>`;
+
+  if(noodle.length){
+    html+=`<div class="option-group">
+      <div class="option-group-title">加麵</div>
+      <div class="option-list">${noodle.map(o=>optionButton(o,false)).join('')}</div>
+    </div>`;
+  }
+  if(drink.length){
+    html+=`<div class="option-group" data-mutual="main-drink">
+      <div class="option-group-title">飲品（只能選1種）</div>
+      <div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div>
+    </div>`;
+  }
+  if(spicy.length){
+    html+=`<div class="option-group" data-mutual="main-spicy">
+      <div class="option-group-title">辣度（只能選1種）</div>
+      <div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div>
+    </div>`;
+  }
+
+  html+=`</div>`;
+  target.innerHTML=html;
+}
+function insertOptionBox(itemId,html){
+  const existing=document.getElementById('option-'+itemId);
+  if(existing){
+    existing.outerHTML=html;
+    return;
+  }
+  document.getElementById(itemId).insertAdjacentHTML('afterend',html);
+}
+function toggleOption(btn){const box=btn.closest('.inline-option-box');const group=btn.closest('.option-group');const isSingle=btn.dataset.single==='1';const max=Number(btn.dataset.max||0);if(isSingle){
+  if(btn.classList.contains('selected')){btn.classList.remove('selected')}
+  else{group.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+}else{const selected=group.querySelectorAll('.option-btn.selected');if(!btn.classList.contains('selected')&&max&&selected.length>=max){alert(`最多選 ${max} 項`);return}btn.classList.toggle('selected')}const fried=box?.querySelector('[data-group="fried"]');const cream=box?.querySelector('[data-group="cream"]');if(fried&&cream){const creamSelected=cream.querySelector('.option-btn.selected');const friedBtns=fried.querySelectorAll('.option-btn');const limit=creamSelected?1:2;friedBtns.forEach(b=>{b.dataset.max=limit});const current=fried.querySelectorAll('.option-btn.selected');if(current.length>limit){current.forEach((b,i)=>{if(i>=limit)b.classList.remove('selected')})}fried.querySelector('.option-group-title').textContent=`炸物 4 選 ${limit}${creamSelected?'':'(奶酥不吃請選兩樣)'}`}}
+function confirmInlineOptions(itemId){
+const box=document.getElementById('option-'+itemId);
+const name=box.dataset.baseName,basePrice=Number(box.dataset.basePrice);
+const selected=Array.from(box.querySelectorAll('.option-btn.selected'));
+
+if(name==='果醬吐司'&&!selected.length){alert('請選擇果醬口味！');return}
+if(name.includes('鍋燒')&&!selected.some(b=>['意麵','雞絲','冬粉','泡麵','烏龍麵'].includes(b.dataset.name))){alert('請先選擇麵體！');return}
+
+if(box.dataset.package==='0'){
+  const mainBtn=box.querySelector('[data-group="main"] .option-btn.selected');
+  const cream=box.querySelector('[data-group="cream"] .option-btn.selected');
+  const fried=box.querySelectorAll('[data-group="fried"] .option-btn.selected');
+  const drink=box.querySelector('[data-group="drink"] .option-btn.selected');
+  if(!mainBtn){alert('請先選擇主餐！');return}
+  if(!cream&&fried.length!==2){alert('奶酥不吃請選兩樣炸物！');return}
+  if(cream&&fried.length!==1){alert('選擇奶酥後，炸物請選1樣！');return}
+  if(!drink){alert('請選擇飲品！');return}
+
+  const mainDetail=box.querySelector('.package-main-detail-box');
+  let options=[];
+  let extra=0;
+
+  if(mainDetail){
+    mainDetail.querySelectorAll('.option-btn.selected').forEach(b=>{
+      const p=Number(b.dataset.price||0);
+      extra+=p;
+      options.push({name:b.dataset.name,price:p});
+    });
+  }
+
+  options.push({name:mainBtn.dataset.name,price:0});
+  if(cream)options.push({name:cream.dataset.name,price:0});
+  fried.forEach(b=>options.push({name:b.dataset.name,price:0}));
+  options.push({name:drink.dataset.name,price:Number(drink.dataset.price||0)});
+  extra+=Number(drink.dataset.price||0);
+
+  addToCart(name,basePrice+extra,options);
+  box.remove();
+  return;
+}
+let extra=0;
+const options=selected.map(b=>{
+  const p=Number(b.dataset.price);extra+=p;
+  return{name:b.dataset.name,price:p};
+});
+addToCart(name,basePrice+extra,options);
+box.remove();
 }
 
-
-function escapeHtml(
-  text
-){
-
-  return String(text)
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    );
-
+function closePackageDetail(){
+  const box=document.getElementById('package-main-detail');
+  if(box) box.remove();
 }
 
+function confirmPackageDetail(){
+  const box=document.getElementById('package-main-detail');
+  if(!box)return;
 
-/* =====================================
-   啟動
-===================================== */
+  const mainName=box.dataset.main;
+  const mainDetail=Array.from(box.querySelectorAll('[data-group="main-detail"] .option-btn.selected,[data-group="main-drink"] .option-btn.selected,[data-group="main-spicy"] .option-btn.selected'));
+  const cream=box.querySelector('[data-group="cream"] .option-btn.selected');
+  const fried=box.querySelectorAll('[data-group="fried"] .option-btn.selected');
+  const drink=box.querySelector('[data-group="drink"] .option-btn.selected');
 
-renderMenu();
+  if(!cream&&fried.length!==2){alert('奶酥不吃請選兩樣炸物！');return}
+  if(cream&&fried.length!==1){alert('選擇奶酥後，炸物請選1樣！');return}
+  if(!drink){alert('請選擇飲品！');return}
 
-renderCart();
+  let options=[];
+  let extra=0;
 
+  mainDetail.forEach(b=>{const p=Number(b.dataset.price);extra+=p;options.push({name:b.dataset.name,price:p})});
+  if(cream)options.push({name:cream.dataset.name,price:0});
+  fried.forEach(b=>options.push({name:b.dataset.name,price:0}));
+  if(drink){const p=Number(drink.dataset.price);extra+=p;options.push({name:drink.dataset.name,price:p})}
+
+  addToCart('豬排大套餐｜'+mainName,Number(box.dataset.basePrice)+extra,options);
+  box.remove();
+}
+function closeOptions(itemId){const box=document.getElementById('option-'+itemId);if(box)box.remove()}
+function addToCart(name,price,options){cart.push({name,price,options:options||[],qty:1});renderCart()}
+function renderCart(){const el=document.getElementById('cartItems');if(!cart.length){el.innerHTML='尚未選擇餐點';document.getElementById('total').textContent='0';document.getElementById('count').textContent='0';return}let html='',total=0,count=0;cart.forEach((item,i)=>{const itemTotal=item.price*item.qty;total+=itemTotal;count+=item.qty;const opt=item.options?.length?`<div class="cart-options">細項：${item.options.map(o=>o.name+(o.price>0?' +'+o.price:'')).join('、')}</div>`:'';html+=`<div class="cart-row"><div class="cart-main"><div><div class="cart-name">${item.name} × ${item.qty}</div>${opt}</div><div class="cart-price">$${itemTotal}</div></div><div class="cart-controls"><button onclick="changeQty(${i},-1)">−</button><button onclick="changeQty(${i},1)">＋</button><button onclick="removeItem(${i})">刪除</button></div></div>`});el.innerHTML=html;document.getElementById('total').textContent=total;document.getElementById('count').textContent=count}
+function changeQty(i,a){cart[i].qty+=a;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
+function removeItem(i){cart.splice(i,1);renderCart()}
+
+function pad2(n){return String(n).padStart(2,'0')}
+function initPickupTimes(){
+  const select=document.getElementById('pickupTime');
+  if(!select)return;
+  const now=new Date();
+  const start=new Date(now.getTime()+30*60000);
+  // Round up to the next 10-minute slot.
+  start.setSeconds(0,0);
+  const mins=start.getMinutes();
+  const rounded=Math.ceil(mins/10)*10;
+  if(rounded===60){start.setHours(start.getHours()+1);start.setMinutes(0)}
+  else start.setMinutes(rounded);
+
+  // Offer all selectable times from +30 minutes onward for the next 24 hours,
+  // in 10-minute increments.
+  for(let i=0;i<144;i++){
+    const t=new Date(start.getTime()+i*10*60000);
+    const value=`${pad2(t.getHours())}:${pad2(t.getMinutes())}`;
+    const option=document.createElement('option');
+    option.value=value;
+    option.textContent=value;
+    select.appendChild(option);
+  }
+}
+
+function submitOrder(){if(!cart.length){alert('請先選擇餐點！');return}const name=document.getElementById('customerName').value.trim(),phone=document.getElementById('phone').value.trim();if(!name){alert('請輸入姓氏＋先生或小姐！');return}if(!phone){alert('請輸入手機號碼！');return}let total=0;const pickup=document.getElementById('pickupTime').value;let message='隔壁宵夜彰化店\n\n取餐人：'+name+'\n手機：'+phone+'\n取餐時間：'+(pickup||'不指定（等候店家點選完成訂單即可取餐）')+'\n\n';cart.forEach(item=>{total+=item.price*item.qty;message+=item.name+' × '+item.qty+' $'+(item.price*item.qty)+'\n';if(item.options?.length)message+='細項：'+item.options.map(o=>o.name+(o.price>0?' +'+o.price:'')).join('、')+'\n'});message+='\n合計：$'+total+'\n\n請等待店家通知「餐點完成」即可取餐。';if(navigator.share){navigator.share({title:'隔壁宵夜彰化店訂單',text:message}).then(()=>document.getElementById('successMessage').style.display='block').catch(()=>{})}else{alert(message);document.getElementById('successMessage').style.display='block'}}
+
+function isOrderingOpen(){
+  const now=new Date();
+  const minutes=now.getHours()*60+now.getMinutes();
+  // Open from 18:00 through 01:10 the following day.
+  return minutes>=18*60 || minutes<=1*60+10;
+}
+function applyOrderingHours(){
+  const closed=document.getElementById('orderClosed');
+  const open=isOrderingOpen();
+  closed.style.display=open?'none':'flex';
+  document.body.style.overflow=open?'':'hidden';
+  document.querySelectorAll('.add-btn,.confirm-option,.submit-btn').forEach(btn=>{
+    btn.disabled=!open;
+    btn.style.opacity=open?'1':'.55';
+    btn.style.pointerEvents=open?'auto':'none';
+  });
+}
+
+renderMenu();renderCart();initPickupTimes();applyOrderingHours();setInterval(applyOrderingHours,60000);
 </script>
-
 </body>
 </html>
