@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>隔壁宵夜彰化店｜手機點餐</title>
+
+  <style>
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
+    body {
+
+      margin: 0;
+
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+
+      background: #f6f6f6;
+
+      color: #222;
+
+    }
+
+    header {
+
+      background: #111;
+
+      color: white;
+
+      padding: 24px 18px;
+
+      text-align: center;
+
+    }
+
+    header h1 {
+
+      margin: 0;
+
+      font-size: 28px;
+
+    }
+
+    header p {
+
+      margin: 8px 0 0;
+
+      color: #ccc;
+
+      font-size: 15px;
+
+    }
+
+    .container {
+
+      max-width: 700px;
+
+      margin: auto;
+
+      padding: 16px;
+
+      padding-bottom: 130px;
+
+    }
+
+    .notice {
+
+      background: white;
+
+      border-radius: 14px;
+
+      padding: 15px;
+
+      margin-bottom: 18px;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+
+      text-align: center;
+
+    }
+
+    .category {
+
+      font-size: 21px;
+
+      font-weight: bold;
+
+      margin: 24px 0 12px;
+
+    }
+
+    .item {
+
+      background: white;
+
+      border-radius: 14px;
+
+      padding: 16px;
+
+      margin-bottom: 12px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+
+    }
+
+    .item-info {
+
+      flex: 1;
+
+    }
+
+    .item-name {
+
+      font-size: 17px;
+
+      font-weight: bold;
+
+    }
+
+    .price {
+
+      margin-top: 6px;
+
+      font-size: 16px;
+
+      color: #d35400;
+
+      font-weight: bold;
+
+    }
+
+    button {
+
+      border: none;
+
+      cursor: pointer;
+
+      font-size: 16px;
+
+    }
+
+    .add-btn {
+
+      background: #111;
+
+      color: white;
+
+      border-radius: 10px;
+
+      padding: 10px 15px;
+
+      min-width: 70px;
+
+    }
+
+    .cart {
+
+      background: white;
+
+      border-radius: 14px;
+
+      padding: 18px;
+
+      margin-top: 25px;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+
+    }
+
+    .cart h2 {
+
+      margin-top: 0;
+
+    }
+
+    .cart-row {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      padding: 8px 0;
+
+      border-bottom: 1px solid #eee;
+
+    }
+
+    .total {
+
+      font-size: 21px;
+
+      font-weight: bold;
+
+      margin-top: 15px;
+
+      text-align: right;
+
+    }
+
+    .order-form {
+
+      margin-top: 20px;
+
+    }
+
+    input,
+
+    select,
+
+    textarea {
+
+      width: 100%;
+
+      padding: 13px;
+
+      margin-top: 8px;
+
+      margin-bottom: 14px;
+
+      border: 1px solid #ddd;
+
+      border-radius: 10px;
+
+      font-size: 16px;
+
+    }
+
+    .submit-btn {
+
+      width: 100%;
+
+      background: #d35400;
+
+      color: white;
+
+      padding: 15px;
+
+      border-radius: 12px;
+
+      font-size: 18px;
+
+      font-weight: bold;
+
+    }
+
+    .bottom-cart {
+
+      position: fixed;
+
+      left: 12px;
+
+      right: 12px;
+
+      bottom: 12px;
+
+      background: #111;
+
+      color: white;
+
+      padding: 15px 18px;
+
+      border-radius: 14px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      box-shadow: 0 5px 20px rgba(0,0,0,.25);
+
+    }
+
+    .bottom-cart button {
+
+      background: #d35400;
+
+      color: white;
+
+      padding: 10px 15px;
+
+      border-radius: 9px;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<header>
+
+  <h1>隔壁宵夜彰化店</h1>
+
+  <p>手機點餐系統｜外帶專用</p>
+
+</header>
+
+<div class="container">
+
+  <div class="notice">
+
+    🥡 外帶點餐<br>
+
+    選擇餐點 → 加入購物車 → 填寫資料 → 完成訂單
+
+  </div>
+
+  <div class="category">🍜 麵食</div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">韓式風味起司拉麵</div>
+
+      <div class="price">$120</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('韓式風味起司拉麵',120)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">韓式海帶嫩芽拉麵</div>
+
+      <div class="price">$130</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('韓式海帶嫩芽拉麵',130)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">蔥燒牛肉風味麵</div>
+
+      <div class="price">$85</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('蔥燒牛肉風味麵',85)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">排骨雞湯風味麵</div>
+
+      <div class="price">$85</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('排骨雞湯風味麵',85)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="category">🥟 套餐</div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">蔥燒牛肉風味麵＋水餃</div>
+
+      <div class="price">$135</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('蔥燒牛肉風味麵＋水餃',135)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">排骨雞湯風味麵＋水餃</div>
+
+      <div class="price">$135</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('排骨雞湯風味麵＋水餃',135)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="category">🥚 點心</div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">雙蛋薯餅起司蛋塔</div>
+
+      <div class="price">$55</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('雙蛋薯餅起司蛋塔',55)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="item">
+
+    <div class="item-info">
+
+      <div class="item-name">營養蛋餅（火腿＋鮪魚）</div>
+
+      <div class="price">$60</div>
+
+    </div>
+
+    <button class="add-btn" onclick="addItem('營養蛋餅（火腿＋鮪魚）',60)">
+
+      加入
+
+    </button>
+
+  </div>
+
+  <div class="cart">
+
+    <h2>🛒 訂單</h2>
+
+    <div id="cartItems">
+
+      尚未選擇餐點
+
+    </div>
+
+    <div class="total">
+
+      合計：$<span id="total">0</span>
+
+    </div>
+
+    <div class="order-form">
+
+      <label>取餐人姓名</label>
+
+      <input id="customerName" type="text" placeholder="請輸入姓名">
+
+      <label>手機號碼</label>
+
+      <input id="phone" type="tel" placeholder="請輸入手機號碼">
+
+      <label>預計取餐時間</label>
+
+      <select id="pickupTime">
+
+        <option value="">請選擇</option>
+
+        <option>立即取餐</option>
+
+        <option>30分鐘後</option>
+
+        <option>1小時後</option>
+
+        <option>其他時間</option>
+
+      </select>
+
+      <label>備註</label>
+
+      <textarea id="note" rows="3" placeholder="例如：不要香菜、辣度需求等"></textarea>
+
+      <button class="submit-btn" onclick="submitOrder()">
+
+        確認送出訂單
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="bottom-cart">
+
+  <div>
+
+    🛒 已選 <span id="count">0</span> 項
+
+  </div>
+
+  <button onclick="document.querySelector('.cart').scrollIntoView({behavior:'smooth'})">
+
+    查看訂單
+
+  </button>
+
+</div>
+
+<script>
+
+let cart = [];
+
+function addItem(name, price) {
+
+  const existing = cart.find(item => item.name === name);
+
+  if (existing) {
+
+    existing.qty++;
+
+  } else {
+
+    cart.push({
+
+      name: name,
+
+      price: price,
+
+      qty: 1
+
+    });
+
+  }
+
+  updateCart();
+
+}
+
+function updateCart() {
+
+  const cartBox = document.getElementById("cartItems");
+
+  if (cart.length === 0) {
+
+    cartBox.innerHTML = "尚未選擇餐點";
+
+    document.getElementById("total").innerText = "0";
+
+    document.getElementById("count").innerText = "0";
+
+    return;
+
+  }
+
+  let html = "";
+
+  let total = 0;
+
+  let count = 0;
+
+  cart.forEach((item, index) => {
+
+    const subtotal = item.price * item.qty;
+
+    total += subtotal;
+
+    count += item.qty;
+
+    html += `
+
+      <div class="cart-row">
+
+        <div>
+
+          ${item.name}<br>
+
+          × ${item.qty}
+
+        </div>
+
+        <div>
+
+          $${subtotal}
+
+          <button onclick="removeItem(${index})">❌</button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  cartBox.innerHTML = html;
+
+  document.getElementById("total").innerText = total;
+
+  document.getElementById("count").innerText = count;
+
+}
+
+function removeItem(index) {
+
+  cart.splice(index, 1);
+
+  updateCart();
+
+}
+
+function submitOrder() {
+
+  if (cart.length === 0) {
+
+    alert("請先選擇餐點！");
+
+    return;
+
+  }
+
+  const name = document.getElementById("customerName").value;
+
+  const phone = document.getElementById("phone").value;
+
+  const time = document.getElementById("pickupTime").value;
+
+  if (!name || !phone || !time) {
+
+    alert("請完整填寫取餐資料！");
+
+    return;
+
+  }
+
+  let message = "訂單已建立！\\n\\n";
+
+  cart.forEach(item => {
+
+    message += `${item.name} × ${item.qty}\\n`;
+
+  });
+
+  message += `\\n總金額：$${document.getElementById("total").innerText}`;
+
+  message += `\\n取餐人：${name}`;
+
+  message += `\\n電話：${phone}`;
+
+  message += `\\n取餐時間：${time}`;
+
+  alert(message);
+
+}
+
+</script>
+
+</body>
+
+</html>
