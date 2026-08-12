@@ -38,7 +38,7 @@ header{
 
   text-align:center;
 
-  padding:25px 16px;
+  padding:28px 16px;
 
 }
 
@@ -48,6 +48,8 @@ header h1{
 
   font-size:30px;
 
+  font-weight:800;
+
 }
 
 header p{
@@ -56,7 +58,7 @@ header p{
 
   color:#ccc;
 
-  font-size:16px;
+  font-size:17px;
 
 }
 
@@ -66,7 +68,7 @@ header p{
 
   margin:auto;
 
-  padding:16px 16px 140px;
+  padding:16px 16px 150px;
 
 }
 
@@ -74,29 +76,61 @@ header p{
 
   background:#fff;
 
-  border-radius:16px;
+  border-radius:18px;
 
-  padding:18px;
+  padding:20px;
 
-  margin-bottom:20px;
+  margin-bottom:24px;
 
-  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
 
   text-align:center;
 
-  font-size:17px;
+  font-size:18px;
 
   line-height:1.8;
 
 }
 
-.category{
+.notice-title{
 
   font-size:23px;
 
   font-weight:800;
 
-  margin:28px 2px 12px;
+}
+
+.notice .small{
+
+  margin-top:8px;
+
+}
+
+.pickup-notice{
+
+  margin-top:12px;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  background:#fff4e8;
+
+  color:#c84f00;
+
+  font-size:15px;
+
+  font-weight:700;
+
+}
+
+.category{
+
+  font-size:24px;
+
+  font-weight:800;
+
+  margin:30px 2px 12px;
 
 }
 
@@ -104,11 +138,11 @@ header p{
 
   background:#fff;
 
-  border-radius:15px;
+  border-radius:16px;
 
-  padding:16px;
+  padding:17px;
 
-  margin-bottom:11px;
+  margin-bottom:12px;
 
   display:flex;
 
@@ -126,6 +160,8 @@ header p{
 
   flex:1;
 
+  min-width:0;
+
 }
 
 .item-name{
@@ -134,13 +170,15 @@ header p{
 
   font-weight:700;
 
+  line-height:1.5;
+
 }
 
 .price{
 
   margin-top:5px;
 
-  font-size:18px;
+  font-size:19px;
 
   color:#d35400;
 
@@ -156,13 +194,21 @@ header p{
 
   color:white;
 
-  border-radius:11px;
+  border-radius:12px;
 
-  padding:11px 16px;
+  padding:12px 18px;
 
-  font-size:16px;
+  font-size:17px;
 
-  min-width:72px;
+  min-width:76px;
+
+  cursor:pointer;
+
+}
+
+.add-btn:active{
+
+  transform:scale(.96);
 
 }
 
@@ -170,15 +216,15 @@ header p{
 
   color:#777;
 
-  font-size:13px;
+  font-size:14px;
 
   line-height:1.7;
 
-  margin:4px 2px 10px;
+  margin:5px 2px 14px;
 
 }
 
-.cart{
+.option-box{
 
   background:#fff;
 
@@ -186,9 +232,135 @@ header p{
 
   padding:18px;
 
-  margin-top:30px;
+  margin:10px 0 15px;
 
-  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+
+}
+
+.option-title{
+
+  font-size:18px;
+
+  font-weight:800;
+
+  margin-bottom:12px;
+
+}
+
+.option-group{
+
+  margin-bottom:16px;
+
+}
+
+.option-group-title{
+
+  font-weight:700;
+
+  margin-bottom:8px;
+
+}
+
+.option-list{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+}
+
+.option-btn{
+
+  border:1px solid #ddd;
+
+  background:#fff;
+
+  color:#222;
+
+  border-radius:10px;
+
+  padding:10px 12px;
+
+  font-size:15px;
+
+  cursor:pointer;
+
+}
+
+.option-btn.selected{
+
+  background:#111;
+
+  color:#fff;
+
+  border-color:#111;
+
+}
+
+.option-price{
+
+  color:#d35400;
+
+  font-weight:700;
+
+}
+
+.confirm-option{
+
+  width:100%;
+
+  border:0;
+
+  background:#d35400;
+
+  color:#fff;
+
+  border-radius:12px;
+
+  padding:14px;
+
+  font-size:17px;
+
+  font-weight:800;
+
+  margin-top:5px;
+
+}
+
+.cancel-option{
+
+  width:100%;
+
+  border:1px solid #ddd;
+
+  background:#fff;
+
+  color:#555;
+
+  border-radius:12px;
+
+  padding:12px;
+
+  font-size:16px;
+
+  margin-top:8px;
+
+}
+
+.cart{
+
+  background:#fff;
+
+  border-radius:18px;
+
+  padding:20px;
+
+  margin-top:35px;
+
+  box-shadow:0 2px 12px rgba(0,0,0,.07);
 
 }
 
@@ -196,33 +368,81 @@ header p{
 
   margin:0 0 15px;
 
+  font-size:25px;
+
 }
 
 .cart-row{
+
+  padding:14px 0;
+
+  border-bottom:1px solid #eee;
+
+}
+
+.cart-main{
 
   display:flex;
 
   justify-content:space-between;
 
+  align-items:flex-start;
+
   gap:10px;
 
-  padding:12px 0;
+}
 
-  border-bottom:1px solid #eee;
+.cart-name{
+
+  font-weight:700;
 
   font-size:16px;
 
 }
 
-.cart-row button{
+.cart-price{
+
+  font-weight:700;
+
+  white-space:nowrap;
+
+}
+
+.cart-options{
+
+  color:#777;
+
+  font-size:13px;
+
+  margin-top:5px;
+
+  line-height:1.6;
+
+}
+
+.cart-controls{
+
+  margin-top:9px;
+
+  display:flex;
+
+  justify-content:flex-end;
+
+  align-items:center;
+
+  gap:7px;
+
+}
+
+.cart-controls button{
 
   border:0;
 
   background:#eee;
 
-  font-size:18px;
+  font-size:17px;
 
-  padding:5px 9px;
+  padding:5px 10px;
 
   border-radius:7px;
 
@@ -232,11 +452,11 @@ header p{
 
   text-align:right;
 
-  font-size:22px;
+  font-size:23px;
 
   font-weight:800;
 
-  margin:18px 0;
+  margin:20px 0;
 
 }
 
@@ -244,21 +464,21 @@ header p{
 
   display:block;
 
-  margin:13px 0 0;
+  margin:15px 0 0;
 
   font-size:16px;
+
+  font-weight:600;
 
 }
 
 input,
 
-select,
-
 textarea{
 
   width:100%;
 
-  padding:13px;
+  padding:14px;
 
   margin-top:7px;
 
@@ -267,6 +487,8 @@ textarea{
   border-radius:11px;
 
   font-size:16px;
+
+  background:#fff;
 
 }
 
@@ -280,7 +502,7 @@ textarea{
 
   color:white;
 
-  padding:15px;
+  padding:16px;
 
   border-radius:12px;
 
@@ -288,7 +510,7 @@ textarea{
 
   font-weight:800;
 
-  margin-top:10px;
+  margin-top:18px;
 
 }
 
@@ -308,7 +530,7 @@ textarea{
 
   padding:15px 18px;
 
-  border-radius:16px;
+  border-radius:17px;
 
   display:flex;
 
@@ -318,7 +540,7 @@ textarea{
 
   box-shadow:0 5px 20px rgba(0,0,0,.25);
 
-  z-index:10;
+  z-index:100;
 
 }
 
@@ -330,11 +552,93 @@ textarea{
 
   color:white;
 
-  padding:11px 17px;
+  padding:12px 18px;
 
-  border-radius:10px;
+  border-radius:11px;
 
   font-size:16px;
+
+  font-weight:700;
+
+}
+
+.hidden-title{
+
+  margin-top:42px;
+
+  background:#111;
+
+  color:#fff;
+
+  padding:15px;
+
+  border-radius:14px;
+
+  font-size:23px;
+
+  font-weight:800;
+
+  text-align:center;
+
+}
+
+.hidden-subtitle{
+
+  text-align:center;
+
+  color:#777;
+
+  font-size:14px;
+
+  margin:8px 0 15px;
+
+}
+
+.success{
+
+  background:#eaf8ed;
+
+  color:#217a35;
+
+  padding:15px;
+
+  border-radius:12px;
+
+  margin-top:15px;
+
+  line-height:1.7;
+
+  display:none;
+
+}
+
+@media(max-width:480px){
+
+  header h1{
+
+    font-size:28px;
+
+  }
+
+  .item-name{
+
+    font-size:17px;
+
+  }
+
+  .add-btn{
+
+    min-width:72px;
+
+    padding:11px 13px;
+
+  }
+
+  .category{
+
+    font-size:23px;
+
+  }
 
 }
 
@@ -354,105 +658,125 @@ textarea{
 
 <div class="container">
 
-<div class="notice">
+  <div class="notice">
 
-  🥡 外帶點餐<br>
+    <div class="notice-title">🥡 外帶點餐</div>
 
-  選擇餐點 → 加入購物車 → 填寫資料 → 完成訂單
+    選擇餐點 → 選擇細項 → 加入購物車 → 填寫資料 → 完成訂單
 
-  <div class="small">
+    <div class="small">
 
-    彰化市仁愛路149號｜04-7222297
+      彰化市仁愛路149號｜04-7222297
+
+    </div>
+
+    <div class="pickup-notice">
+
+      📢 訂單送出後，請等待店家通知「餐點完成」即可取餐
+
+    </div>
+
+  </div>
+
+  <div id="menu"></div>
+
+  <div class="cart" id="cartBox">
+
+    <h2>🛒 訂單</h2>
+
+    <div id="cartItems">
+
+      尚未選擇餐點
+
+    </div>
+
+    <div class="total">
+
+      合計：$<span id="total">0</span>
+
+    </div>
+
+    <div class="order-form">
+
+      <label>取餐人姓名</label>
+
+      <input
+
+        id="customerName"
+
+        type="text"
+
+        placeholder="請輸入姓名"
+
+      >
+
+      <label>手機號碼</label>
+
+      <input
+
+        id="phone"
+
+        type="tel"
+
+        placeholder="請輸入手機號碼"
+
+      >
+
+      <label>備註</label>
+
+      <textarea
+
+        id="note"
+
+        rows="3"
+
+        placeholder="例如：不要香菜、辣度需求等"
+
+      ></textarea>
+
+      <button class="submit-btn" onclick="submitOrder()">
+
+        確認送出訂單
+
+      </button>
+
+      <div class="success" id="successMessage">
+
+        訂單已送出！<br>
+
+        請等待店家通知「餐點完成」後再前往取餐。
+
+      </div>
+
+    </div>
 
   </div>
 
 </div>
 
-<div id="menu"></div>
-
-<div class="cart" id="cartBox">
-
-<h2>🛒 訂單</h2>
-
-<div id="cartItems">
-
-  尚未選擇餐點
-
-</div>
-
-<div class="total">
-
-  合計：$<span id="total">0</span>
-
-</div>
-
-<div class="order-form">
-
-<label>取餐人姓名</label>
-
-<input id="customerName" type="text" placeholder="請輸入姓名">
-
-<label>手機號碼</label>
-
-<input id="phone" type="tel" placeholder="請輸入手機號碼">
-
-<label>預計取餐時間</label>
-
-<select id="pickupTime">
-
-  <option value="">請選擇</option>
-
-  <option>立即取餐</option>
-
-  <option>30分鐘後</option>
-
-  <option>1小時後</option>
-
-  <option>其他時間</option>
-
-</select>
-
-<label>備註</label>
-
-<textarea
-
-  id="note"
-
-  rows="3"
-
-  placeholder="例如：不要香菜、辣度需求等">
-
-</textarea>
-
-<button class="submit-btn" onclick="submitOrder()">
-
-  確認送出訂單
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
 <div class="bottom-cart">
 
-<div>
+  <div>
 
-  🛒 已選 <span id="count">0</span> 項
+    🛒 已選 <span id="count">0</span> 項
 
-</div>
+  </div>
 
-<button onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">
+  <button onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">
 
-  查看訂單
+    查看訂單
 
-</button>
+  </button>
 
 </div>
 
 <script>
+
+/* =========================
+
+   菜單
+
+========================= */
 
 const menus = [
 
@@ -476,7 +800,21 @@ const menus = [
 
 ],
 
-"厚奶酥可加起司 +10、麻糬 +15、酥皮 +15"
+{
+
+  type:"奶酥",
+
+  options:[
+
+    ["起司",10],
+
+    ["麻糬",15],
+
+    ["酥皮",15]
+
+  ]
+
+}
 
 ],
 
@@ -508,7 +846,19 @@ const menus = [
 
 ],
 
-"可加雙蛋 +15、起司 +10"
+{
+
+  type:"蛋餅",
+
+  options:[
+
+    ["雙蛋",15],
+
+    ["起司",10]
+
+  ]
+
+}
 
 ],
 
@@ -538,7 +888,17 @@ const menus = [
 
 ],
 
-"可加起司 +10"
+{
+
+  type:"吐司",
+
+  options:[
+
+    ["起司",10]
+
+  ]
+
+}
 
 ],
 
@@ -558,7 +918,13 @@ const menus = [
 
 ],
 
-"紅茶固定甜度去冰；麥茶無糖去冰、每日限量；奶茶固定甜度去冰；冷泡茶無糖去冰"
+{
+
+  type:"飲品",
+
+  options:[]
+
+}
 
 ],
 
@@ -576,7 +942,25 @@ const menus = [
 
 ],
 
-"皆有附蛋；可加麵 +15、奶茶 +10、冷泡茶 +15、麻辣 +5、香辣 +15"
+{
+
+  type:"個人特餐",
+
+  options:[
+
+    ["加麵",15],
+
+    ["奶茶",10],
+
+    ["冷泡茶",15],
+
+    ["麻辣",5],
+
+    ["香辣",15]
+
+  ]
+
+}
 
 ],
 
@@ -602,7 +986,19 @@ const menus = [
 
 ],
 
-"皆有附蛋；可加麵 +15、起司 +10"
+{
+
+  type:"麵食",
+
+  options:[
+
+    ["加麵",15],
+
+    ["起司",10]
+
+  ]
+
+}
 
 ],
 
@@ -626,7 +1022,67 @@ const menus = [
 
 ],
 
-"皆有附蛋；可選意麵／雞絲／冬粉／泡麵；加麵 +15、起司 +10、豆皮 +20、烏龍麵 +20、麻辣 +10、不要火鍋料"
+{
+
+  type:"鍋燒",
+
+  groups:[
+
+    {
+
+      title:"麵體",
+
+      options:[
+
+        ["意麵",0],
+
+        ["雞絲",0],
+
+        ["冬粉",0],
+
+        ["泡麵",0],
+
+        ["烏龍麵",20]
+
+      ],
+
+      single:true
+
+    },
+
+    {
+
+      title:"加料",
+
+      options:[
+
+        ["加麵",15],
+
+        ["起司",10],
+
+        ["豆皮",20],
+
+        ["麻辣",10]
+
+      ]
+
+    },
+
+    {
+
+      title:"其他",
+
+      options:[
+
+        ["不要火鍋料",0]
+
+      ]
+
+    }
+
+  ]
+
+}
 
 ],
 
@@ -674,13 +1130,285 @@ const menus = [
 
 ["日式炸豬排",70]
 
+],
+
+null
+
+]
+
+];
+
+/* =========================
+
+   隱藏版菜單
+
+========================= */
+
+const hiddenMenus = [
+
+[
+
+"豬排大套餐",
+
+190,
+
+[
+
+{
+
+title:"主餐 3 選 1",
+
+single:true,
+
+options:[
+
+["豬排炒泡麵",0],
+
+["豬排蘑菇麵",0],
+
+["豬排黑胡椒麵",0]
+
+]
+
+},
+
+{
+
+title:"奶酥 6 選 1",
+
+single:true,
+
+options:[
+
+["原味",0],
+
+["可可",0],
+
+["抹茶",0],
+
+["花生",0],
+
+["芝麻",0],
+
+["香蒜",0]
+
+]
+
+},
+
+{
+
+title:"炸物 4 選 1",
+
+single:true,
+
+options:[
+
+["甜不辣",0],
+
+["美國脆薯",0],
+
+["小雞球",0],
+
+["芋泥球",0]
+
+]
+
+},
+
+{
+
+title:"飲品",
+
+single:true,
+
+options:[
+
+["紅茶",0],
+
+["奶茶",10],
+
+["冷泡茶",15]
+
+]
+
+}
+
+]
+
+],
+
+[
+
+"單人獨享餐",
+
+125,
+
+[
+
+{
+
+title:"主餐 2 選 1",
+
+single:true,
+
+options:[
+
+["古早味紅蔥雞絲麵",0],
+
+["古早味剝椒雞絲麵",10]
+
+]
+
+},
+
+{
+
+title:"奶酥 6 選 1",
+
+single:true,
+
+options:[
+
+["原味",0],
+
+["可可",0],
+
+["抹茶",0],
+
+["花生",0],
+
+["芝麻",0],
+
+["香蒜",0]
+
+]
+
+},
+
+{
+
+title:"飲品",
+
+single:true,
+
+options:[
+
+["紅茶",0],
+
+["奶茶",10],
+
+["冷泡茶",15]
+
+]
+
+}
+
+]
+
+],
+
+[
+
+"單人經濟套餐",
+
+135,
+
+[
+
+{
+
+title:"主餐",
+
+single:true,
+
+options:[
+
+["招牌炒泡麵",0]
+
+]
+
+},
+
+{
+
+title:"炸物",
+
+single:true,
+
+options:[
+
+["小肉豆",0]
+
+]
+
+},
+
+{
+
+title:"飲品",
+
+single:true,
+
+options:[
+
+["紅茶",0],
+
+["奶茶",10],
+
+["冷泡茶",15]
+
+]
+
+}
+
+]
+
+],
+
+[
+
+"日式炸豬排烏龍麵",
+
+135,
+
+[
+
+{
+
+title:"加料選擇",
+
+options:[
+
+["白醬",0],
+
+["蘑菇",0],
+
+["黑胡椒",0]
+
+]
+
+}
+
 ]
 
 ]
 
 ];
 
+/* =========================
+
+   購物車
+
+========================= */
+
 let cart = [];
+
+/* =========================
+
+   顯示菜單
+
+========================= */
 
 function renderMenu(){
 
@@ -692,7 +1420,7 @@ function renderMenu(){
 
     const items = menu[1];
 
-    const note = menu[2];
+    const options = menu[2];
 
     html += `<div class="category">${category}</div>`;
 
@@ -726,7 +1454,7 @@ function renderMenu(){
 
           class="add-btn"
 
-          onclick="addItem('${name.replace(/'/g,"\\'")}',${price})">
+          onclick='openOptions(${JSON.stringify(name)},${price},${JSON.stringify(options)})'>
 
           加入
 
@@ -738,19 +1466,65 @@ function renderMenu(){
 
     });
 
-    if(note){
+  });
 
-      html += `
+  html += `
 
-      <div class="small">
+    <div class="hidden-title">
 
-        ※ ${note}
+      🔥 隱藏版菜單
+
+    </div>
+
+    <div class="hidden-subtitle">
+
+      隱藏版餐點｜數量有限，售完為止
+
+    </div>
+
+  `;
+
+  hiddenMenus.forEach(function(item,index){
+
+    const name = item[0];
+
+    const price = item[1];
+
+    const groups = item[2];
+
+    html += `
+
+      <div class="item">
+
+        <div class="item-info">
+
+          <div class="item-name">
+
+            ${name}
+
+          </div>
+
+          <div class="price">
+
+            $${price}
+
+          </div>
+
+        </div>
+
+        <button
+
+          class="add-btn"
+
+          onclick='openHiddenOptions(${index})'>
+
+          加入
+
+        </button>
 
       </div>
 
-      `;
-
-    }
+    `;
 
   });
 
@@ -758,49 +1532,455 @@ function renderMenu(){
 
 }
 
-function addItem(name,price){
+/* =========================
 
-  const existing = cart.find(function(item){
+   一般餐點細項
 
-    return item.name === name;
+========================= */
 
-  });
+function openOptions(name,price,config){
 
-  if(existing){
+  if(!config || (!config.options && !config.groups)){
 
-    existing.qty++;
+    addToCart(name,price,[]);
 
-  }else{
+    return;
 
-    cart.push({
+  }
 
-      name:name,
+  let html = `
 
-      price:price,
+    <div class="option-box" id="optionBox">
 
-      qty:1
+      <div class="option-title">
+
+        ${name}｜選擇細項
+
+      </div>
+
+  `;
+
+  if(config.options){
+
+    html += `
+
+      <div class="option-group">
+
+        <div class="option-group-title">
+
+          可加購
+
+        </div>
+
+        <div class="option-list">
+
+    `;
+
+    config.options.forEach(function(option){
+
+      html += `
+
+        <button
+
+          class="option-btn"
+
+          data-name="${option[0]}"
+
+          data-price="${option[1]}"
+
+          onclick="toggleOption(this)">
+
+          ${option[0]}
+
+          ${option[1] > 0 ? `<span class="option-price"> +${option[1]}</span>` : ""}
+
+        </button>
+
+      `;
+
+    });
+
+    html += `
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+  if(config.groups){
+
+    config.groups.forEach(function(group){
+
+      html += `
+
+        <div class="option-group">
+
+          <div class="option-group-title">
+
+            ${group.title}
+
+          </div>
+
+          <div class="option-list">
+
+      `;
+
+      group.options.forEach(function(option){
+
+        html += `
+
+          <button
+
+            class="option-btn"
+
+            data-name="${option[0]}"
+
+            data-price="${option[1]}"
+
+            data-single="${group.single ? "1" : "0"}"
+
+            onclick="toggleGroupOption(this)">
+
+            ${option[0]}
+
+            ${option[1] > 0 ? `<span class="option-price"> +${option[1]}</span>` : ""}
+
+          </button>
+
+        `;
+
+      });
+
+      html += `
+
+          </div>
+
+        </div>
+
+      `;
 
     });
 
   }
 
-  updateCart();
+  html += `
+
+      <button
+
+        class="confirm-option"
+
+        onclick="confirmOptions('${escapeText(name)}',${price})">
+
+        確認加入購物車
+
+      </button>
+
+      <button
+
+        class="cancel-option"
+
+        onclick="closeOptions()">
+
+        取消
+
+      </button>
+
+    </div>
+
+  `;
+
+  const existing = document.getElementById("optionBox");
+
+  if(existing){
+
+    existing.remove();
+
+  }
+
+  document.getElementById("menu").insertAdjacentHTML("beforeend",html);
+
+  setTimeout(function(){
+
+    document.getElementById("optionBox").scrollIntoView({
+
+      behavior:"smooth",
+
+      block:"center"
+
+    });
+
+  },100);
 
 }
 
-function updateCart(){
+/* =========================
 
-  const cartBox =
+   隱藏版細項
 
-    document.getElementById("cartItems");
+========================= */
+
+function openHiddenOptions(index){
+
+  const item = hiddenMenus[index];
+
+  const name = item[0];
+
+  const price = item[1];
+
+  const groups = item[2];
+
+  let html = `
+
+    <div class="option-box" id="optionBox">
+
+      <div class="option-title">
+
+        🔥 ${name}｜選擇內容
+
+      </div>
+
+  `;
+
+  groups.forEach(function(group){
+
+    html += `
+
+      <div class="option-group">
+
+        <div class="option-group-title">
+
+          ${group.title}
+
+        </div>
+
+        <div class="option-list">
+
+    `;
+
+    group.options.forEach(function(option){
+
+      html += `
+
+        <button
+
+          class="option-btn"
+
+          data-name="${option[0]}"
+
+          data-price="${option[1]}"
+
+          data-single="${group.single ? "1" : "0"}"
+
+          onclick="toggleGroupOption(this)">
+
+          ${option[0]}
+
+          ${option[1] > 0 ? `<span class="option-price"> +${option[1]}</span>` : ""}
+
+        </button>
+
+      `;
+
+    });
+
+    html += `
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  html += `
+
+      <button
+
+        class="confirm-option"
+
+        onclick="confirmOptions('${escapeText(name)}',${price})">
+
+        確認加入購物車
+
+      </button>
+
+      <button
+
+        class="cancel-option"
+
+        onclick="closeOptions()">
+
+        取消
+
+      </button>
+
+    </div>
+
+  `;
+
+  const existing = document.getElementById("optionBox");
+
+  if(existing){
+
+    existing.remove();
+
+  }
+
+  document.getElementById("menu").insertAdjacentHTML("beforeend",html);
+
+  setTimeout(function(){
+
+    document.getElementById("optionBox").scrollIntoView({
+
+      behavior:"smooth",
+
+      block:"center"
+
+    });
+
+  },100);
+
+}
+
+/* =========================
+
+   選擇細項
+
+========================= */
+
+function toggleOption(button){
+
+  button.classList.toggle("selected");
+
+}
+
+function toggleGroupOption(button){
+
+  const group = button.parentElement;
+
+  const single = button.dataset.single === "1";
+
+  if(single){
+
+    group.querySelectorAll(".option-btn").forEach(function(btn){
+
+      btn.classList.remove("selected");
+
+    });
+
+  }
+
+  button.classList.toggle("selected");
+
+}
+
+/* =========================
+
+   確認細項
+
+========================= */
+
+function confirmOptions(name,basePrice){
+
+  const box = document.getElementById("optionBox");
+
+  const buttons = box.querySelectorAll(".option-btn.selected");
+
+  let options = [];
+
+  let extra = 0;
+
+  buttons.forEach(function(button){
+
+    const optionName = button.dataset.name;
+
+    const optionPrice = Number(button.dataset.price);
+
+    options.push({
+
+      name:optionName,
+
+      price:optionPrice
+
+    });
+
+    extra += optionPrice;
+
+  });
+
+  addToCart(name,basePrice + extra,options);
+
+  closeOptions();
+
+}
+
+/* =========================
+
+   關閉細項
+
+========================= */
+
+function closeOptions(){
+
+  const box = document.getElementById("optionBox");
+
+  if(box){
+
+    box.remove();
+
+  }
+
+}
+
+/* =========================
+
+   加入購物車
+
+========================= */
+
+function addToCart(name,price,options){
+
+  cart.push({
+
+    name:name,
+
+    price:price,
+
+    options:options || [],
+
+    qty:1
+
+  });
+
+  renderCart();
+
+}
+
+/* =========================
+
+   購物車
+
+========================= */
+
+function renderCart(){
+
+  const cartItems = document.getElementById("cartItems");
+
+  let total = 0;
+
+  let count = 0;
 
   if(cart.length === 0){
 
-    cartBox.innerHTML = "尚未選擇餐點";
+    cartItems.innerHTML = "尚未選擇餐點";
 
-    document.getElementById("total").innerText = "0";
+    document.getElementById("total").textContent = "0";
 
-    document.getElementById("count").innerText = "0";
+    document.getElementById("count").textContent = "0";
 
     return;
 
@@ -808,77 +1988,155 @@ function updateCart(){
 
   let html = "";
 
-  let total = 0;
-
-  let count = 0;
-
   cart.forEach(function(item,index){
 
-    const subtotal =
+    const itemTotal = item.price * item.qty;
 
-      item.price * item.qty;
-
-    total += subtotal;
+    total += itemTotal;
 
     count += item.qty;
 
+    let optionText = "";
+
+    if(item.options && item.options.length){
+
+      optionText = item.options
+
+        .map(function(option){
+
+          return option.name +
+
+            (option.price > 0 ? ` +${option.price}` : "");
+
+        })
+
+        .join("、");
+
+    }
+
     html += `
 
-    <div class="cart-row">
+      <div class="cart-row">
 
-      <div>
+        <div class="cart-main">
 
-        ${item.name}<br>
+          <div>
 
-        × ${item.qty}
+            <div class="cart-name">
+
+              ${item.name} × ${item.qty}
+
+            </div>
+
+            ${
+
+              optionText
+
+              ?
+
+              `<div class="cart-options">
+
+                細項：${optionText}
+
+              </div>`
+
+              :
+
+              ""
+
+            }
+
+          </div>
+
+          <div class="cart-price">
+
+            $${itemTotal}
+
+          </div>
+
+        </div>
+
+        <div class="cart-controls">
+
+          <button onclick="changeQty(${index},-1)">
+
+            −
+
+          </button>
+
+          <button onclick="changeQty(${index},1)">
+
+            ＋
+
+          </button>
+
+          <button onclick="removeItem(${index})">
+
+            刪除
+
+          </button>
+
+        </div>
 
       </div>
-
-      <div>
-
-        $${subtotal}
-
-        <button
-
-          onclick="removeItem(${index})">
-
-          ❌
-
-        </button>
-
-      </div>
-
-    </div>
 
     `;
 
   });
 
-  cartBox.innerHTML = html;
+  cartItems.innerHTML = html;
 
-  document.getElementById("total").innerText =
+  document.getElementById("total").textContent = total;
 
-    total;
-
-  document.getElementById("count").innerText =
-
-    count;
+  document.getElementById("count").textContent = count;
 
 }
+
+/* =========================
+
+   數量
+
+========================= */
+
+function changeQty(index,amount){
+
+  cart[index].qty += amount;
+
+  if(cart[index].qty <= 0){
+
+    cart.splice(index,1);
+
+  }
+
+  renderCart();
+
+}
+
+/* =========================
+
+   刪除
+
+========================= */
 
 function removeItem(index){
 
   cart.splice(index,1);
 
-  updateCart();
+  renderCart();
 
 }
+
+/* =========================
+
+   送出訂單
+
+========================= */
 
 function submitOrder(){
 
   if(cart.length === 0){
 
-    alert("請先選擇餐點！");
+    alert("請先選擇餐點");
 
     return;
 
@@ -892,29 +2150,45 @@ function submitOrder(){
 
     document.getElementById("phone").value.trim();
 
-  const time =
-
-    document.getElementById("pickupTime").value;
-
   const note =
 
     document.getElementById("note").value.trim();
 
-  if(!name || !phone || !time){
+  if(!name){
 
-    alert("請完整填寫取餐資料！");
+    alert("請輸入取餐人姓名");
 
     return;
 
   }
 
-  let message =
+  if(!phone){
 
-    "訂單已建立！\n\n";
+    alert("請輸入手機號碼");
+
+    return;
+
+  }
+
+  let total = 0;
 
   cart.forEach(function(item){
 
-    message +=
+    total += item.price * item.qty;
+
+  });
+
+  let orderText =
+
+    "隔壁宵夜彰化店\n\n" +
+
+    "取餐人：" + name + "\n" +
+
+    "手機：" + phone + "\n\n";
+
+  cart.forEach(function(item){
+
+    orderText +=
 
       item.name +
 
@@ -922,49 +2196,119 @@ function submitOrder(){
 
       item.qty +
 
+      " $" +
+
+      (item.price * item.qty) +
+
       "\n";
+
+    if(item.options && item.options.length){
+
+      orderText +=
+
+        "細項：" +
+
+        item.options
+
+          .map(function(o){
+
+            return o.name +
+
+              (o.price > 0 ? " +" + o.price : "");
+
+          })
+
+          .join("、") +
+
+        "\n";
+
+    }
 
   });
 
-  message +=
+  orderText +=
 
-    "\n總金額：$" +
+    "\n合計：$" +
 
-    document.getElementById("total").innerText;
+    total +
 
-  message +=
-
-    "\n取餐人：" +
-
-    name;
-
-  message +=
-
-    "\n電話：" +
-
-    phone;
-
-  message +=
-
-    "\n取餐時間：" +
-
-    time;
+    "\n\n";
 
   if(note){
 
-    message +=
+    orderText +=
 
-      "\n備註：" +
+      "備註：" +
 
-      note;
+      note +
+
+      "\n\n";
 
   }
 
-  alert(message);
+  orderText +=
+
+    "※ 客人送出訂單後，等待店家通知「餐點完成」即可取餐。";
+
+  /*
+
+    目前 GitHub Pages 為靜態網站，
+
+    暫時使用手機分享功能讓客人送出訂單。
+
+  */
+
+  if(navigator.share){
+
+    navigator.share({
+
+      title:"隔壁宵夜彰化店訂單",
+
+      text:orderText
+
+    }).then(function(){
+
+      document.getElementById("successMessage").style.display="block";
+
+    }).catch(function(){
+
+    });
+
+  }else{
+
+    alert(orderText);
+
+    document.getElementById("successMessage").style.display="block";
+
+  }
 
 }
 
+/* =========================
+
+   防止字串問題
+
+========================= */
+
+function escapeText(text){
+
+  return text
+
+    .replace(/\\/g,"\\\\")
+
+    .replace(/'/g,"\\'");
+
+}
+
+/* =========================
+
+   啟動
+
+========================= */
+
 renderMenu();
+
+renderCart();
 
 </script>
 
