@@ -95,6 +95,21 @@ button{cursor:pointer}
   font-weight:800;
   line-height:1;
 }
+.tab-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  margin-left:5px;
+  border-radius:11px;
+  background:#666;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+}
 </style>
 </head>
 
@@ -148,9 +163,9 @@ button{cursor:pointer}
 
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="pending-count">0</span></button>
-      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
-      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
-      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
+      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中 <span id="makingTabCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消 <span id="cancelledTabCount" class="tab-count">0</span></button>
     </div>
 
     <div id="orders"></div>
@@ -301,6 +316,13 @@ async function loadOrders(){
   });
 
   document.getElementById("newCount").textContent = newCount;
+  document.getElementById("pendingCount").textContent = newCount;
+  document.getElementById("makingTabCount").textContent = makingCount;
+  document.getElementById("doneTabCount").textContent = doneCount;
+  const cancelledCount = (orders || []).filter(order =>
+    normalizeStatus(order.status) === "cancelled"
+  ).length;
+  document.getElementById("cancelledTabCount").textContent = cancelledCount;
   const pendingCount = document.getElementById("pendingCount");
   if(pendingCount){
     pendingCount.textContent = newCount;
@@ -562,7 +584,7 @@ function startAutoRefresh(){
   // 測試期間：每 30 秒自動重新整理訂單
   setInterval(() => {
     loadOrders();
-  }, 30000);
+  }, 60000);
 }
 
 function startRealtime(){
