@@ -321,16 +321,27 @@ async function loadItems(orderId){
         }
 
         if(typeof value === "object"){
+
+          // 細項只顯示品項名稱，不顯示 price、key 等技術資料
+          if(value.name !== undefined && value.name !== null && value.name !== ""){
+            return formatOptionValue(value.name);
+          }
+
+          if(value.label !== undefined && value.label !== null && value.label !== ""){
+            return formatOptionValue(value.label);
+          }
+
+          if(value.title !== undefined && value.title !== null && value.title !== ""){
+            return formatOptionValue(value.title);
+          }
+
+          if(value.value !== undefined && value.value !== null && value.value !== ""){
+            return formatOptionValue(value.value);
+          }
+
           return Object.entries(value)
-            .map(([key,val]) => {
-              const formatted = formatOptionValue(val);
-
-              if(!formatted){
-                return "";
-              }
-
-              return key + "：" + formatted;
-            })
+            .filter(([key]) => !["price","id","key"].includes(String(key).toLowerCase()))
+            .map(([,val]) => formatOptionValue(val))
             .filter(Boolean)
             .join("、");
         }
