@@ -80,7 +80,8 @@ button{cursor:pointer}
   .items,.order-info,.actions{padding-left:11px;padding-right:11px}
 }
 
-.pending-count{
+.pending-count,
+.tab-count{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -95,21 +96,8 @@ button{cursor:pointer}
   font-weight:800;
   line-height:1;
 }
-.tab-count{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:22px;
-  height:22px;
-  padding:0 6px;
-  margin-left:5px;
-  border-radius:11px;
-  background:#666;
-  color:#fff;
-  font-size:12px;
-  font-weight:800;
-  line-height:1;
-}
+.done-count{background:#666;}
+
 </style>
 </head>
 
@@ -164,7 +152,7 @@ button{cursor:pointer}
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="pending-count">0</span></button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中 <span id="makingTabCount" class="tab-count">0</span></button>
-      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count done-count">0</span></button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消 <span id="cancelledTabCount" class="tab-count">0</span></button>
     </div>
 
@@ -194,6 +182,7 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 let currentTab = "new";
 let realtimeChannel = null;
+let lastOrdersSignature = null;
 
 async function login(){
   const email = document.getElementById("email").value.trim();
@@ -335,14 +324,38 @@ async function loadOrders(){
     return normalizeStatus(order.status) === currentTab;
   });
 
+  // 沒有任何資料變化時，不重新建立整個訂單區塊，避免畫面跳動。
+  const signature = JSON.stringify(
+    (orders || []).map(order => ({
+      id: order.id,
+      status: order.status,
+      updated_at: order.updated_at,
+      created_at: order.created_at,
+      customer_name: order.customer_name,
+      customer_phone: order.customer_phone,
+      pickup_time: order.pickup_time,
+      total_amount: order.total_amount
+    }))
+  ) + "|" + currentTab;
+
+  if(signature === lastOrdersSignature){
+    return;
+  }
+
+  const scrollY = window.scrollY;
+  lastOrdersSignature = signature;
+
   if(!filtered.length){
     document.getElementById("orders").innerHTML =
       '<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
+    requestAnimationFrame(() => window.scrollTo(0, scrollY));
     return;
   }
 
   document.getElementById("orders").innerHTML =
     filtered.map(orderCard).join("");
+
+  requestAnimationFrame(() => window.scrollTo(0, scrollY));
 
   for(const order of filtered){
     loadItems(order.id);
@@ -581,10 +594,10 @@ async function changeStatus(id,status){
 }
 
 function startAutoRefresh(){
-  // 測試期間：每 30 秒自動重新整理訂單
+  // 每 1 分鐘自動更新訂單
   setInterval(() => {
     loadOrders();
-  }, 60000);
+  }, 30000);
 }
 
 function startRealtime(){
