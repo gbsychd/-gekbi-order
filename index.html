@@ -825,10 +825,7 @@ function submitOrder(){
 }
 
 function isOrderingOpen(){
-  const now=new Date();
-  const mins=now.getHours()*60+now.getMinutes();
-  // 每日 18:00 ～ 隔日 01:10
-  return mins>=18*60 || mins<=1*60+10;
+  return true;
 }
 let orderingNoticeDismissed=false;
 
