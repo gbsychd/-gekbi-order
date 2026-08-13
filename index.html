@@ -167,6 +167,12 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 <div class="success" id="successMessage">訂單已送出！<br>請等待店家通知「餐點完成」後再前往取餐。</div>
 </div></div></div>
 <div class="bottom-cart"><div>🛒 已選 <span id="count">0</span> 項</div><button onclick="collapseAllCategories();document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">結帳</button></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
 <script>
 const soldOut = JSON.parse(localStorage.getItem("gekbiSoldOut") || "{}");
 function isSoldOut(key){return soldOut[key]===true}
@@ -791,25 +797,91 @@ function closeOrderConfirm(){
   document.getElementById('orderConfirmModal').style.display='none';
 }
 
-function confirmAndSubmitOrder(){
-  closeOrderConfirm();
-  const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
-  const name=document.getElementById('customerName').value.trim();
-  const phone=document.getElementById('phone').value.trim();
-  const pickup=document.getElementById('pickupTime').value;
-  let total=0;
-  let message='隔壁宵夜彰化店\n\n取餐人：'+name+'\n手機：'+phone+'\n取餐時間：'+(pickup||'不指定（等候店家點選完成訂單即可取餐）')+'\n是否需要餐具：'+cutlery+'\n\n';
-  cart.forEach(item=>{
-    total+=item.price*item.qty;
-    message+=item.name+' × '+item.qty+' $'+(item.price*item.qty)+'\n';
-    if(item.options?.length)message+='細項：'+sortCartOptions(item.options).map(o=>o.name+(o.price>0?' +'+o.price:'')).join('、')+'\n';
-  });
-  message+='\n合計：$'+total+'\n\n請等待店家通知「餐點完成」即可取餐。';
-  if(navigator.share){
-    navigator.share({title:'隔壁宵夜彰化店訂單',text:message}).then(()=>document.getElementById('successMessage').style.display='block').catch(()=>{});
-  }else{
-    alert(message);
+async function confirmAndSubmitOrder(){
+  const submitBtn=document.querySelector('.order-confirm-submit');
+  if(submitBtn){
+    submitBtn.disabled=true;
+    submitBtn.textContent='送出中…';
+    submitBtn.style.opacity='.6';
+  }
+
+  try{
+    const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
+    const name=document.getElementById('customerName').value.trim();
+    const phone=document.getElementById('phone').value.trim();
+    const pickup=document.getElementById('pickupTime').value||null;
+
+    if(!cart.length){
+      alert('購物車目前沒有餐點。');
+      return;
+    }
+
+    let total=0;
+    cart.forEach(item=>{
+      total+=Number(item.price||0)*Number(item.qty||0);
+    });
+
+    const {data:order,error:orderError}=await supabaseClient
+      .from('orders')
+      .insert({
+        customer_name:name,
+        phone:phone,
+        pickup_time:pickup,
+        cutlery:cutlery,
+        total:total,
+        status:'待接單',
+        notification_sent:false
+      })
+      .select('id')
+      .single();
+
+    if(orderError){
+      console.error('建立 orders 失敗：',orderError);
+      throw new Error('訂單送出失敗：'+orderError.message);
+    }
+
+    const itemRows=cart.map(item=>({
+      order_id:order.id,
+      item_name:item.name,
+      quantity:Number(item.qty||1),
+      price:Number(item.price||0),
+      options:(item.options||[]).map(o=>({
+        name:o.name,
+        price:Number(o.price||0),
+        group:o.group||''
+      }))
+    }));
+
+    const {error:itemError}=await supabaseClient
+      .from('order_items')
+      .insert(itemRows);
+
+    if(itemError){
+      console.error('建立 order_items 失敗：',itemError);
+      throw new Error('餐點明細寫入失敗：'+itemError.message+'（訂單主資料可能已建立，請勿重複送出。）');
+    }
+
+    closeOrderConfirm();
+    cart=[];
+    renderCart();
+
     document.getElementById('successMessage').style.display='block';
+    document.getElementById('successMessage').scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    alert('訂單已成功送出！\n請等待店家通知「餐點完成」後再前往取餐。');
+
+  }catch(error){
+    console.error(error);
+    alert(error.message||'訂單送出失敗，請稍後再試。');
+  }finally{
+    if(submitBtn){
+      submitBtn.disabled=false;
+      submitBtn.textContent='確認';
+      submitBtn.style.opacity='1';
+    }
   }
 }
 
