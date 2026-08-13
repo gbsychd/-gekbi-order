@@ -56,7 +56,8 @@ button{cursor:pointer}
 .item{padding:8px 0;border-bottom:1px solid #f0f0f0}
 .item:last-child{border-bottom:0}
 .item-main{display:flex;justify-content:space-between;gap:8px;font-weight:800}
-.item-options{font-size:13px;color:#666;margin-top:3px;line-height:1.5}
+.item-options{font-size:13px;color:#0645d6;margin-top:3px;line-height:1.5}
+.cutlery-value{color:#d00000;font-weight:800}
 .item-price{white-space:nowrap}
 
 .actions{display:flex;gap:7px;padding:10px 13px;border-top:1px solid #eee}
@@ -77,6 +78,22 @@ button{cursor:pointer}
   .brand{font-size:16px}
   .order-head{padding:11px}
   .items,.order-info,.actions{padding-left:11px;padding-right:11px}
+}
+
+.pending-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  margin-left:5px;
+  border-radius:11px;
+  background:#d00000;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
 }
 </style>
 </head>
@@ -130,7 +147,7 @@ button{cursor:pointer}
     </div>
 
     <div class="tabs">
-      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
+      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="pending-count">0</span></button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
@@ -152,7 +169,13 @@ const SUPABASE_URL = "https://xoyxtgqamzdxbboxhcdu.supabase.co";
 */
 const SUPABASE_KEY = "sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
 
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 let currentTab = "new";
 let realtimeChannel = null;
@@ -163,6 +186,11 @@ async function login(){
 
   const errorBox = document.getElementById("loginError");
   errorBox.textContent = "";
+
+  // 記住帳號 Email，但絕不儲存密碼
+  if(email){
+    localStorage.setItem("admin_login_email", email);
+  }
 
   if(!email || !password){
     errorBox.textContent = "請輸入 Email 與密碼";
@@ -188,7 +216,11 @@ async function logout(){
 }
 
 async function checkSession(){
-  const {data} = await client.auth.getSession();
+  const {data, error} = await client.auth.getSession();
+
+  if(error){
+    console.error("取得登入狀態失敗：", error);
+  }
 
   if(data && data.session){
     showApp();
@@ -197,9 +229,19 @@ async function checkSession(){
   }
 }
 
+function restoreSavedEmail(){
+  const savedEmail = localStorage.getItem("admin_login_email");
+  const emailInput = document.getElementById("email");
+
+  if(savedEmail && emailInput){
+    emailInput.value = savedEmail;
+  }
+}
+
 function showLogin(){
   document.getElementById("loginPage").classList.remove("hidden");
   document.getElementById("app").classList.add("hidden");
+  restoreSavedEmail();
 }
 
 function showApp(){
@@ -208,6 +250,7 @@ function showApp(){
 
   loadOrders();
   startRealtime();
+  startAutoRefresh();
 }
 
 function setTab(status,button){
@@ -258,6 +301,11 @@ async function loadOrders(){
   });
 
   document.getElementById("newCount").textContent = newCount;
+  const pendingCount = document.getElementById("pendingCount");
+  if(pendingCount){
+    pendingCount.textContent = newCount;
+    pendingCount.style.display = newCount > 0 ? "inline-flex" : "none";
+  }
   document.getElementById("makingCount").textContent = makingCount;
   document.getElementById("doneCount").textContent = doneCount;
 
@@ -307,41 +355,53 @@ async function loadItems(orderId){
 
     if(item.options){
 
-      const formatOptionValue = (value) => {
+      // 與前台購物車完全相同的細項排序規則：
+      // 主餐 → 奶酥 → 炸物 → 加麵/加辣/加起司 → 飲品
+      const getOptionRank = (option) => {
+        const name = String(option?.name || "");
+        const group = String(option?.group || "");
 
+        if(group === "main" || group.includes("主餐")) return 10;
+        if(group === "cream" || group.includes("奶酥")) return 20;
+        if(group === "fried" || group.includes("炸物")) return 30;
+        if(group === "extra" || group.includes("加麵") || group.includes("加辣") || group.includes("加起司")) return 40;
+        if(group === "drink" || group.includes("飲品")) return 50;
+
+        if(/加麵|加辣|加起司/.test(name)) return 40;
+        if(/紅茶|奶茶|冷泡茶|麥茶|咖啡|可樂|雪碧|飲料|飲品/.test(name)) return 50;
+
+        return 35;
+      };
+
+      const formatOptionName = (value) => {
         if(value === null || value === undefined || value === ""){
           return "";
         }
 
         if(Array.isArray(value)){
-          return value
-            .map(formatOptionValue)
-            .filter(Boolean)
-            .join("、");
+          return value.map(formatOptionName).filter(Boolean).join("、");
         }
 
         if(typeof value === "object"){
-
-          // 細項只顯示品項名稱，不顯示 price、key 等技術資料
           if(value.name !== undefined && value.name !== null && value.name !== ""){
-            return formatOptionValue(value.name);
+            return formatOptionName(value.name);
           }
 
           if(value.label !== undefined && value.label !== null && value.label !== ""){
-            return formatOptionValue(value.label);
+            return formatOptionName(value.label);
           }
 
           if(value.title !== undefined && value.title !== null && value.title !== ""){
-            return formatOptionValue(value.title);
+            return formatOptionName(value.title);
           }
 
           if(value.value !== undefined && value.value !== null && value.value !== ""){
-            return formatOptionValue(value.value);
+            return formatOptionName(value.value);
           }
 
           return Object.entries(value)
-            .filter(([key]) => !["price","id","key"].includes(String(key).toLowerCase()))
-            .map(([,val]) => formatOptionValue(val))
+            .filter(([key]) => !["price","id","key","group"].includes(String(key).toLowerCase()))
+            .map(([,val]) => formatOptionName(val))
             .filter(Boolean)
             .join("、");
         }
@@ -349,7 +409,37 @@ async function loadItems(orderId){
         return String(value);
       };
 
-      options = formatOptionValue(item.options);
+      let optionList = [];
+
+      if(Array.isArray(item.options)){
+        optionList = item.options.map((option, index) => ({
+          option,
+          index,
+          rank: getOptionRank(option)
+        }));
+      }else if(typeof item.options === "object"){
+        optionList = [{
+          option: item.options,
+          index: 0,
+          rank: getOptionRank(item.options)
+        }];
+      }else{
+        const plain = formatOptionName(item.options);
+        if(plain){
+          optionList = [{
+            option: {name: plain},
+            index: 0,
+            rank: 35
+          }];
+        }
+      }
+
+      optionList.sort((a,b) => a.rank - b.rank || a.index - b.index);
+
+      options = optionList
+        .map(({option}) => formatOptionName(option))
+        .filter(Boolean)
+        .join("、");
     }
 
     return `
@@ -395,9 +485,9 @@ function orderCard(order){
           </a>
         </div>
 
-        <div><b>取餐時間：</b>${escapeHtml(order.pickup_time || "—")}</div>
+        <div><b>取餐時間：</b>${escapeHtml(order.pickup_time || "不指定")}</div>
 
-        <div><b>餐具：</b>${escapeHtml(order.cutlery || "—")}</div>
+        <div><b>餐具：</b><span class="cutlery-value">${escapeHtml(order.cutlery || "—")}</span></div>
 
         <div class="total">
           $${Number(order.total || 0)}
@@ -466,6 +556,13 @@ async function changeStatus(id,status){
   }
 
   loadOrders();
+}
+
+function startAutoRefresh(){
+  // 測試期間：每 30 秒自動重新整理訂單
+  setInterval(() => {
+    loadOrders();
+  }, 30000);
 }
 
 function startRealtime(){
@@ -591,6 +688,7 @@ client.auth.onAuthStateChange((event,session)=>{
   }
 });
 
+restoreSavedEmail();
 checkSession();
 </script>
 
