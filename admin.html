@@ -313,12 +313,23 @@ async function loadItems(orderId){
         options = item.options.join("、");
       }else if(typeof item.options === "object"){
         options = Object.entries(item.options)
-          .map(([key,value])=>{
-            if(value === null || value === undefined || value === "") return "";
-            return key + "：" + value;
-          })
-          .filter(Boolean)
+  .map(([key,value])=>{
+    if(value === null || value === undefined || value === "") return "";
+
+    if(typeof value === "object"){
+      if(Array.isArray(value)){
+        value = value.join("、");
+      }else{
+        value = Object.values(value)
+          .filter(v => v !== null && v !== undefined && v !== "")
           .join("、");
+      }
+    }
+
+    return key + "：" + value;
+  })
+  .filter(Boolean)
+  .join("、");
       }
     }
 
