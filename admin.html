@@ -307,30 +307,38 @@ async function loadItems(orderId){
 
     if(item.options){
 
-      if(typeof item.options === "string"){
-        options = item.options;
-      }else if(Array.isArray(item.options)){
-        options = item.options.join("、");
-      }else if(typeof item.options === "object"){
-        options = Object.entries(item.options)
-  .map(([key,value])=>{
-    if(value === null || value === undefined || value === "") return "";
+      const formatOptionValue = (value) => {
 
-    if(typeof value === "object"){
-      if(Array.isArray(value)){
-        value = value.join("、");
-      }else{
-        value = Object.values(value)
-          .filter(v => v !== null && v !== undefined && v !== "")
-          .join("、");
-      }
-    }
+        if(value === null || value === undefined || value === ""){
+          return "";
+        }
 
-    return key + "：" + value;
-  })
-  .filter(Boolean)
-  .join("、");
-      }
+        if(Array.isArray(value)){
+          return value
+            .map(formatOptionValue)
+            .filter(Boolean)
+            .join("、");
+        }
+
+        if(typeof value === "object"){
+          return Object.entries(value)
+            .map(([key,val]) => {
+              const formatted = formatOptionValue(val);
+
+              if(!formatted){
+                return "";
+              }
+
+              return key + "：" + formatted;
+            })
+            .filter(Boolean)
+            .join("、");
+        }
+
+        return String(value);
+      };
+
+      options = formatOptionValue(item.options);
     }
 
     return `
