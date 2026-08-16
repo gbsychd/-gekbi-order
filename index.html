@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>隔壁宵夜彰化店｜線上點餐</title>
+<!-- 店家後台圖片管理已獨立於 admin.html；前台不顯示上傳入口。 -->
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:#f5f5f5;color:#222}
@@ -20,13 +21,17 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .item-info{flex:1;min-width:0}.item-name{font-size:18px;font-weight:700;line-height:1.5}.price{margin-top:5px;font-size:19px;color:#d35400;font-weight:800}
 .add-btn{border:0;background:#111;color:#fff;border-radius:12px;padding:12px 17px;font-size:16px;min-width:76px;cursor:pointer}.add-btn:active{transform:scale(.96)}
 .menu-card{cursor:pointer;user-select:none;touch-action:manipulation};position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.menu-card:active{transform:scale(.99)}
-.category-toggle{display:flex;align-items:center;justify-content:space-between;background:#111;color:#fff;border-radius:13px;padding:15px 17px;margin:16px 0 8px;font-size:18px;font-weight:800;cursor:pointer;user-select:none}
+.category-toggle{display:flex;align-items:center;justify-content:space-between;background:#111;color:#fff;border-radius:13px;padding:15px 17px;margin:16px 0 8px;font-size:18px;font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;z-index:50}
 .category-toggle:active{transform:scale(.99)}
 .category-arrow{font-size:14px;transition:transform .2s ease}
 .category-toggle.category-open .category-arrow{transform:rotate(180deg)}
 .category-items{display:none}
 .category-items.category-open{display:block}
 .category-items .item{margin-bottom:8px}
+.category-selector-wrap{position:sticky;top:0;z-index:80;display:flex;gap:8px;overflow-x:auto;background:#f5f5f5;padding:12px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
+.category-selector-wrap::-webkit-scrollbar{display:none}
+.category-selector-btn{flex:0 0 auto;border:0;border-radius:12px;background:#111;color:#fff;padding:13px 16px;font-size:16px;font-weight:800;white-space:nowrap;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.13);scroll-snap-align:center}
+.category-selector-btn.active{background:#d35400}
 .hidden-subtitle{margin:0 0 10px;padding:8px 4px;color:#777;font-size:14px}
 .browse-price{font-size:22px;color:#d35400;font-weight:800;margin:-5px 0 14px}.browse-description{padding:12px;background:#f7f7f7;border-radius:10px;color:#777;margin-bottom:14px}.quantity-direct{display:flex;align-items:center;justify-content:space-between;padding:10px 0 14px}.quantity-label{font-weight:800}.quantity-controls{display:flex;align-items:center;gap:14px}.quantity-controls button{width:38px;height:38px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:22px;font-weight:800;cursor:pointer}.quantity-controls span{min-width:24px;text-align:center;font-size:18px;font-weight:800}
 .inline-option-box{background:#fff;border-radius:15px;padding:17px;margin:-3px 0 14px;border:2px solid #eee;box-shadow:0 3px 12px rgba(0,0,0,.08)}
@@ -202,7 +207,103 @@ const hiddenMenus=[
 ["單人經濟套餐",135,[{title:"主餐",single:true,options:[["招牌炒泡麵",0]]},{title:"炸物",single:true,options:[["小肉豆",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
 ["日式炸豬排烏龍麵",135,[{title:"口味",single:true,options:[["白醬",0],["蘑菇",0],["黑胡椒",0]]}]]
 ];
+const MENU_IMAGE_BUCKET='menu-images';
+const ADMIN_EMAIL='smile510352@gmail.com';
+// 以下為本店 Foodpanda 平台公開使用的品項照片；店家上傳後會自動覆蓋。
+const platformImageUrls={
+  'menu-0-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201309.jpg?height=220&width=220',
+  'menu-0-2':'https://images.deliveryhero.io/image/fd-tw/Products/136201310.jpg?height=220&width=220',
+  'menu-0-3':'https://images.deliveryhero.io/image/fd-tw/products/136201318.jpg?height=220&width=220',
+  'menu-0-5':'https://images.deliveryhero.io/image/fd-tw/Products/136201315.jpg?height=220&width=220',
+  'menu-1-1':'https://images.deliveryhero.io/image/fd-tw/Products/136400014.jpg?height=220&width=220',
+  'menu-1-2':'https://images.deliveryhero.io/image/fd-tw/Products/136400011.jpg?height=220&width=220',
+  'menu-1-3':'https://images.deliveryhero.io/image/fd-tw/Products/136400016.jpg?height=220&width=220',
+  'menu-1-4':'https://images.deliveryhero.io/image/fd-tw/Products/136400009.jpg?height=220&width=220',
+  'menu-1-5':'https://images.deliveryhero.io/image/fd-tw/Products/136400015.jpg?height=220&width=220',
+  'menu-2-1':'https://images.deliveryhero.io/image/fd-tw/Products/136400018.jpg?height=220&width=220',
+  'menu-2-3':'https://images.deliveryhero.io/image/fd-tw/Products/136400022.jpg?height=220&width=220',
+  'menu-2-4':'https://images.deliveryhero.io/image/fd-tw/Products/136400020.jpg?height=220&width=220',
+  'menu-2-5':'https://images.deliveryhero.io/image/fd-tw/Products/136400024.jpg?height=220&width=220',
+  'menu-2-6':'https://images.deliveryhero.io/image/fd-tw/products/136400012.jpg?height=220&width=220',
+  'menu-2-7':'https://images.deliveryhero.io/image/fd-tw/products/136400019.jpg?height=220&width=220',
+  'menu-2-8':'https://images.deliveryhero.io/image/fd-tw/products/136400023.jpg?height=220&width=220',
+  'menu-3-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201307.jpg?height=220&width=220',
+  'menu-6-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201336.jpg?height=220&width=220',
+  'menu-6-2':'https://images.deliveryhero.io/image/fd-tw/Products/136201340.jpg?height=220&width=220',
+  'menu-6-3':'https://images.deliveryhero.io/image/fd-tw/Products/136201334.jpg?height=220&width=220',
+  'menu-6-5':'https://images.deliveryhero.io/image/fd-tw/Products/136201335.jpg?height=220&width=220',
+  'menu-6-7':'https://images.deliveryhero.io/image/fd-tw/Products/136201344.jpg?height=220&width=220',
+  'menu-6-8':'https://images.deliveryhero.io/image/fd-tw/Products/136201343.jpg?height=220&width=220',
+  'menu-6-9':'https://images.deliveryhero.io/image/fd-tw/Products/136201345.jpg?height=220&width=220',
+  'menu-6-10':'https://images.deliveryhero.io/image/fd-tw/Products/136201341.jpg?height=220&width=220',
+  'menu-7-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201332.jpg?height=220&width=220',
+  'menu-7-1':'https://images.deliveryhero.io/image/fd-tw/Products/136201331.jpg?height=220&width=220'
+};
+let uploadedImageUrls={};
+function getItemImage(itemKey){return uploadedImageUrls[itemKey]||platformImageUrls[itemKey]||''}
+function imageMarkup(itemKey,name){
+  const url=getItemImage(itemKey);
+  return url?`<img class="item-image" src="${escapeHtml(url)}" alt="${escapeHtml(name)}" loading="lazy">`:'';
+}
+async function loadMenuImages(){
+  const {data,error}=await supabaseClient.from('menu_item_images').select('item_key,image_path');
+  if(error){console.warn('讀取餐點圖片失敗：',error.message);return}
+  uploadedImageUrls={};
+  (data||[]).forEach(row=>{
+    const {data:urlData}=supabaseClient.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);
+    if(urlData?.publicUrl)uploadedImageUrls[row.item_key]=urlData.publicUrl;
+  });
+  renderMenu();
+}
+function getImageAdminItems(){
+  const items=[];
+  menus.forEach((menu,mi)=>menu[1].forEach((item,ii)=>items.push({key:`menu-${mi}-${ii}`,name:`${menu[0]}｜${item[0]}`})));
+  hiddenMenus.forEach((item,index)=>items.push({key:`hidden-${index}`,name:`隱藏版菜單｜${item[0]}`}));
+  return items;
+}
+function setImageAdminStatus(message){document.getElementById('imageAdminStatus').textContent=message||''}
+async function openImageAdmin(){
+  document.getElementById('imageAdminModal').style.display='flex';
+  setImageAdminStatus('正在確認登入狀態…');
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  const isAdmin=user?.email?.toLowerCase()===ADMIN_EMAIL;
+  document.getElementById('imageAdminLogin').style.display=isAdmin?'none':'block';
+  document.getElementById('imageAdminUpload').style.display=isAdmin?'block':'none';
+  if(isAdmin){
+    const select=document.getElementById('imageAdminItem');
+    select.innerHTML=getImageAdminItems().map(item=>`<option value="${item.key}">${escapeHtml(item.name)}</option>`).join('');
+    setImageAdminStatus(`已登入：${ADMIN_EMAIL}`);
+  }else setImageAdminStatus('請使用店家 Email 取得登入連結。');
+}
+function closeImageAdmin(){document.getElementById('imageAdminModal').style.display='none'}
+async function sendAdminLogin(){
+  setImageAdminStatus('正在寄送登入連結…');
+  const {error}=await supabaseClient.auth.signInWithOtp({email:ADMIN_EMAIL});
+  setImageAdminStatus(error?`寄送失敗：${error.message}`:'登入連結已寄到店家 Email，請點信件中的連結後回到此頁面。');
+}
+async function uploadMenuImage(){
+  const file=document.getElementById('imageAdminFile').files?.[0];
+  const itemKey=document.getElementById('imageAdminItem').value;
+  if(!file){setImageAdminStatus('請先選擇一張圖片。');return}
+  if(file.size>5*1024*1024){setImageAdminStatus('圖片不可超過 5MB。');return}
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setImageAdminStatus('僅支援 JPG、PNG 或 WebP。');return}
+  setImageAdminStatus('正在上傳圖片…');
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(user?.email?.toLowerCase()!==ADMIN_EMAIL){setImageAdminStatus('目前不是店家管理帳號。');return}
+  const extension=file.name.split('.').pop().toLowerCase();
+  const imagePath=`menu/${itemKey}-${Date.now()}.${extension}`;
+  const {data:oldRow}=await supabaseClient.from('menu_item_images').select('image_path').eq('item_key',itemKey).maybeSingle();
+  const {error:uploadError}=await supabaseClient.storage.from(MENU_IMAGE_BUCKET).upload(imagePath,file,{contentType:file.type});
+  if(uploadError){setImageAdminStatus(`上傳失敗：${uploadError.message}`);return}
+  const {error:saveError}=await supabaseClient.from('menu_item_images').upsert({item_key:itemKey,image_path:imagePath,updated_at:new Date().toISOString()});
+  if(saveError){setImageAdminStatus(`儲存失敗：${saveError.message}`);return}
+  if(oldRow?.image_path)await supabaseClient.storage.from(MENU_IMAGE_BUCKET).remove([oldRow.image_path]);
+  await loadMenuImages();
+  document.getElementById('imageAdminFile').value='';
+  setImageAdminStatus('圖片已更新。');
+}
 let cart=[];
+let activeMenuCategory='menu-0';
 function escapeQuotes(t){return t.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
 function escapeHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function optionButton(o,single,max){return `<button class="option-btn" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" onclick="toggleOption(this)">${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}</button>`}
@@ -244,10 +345,7 @@ function toggleCategory(catId){
   }
 }
 function renderCategory(m,mi){
-  const catId=`category-${mi}`;
-  let html=`<div class="category-toggle" data-category-target="${catId}" onclick="toggleCategory('${catId}')">
-    <span>${m[0]}</span><span class="category-arrow">▼</span>
-  </div><div class="category-items" id="${catId}">`;
+  let html=`<div class="category-items category-open" id="category-${mi}">`;
   m[1].forEach((it,ii)=>{
     const id=`menu-${mi}-${ii}`;
     const sold=isSoldOut(id);
@@ -261,10 +359,7 @@ function renderCategory(m,mi){
 }
 
 function renderHiddenCategory(){
-  const catId='category-hidden';
-  let html=`<div class="category-toggle" data-category-target="${catId}" onclick="toggleCategory('${catId}')">
-    <span>隱藏版菜單</span><span class="category-arrow">▼</span>
-  </div><div class="category-items" id="${catId}">
+  let html=`<div class="category-items category-open" id="category-hidden">
     <div class="hidden-subtitle">隱藏版餐點｜數量有限，售完為止</div>`;
   hiddenMenus.forEach((it,i)=>{
     const id=`hidden-${i}`;
@@ -278,14 +373,60 @@ function renderHiddenCategory(){
   return html+`</div>`;
 }
 
-function renderMenu(){
-  let html="";
-  menus.forEach((m,mi)=>{
-    // Exact order requested: hidden menu goes after 秘製鍋燒 and before 點心炸物.
-    html+=renderCategory(m,mi);
-    if(m[0].includes("秘製鍋燒")) html+=renderHiddenCategory();
+function selectMenuCategory(categoryId){
+  activeMenuCategory=categoryId;
+  renderMenu();
+  requestAnimationFrame(()=>{
+    document.getElementById('menu').scrollIntoView({behavior:'smooth',block:'start'});
   });
+}
+function centerActiveCategory(){
+  const wrap=document.querySelector('.category-selector-wrap');
+  if(!wrap)return;
+  const count=Number(wrap.dataset.categoryCount||0);
+  const activeIndex=Number(wrap.dataset.activeIndex||0);
+  const button=wrap.children[count+activeIndex];
+  if(!button)return;
+  wrap.scrollLeft=button.offsetLeft-(wrap.clientWidth-button.offsetWidth)/2;
+}
+function enableCategoryLoop(){
+  const wrap=document.querySelector('.category-selector-wrap');
+  if(!wrap)return;
+  const count=Number(wrap.dataset.categoryCount||0);
+  if(!count||wrap.children.length<count*3)return;
+  const segmentWidth=wrap.children[count].offsetLeft-wrap.children[0].offsetLeft;
+  wrap.addEventListener('scroll',()=>{
+    if(wrap.dataset.looping==='1'||!segmentWidth)return;
+    if(wrap.scrollLeft<segmentWidth*.45){
+      wrap.dataset.looping='1';
+      wrap.scrollLeft+=segmentWidth;
+      wrap.dataset.looping='0';
+    }else if(wrap.scrollLeft>segmentWidth*1.55){
+      wrap.dataset.looping='1';
+      wrap.scrollLeft-=segmentWidth;
+      wrap.dataset.looping='0';
+    }
+  },{passive:true});
+}
+function renderMenu(){
+  const categories=[];
+  menus.forEach((m,mi)=>{
+    categories.push({id:`menu-${mi}`,name:m[0],menu:m,menuIndex:mi});
+    // 隱藏版菜單固定排在秘製鍋燒後、點心炸物前。
+    if(m[0].includes("秘製鍋燒")) categories.push({id:'hidden',name:'隱藏版菜單',hidden:true});
+  });
+  if(!categories.some(category=>category.id===activeMenuCategory)) activeMenuCategory=categories[0].id;
+  const activeIndex=categories.findIndex(category=>category.id===activeMenuCategory);
+  const buttonSet=categories.map(category=>`<button type="button" class="category-selector-btn ${category.id===activeMenuCategory?'active':''}" data-category-id="${category.id}" onclick="selectMenuCategory('${category.id}')">${escapeHtml(category.name)}</button>`).join('');
+  const buttons=buttonSet+buttonSet+buttonSet;
+  const selected=categories.find(category=>category.id===activeMenuCategory);
+  let html=`<div class="category-selector-wrap" aria-label="餐點分類" data-category-count="${categories.length}" data-active-index="${activeIndex}">${buttons}</div>`;
+  html+=selected.hidden?renderHiddenCategory():renderCategory(selected.menu,selected.menuIndex);
   document.getElementById('menu').innerHTML=html;
+  requestAnimationFrame(()=>{
+    centerActiveCategory();
+    enableCategoryLoop();
+  });
 }
 function openItemBrowse(mi,ii,itemId){
   const item=menus[mi][1][ii];
