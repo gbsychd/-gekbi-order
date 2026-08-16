@@ -2,730 +2,96 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>隔壁宵夜彰化店｜店家後台</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>隔壁宵夜彰化店｜後台管理</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
-button,input{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{width:100%;max-width:400px;background:#fff;border-radius:18px;padding:28px;box-shadow:0 8px 30px #00000012}
-.login-title{text-align:center;font-size:24px;font-weight:800;margin-bottom:6px}
-.login-sub{text-align:center;color:#777;font-size:14px;margin-bottom:24px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
-.field input{width:100%;height:46px;border:1px solid #ddd;border-radius:10px;padding:0 13px;outline:none}
-.field input:focus{border-color:#111}
-.login-btn{width:100%;height:48px;border:0;border-radius:10px;background:#111;color:#fff;font-weight:800}
-.error{color:#d00;font-size:14px;margin-top:12px;text-align:center}
-
-.header{position:sticky;top:0;z-index:20;background:#111;color:#fff;padding:12px 14px}
-.header-inner{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{font-size:18px;font-weight:800}
-.logout{border:1px solid #555;background:#222;color:#fff;border-radius:8px;padding:7px 10px;font-size:13px}
-
-.main{max-width:900px;margin:auto;padding:14px 12px 40px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.stat{background:#fff;border-radius:12px;padding:12px;text-align:center}
-.stat-num{font-size:22px;font-weight:900}
-.stat-label{font-size:12px;color:#777;margin-top:3px}
-
-.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:4px;margin-bottom:12px}
-.tab{flex:0 0 auto;border:1px solid #ddd;background:#fff;border-radius:9px;padding:9px 13px;font-weight:700;font-size:14px}
-.tab.active{background:#111;color:#fff;border-color:#111}
-
-.order{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 8px #00000008}
-.order-head{padding:12px 13px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;border-bottom:1px solid #eee}
-.order-no{font-weight:900;font-size:16px}
-.order-time{font-size:13px;color:#777;margin-top:3px}
-.status{font-size:12px;font-weight:800;padding:5px 8px;border-radius:7px;white-space:nowrap}
-.status-new{background:#ffe7e7;color:#c00}
-.status-making{background:#fff1d6;color:#a05a00}
-.status-done{background:#e5f7e8;color:#18752a}
-.status-cancel{background:#eee;color:#666}
-
-.order-info{padding:10px 13px;font-size:14px;line-height:1.65}
-.order-info b{font-weight:800}
-.total{font-size:18px;font-weight:900;margin-top:5px}
-
-.items{border-top:1px solid #eee;padding:10px 13px}
-.item{padding:8px 0;border-bottom:1px solid #f0f0f0}
-.item:last-child{border-bottom:0}
-.item-main{display:flex;justify-content:space-between;gap:8px;font-weight:800}
-.item-options{font-size:13px;color:#0645d6;margin-top:3px;line-height:1.5}
-.cutlery-value{color:#d00000;font-weight:800}
-.item-price{white-space:nowrap}
-
-.actions{display:flex;gap:7px;padding:10px 13px;border-top:1px solid #eee}
-.action{flex:1;border:0;border-radius:9px;height:40px;font-weight:800}
-.primary{background:#111;color:#fff}
-.secondary{background:#eee;color:#222}
-.danger{background:#ffe4e4;color:#b00000}
-
-.empty{text-align:center;color:#888;padding:50px 20px;background:#fff;border-radius:14px}
-
-.refresh{position:fixed;right:16px;bottom:18px;width:48px;height:48px;border:0;border-radius:50%;background:#111;color:#fff;font-size:20px;box-shadow:0 4px 15px #0003}
-
-@media(max-width:500px){
-  .main{padding:10px 9px 80px}
-  .stats{gap:6px}
-  .stat{padding:9px 5px}
-  .stat-num{font-size:19px}
-  .brand{font-size:16px}
-  .order-head{padding:11px}
-  .items,.order-info,.actions{padding-left:11px;padding-right:11px}
-}
-
-.pending-count,
-.tab-count{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:22px;
-  height:22px;
-  padding:0 6px;
-  margin-left:5px;
-  border-radius:11px;
-  background:#d00000;
-  color:#fff;
-  font-size:12px;
-  font-weight:800;
-  line-height:1;
-}
-.done-count{background:#666;}
-
+*{box-sizing:border-box}body{margin:0;background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}.wrap{max-width:760px;margin:auto;padding:22px 16px 50px}.top{background:#111;color:#fff;border-radius:18px;padding:22px;margin-bottom:16px}.top h1{margin:0;font-size:24px}.top p{margin:7px 0 0;color:#ccc}.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}label{display:block;font-weight:800;margin:12px 0 7px}select,input[type=file]{width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;background:#fff;font-size:16px}button{border:0;border-radius:11px;padding:13px 16px;font-size:16px;font-weight:800;cursor:pointer}.primary{background:#d35400;color:#fff;width:100%;margin-top:14px}.dark{background:#111;color:#fff}.light{background:#eee;color:#333}.row{display:flex;gap:10px}.row button{flex:1}.status{margin-top:12px;padding:11px;border-radius:10px;background:#f7f7f7;color:#666;line-height:1.5}.preview{margin-top:15px;min-height:180px;border:1px dashed #ccc;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa}.preview img{display:block;max-width:100%;max-height:300px;object-fit:contain}.empty{color:#999}.hidden{display:none}.small{font-size:13px;color:#777;line-height:1.5}.header-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.user{font-size:13px;color:#666;word-break:break-all}.danger{color:#a00}.ok{color:#217a35}.section-title{font-size:20px;font-weight:900;margin:0 0 4px}
 </style>
 </head>
-
 <body>
+<div class="wrap">
+  <div class="top"><div class="header-row"><div><h1>隔壁宵夜彰化店｜後台管理</h1><p>餐點圖片管理</p></div><button id="logoutBtn" class="light hidden" onclick="logout()">登出</button></div></div>
 
-<div id="loginPage" class="login-wrap">
-  <div class="login-box">
-    <div class="login-title">隔壁宵夜彰化店</div>
-    <div class="login-sub">店家後台登入</div>
+  <section id="loginCard" class="card">
+    <div class="section-title">店家管理員登入</div>
+    <div class="small">使用店家管理 Email 寄送登入連結。一般顧客不會看到這個後台。</div>
+    <button class="dark" style="width:100%;margin-top:15px" onclick="sendAdminLogin()">寄送登入連結</button>
+    <div id="loginStatus" class="status"></div>
+  </section>
 
-    <div class="field">
-      <label>Email</label>
-      <input id="email" type="email" autocomplete="username" placeholder="請輸入店家 Email">
-    </div>
-
-    <div class="field">
-      <label>密碼</label>
-      <input id="password" type="password" autocomplete="current-password" placeholder="請輸入密碼">
-    </div>
-
-    <button class="login-btn" onclick="login()">登入後台</button>
-    <div id="loginError" class="error"></div>
-  </div>
+  <section id="adminCard" class="card hidden">
+    <div class="section-title">🖼️ 餐點圖片管理</div>
+    <div id="userInfo" class="user"></div>
+    <label for="itemSelect">選擇要管理的餐點</label>
+    <select id="itemSelect" onchange="loadPreview()"></select>
+    <div class="preview" id="preview"><div class="empty">尚未選擇圖片</div></div>
+    <label for="imageFile">選擇新圖片</label>
+    <input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewSelectedFile()">
+    <div class="small">支援 JPG、PNG、WebP；單張圖片最大 5MB。</div>
+    <button class="primary" onclick="uploadImage()">上傳／更換圖片</button>
+    <div id="status" class="status"></div>
+  </section>
 </div>
 
-<div id="app" class="hidden">
-
-  <header class="header">
-    <div class="header-inner">
-      <div class="brand">隔壁宵夜彰化店｜店家後台</div>
-      <button class="logout" onclick="logout()">登出</button>
-    </div>
-  </header>
-
-  <main class="main">
-
-    <div class="stats">
-      <div class="stat">
-        <div id="newCount" class="stat-num">0</div>
-        <div class="stat-label">待接單</div>
-      </div>
-      <div class="stat">
-        <div id="makingCount" class="stat-num">0</div>
-        <div class="stat-label">製作中</div>
-      </div>
-      <div class="stat">
-        <div id="doneCount" class="stat-num">0</div>
-        <div class="stat-label">今日完成</div>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="pending-count">0</span></button>
-      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中 <span id="makingTabCount" class="tab-count">0</span></button>
-      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count done-count">0</span></button>
-      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消 <span id="cancelledTabCount" class="tab-count">0</span></button>
-    </div>
-
-    <div id="orders"></div>
-
-  </main>
-
-  <button class="refresh" onclick="loadOrders()" title="重新整理">↻</button>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ADMIN_EMAIL="smile510352@gmail.com";
+const MENU_IMAGE_BUCKET="menu-images";
 
-/*
-  這裡使用 Supabase anon/publishable key。
-  這不是 Service Role Key，不可把 Service Role Key 放在前端。
-*/
-const SUPABASE_KEY = "sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const menus=[
+  ["隔壁奶酥",[["經典原味厚奶酥",60],["日式抹茶厚奶酥",60],["可可朗尼厚奶酥",60],["香濃花生厚奶酥",60],["經典芝麻厚奶酥",60],["香蒜厚片",50]]],
+  ["經典吐司",[["起司蛋吐司",45],["火腿蛋吐司",50],["培根蛋吐司",55],["鮪魚蛋吐司",55],["薯餅蛋吐司",60],["豬排蛋吐司",60],["咔啦雞排蛋吐司",65],["熱狗捲",35],["果醬吐司",25]]],
+  ["美味蛋餅",[["原味蛋餅",35],["起司蛋餅",40],["火腿蛋餅",45],["熱狗蛋餅",50],["培根蛋餅",50],["鮪魚蛋餅",50],["薯餅蛋餅",55],["豬排蛋餅",55],["咔啦雞排蛋餅",60],["可可脆脆蛋餅",65]]],
+  ["個人特餐-附紅茶",[["豬排黑胡椒麵",100],["豬排蘑菇麵",100],["豬排炒泡麵",105]]],
+  ["招牌麵食（乾）",[["古早味紅蔥雞絲麵",50],["古早味剝椒雞絲麵",60],["招牌炒泡麵",80],["沙茶炒泡麵",85],["招牌麻辣炒泡麵",85],["香辣炒泡麵",95],["豬排拌拌麵（大）",90]]],
+  ["秘製鍋燒(湯)",[["原味鍋燒",95],["沙茶鍋燒",105],["麻辣鍋燒",105],["咖哩鍋燒",115],["起司牛奶鍋燒",125],["泰式冬陰鍋燒",130]]],
+  ["點心炸物",[["荷包蛋",20],["單點豬排",30],["熱狗",30],["薯餅",30],["小肉豆",35],["甜不辣",40],["炸湯圓",40],["薯條",40],["玉米布丁酥",40],["小雞球",45],["麥香雞塊",45],["咔啦雞排（辣）",45],["酥炸杏鮑菇",45],["雙色地瓜QQ球",45],["芋泥球",45],["魷米花",50],["土魠魚塊（炸）",55],["炸元寶",65],["日式炸豬排",70]]],
+  ["飲品",[["紅茶",25],["麥茶",25],["奶茶",35],["冷泡茶",45]]]
+];
+const hiddenMenus=[["豬排大套餐",190],["單人獨享餐",125],["單人經濟套餐",135],["日式炸豬排烏龍麵",135]];
+const items=[];
+menus.forEach((m,mi)=>m[1].forEach((it,ii)=>items.push({key:`menu-${mi}-${ii}`,name:`${m[0]}｜${it[0]}`})));
+hiddenMenus.forEach((it,i)=>items.push({key:`hidden-${i}`,name:`隱藏版菜單｜${it[0]}`}));
 
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-});
-
-let currentTab = "new";
-let realtimeChannel = null;
-let lastOrdersSignature = null;
-
-async function login(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  const errorBox = document.getElementById("loginError");
-  errorBox.textContent = "";
-
-  // 記住帳號 Email，但絕不儲存密碼
-  if(email){
-    localStorage.setItem("admin_login_email", email);
-  }
-
-  if(!email || !password){
-    errorBox.textContent = "請輸入 Email 與密碼";
-    return;
-  }
-
-  const {error} = await client.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-    errorBox.textContent = "登入失敗：" + error.message;
-    return;
-  }
-
-  showApp();
+const itemSelect=document.getElementById('itemSelect');
+itemSelect.innerHTML=items.map(i=>`<option value="${i.key}">${escapeHtml(i.name)}</option>`).join('');
+function escapeHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function setStatus(msg,cls=''){const el=document.getElementById('status');el.className='status '+cls;el.textContent=msg||''}
+function setLoginStatus(msg){document.getElementById('loginStatus').textContent=msg||''}
+function showLoggedIn(user){document.getElementById('loginCard').classList.add('hidden');document.getElementById('adminCard').classList.remove('hidden');document.getElementById('logoutBtn').classList.remove('hidden');document.getElementById('userInfo').textContent='已登入：'+(user.email||'');loadPreview()}
+async function checkSession(){const {data:{user}}=await supabaseClient.auth.getUser();if(user?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase())showLoggedIn(user)}
+async function sendAdminLogin(){setLoginStatus('正在寄送登入連結…');const {error}=await supabaseClient.auth.signInWithOtp({email:ADMIN_EMAIL});setLoginStatus(error?'寄送失敗：'+error.message:'登入連結已寄到店家 Email，請點信件中的連結後回到此頁面。')}
+async function logout(){await supabaseClient.auth.signOut();location.reload()}
+async function loadPreview(){
+ const key=itemSelect.value;setStatus('正在讀取目前圖片…');
+ const {data,error}=await supabaseClient.from('menu_item_images').select('image_path').eq('item_key',key).maybeSingle();
+ const box=document.getElementById('preview');
+ if(error){box.innerHTML='<div class="empty">讀取失敗</div>';setStatus('讀取圖片資料失敗：'+error.message,'danger');return}
+ if(!data?.image_path){box.innerHTML='<div class="empty">此餐點目前沒有店家自訂圖片</div>';setStatus('目前沒有自訂圖片。上傳後前台會優先使用新圖片。');return}
+ const {data:urlData}=supabaseClient.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(data.image_path);
+ box.innerHTML=urlData?.publicUrl?`<img src="${urlData.publicUrl}" alt="目前餐點圖片">`:'<div class="empty">圖片網址取得失敗</div>';
+ setStatus('目前已有店家圖片。');
 }
-
-async function logout(){
-  await client.auth.signOut();
-  location.reload();
+function previewSelectedFile(){const file=document.getElementById('imageFile').files?.[0];if(!file)return;const box=document.getElementById('preview');if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setStatus('僅支援 JPG、PNG 或 WebP。','danger');return}if(file.size>5*1024*1024){setStatus('圖片不可超過 5MB。','danger');return}box.innerHTML='';const img=document.createElement('img');img.src=URL.createObjectURL(file);box.appendChild(img);setStatus('已選擇新圖片，按「上傳／更換圖片」即可。')}
+async function uploadImage(){
+ const file=document.getElementById('imageFile').files?.[0];const itemKey=itemSelect.value;if(!file){setStatus('請先選擇一張圖片。','danger');return}
+ if(file.size>5*1024*1024){setStatus('圖片不可超過 5MB。','danger');return}
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setStatus('僅支援 JPG、PNG 或 WebP。','danger');return}
+ setStatus('正在確認管理員權限…');const {data:{user}}=await supabaseClient.auth.getUser();if(user?.email?.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){setStatus('目前不是店家管理帳號，請重新登入。','danger');return}
+ setStatus('正在上傳圖片…');const ext=file.name.split('.').pop().toLowerCase();const path=`menu/${itemKey}-${Date.now()}.${ext}`;
+ const {data:oldRow}=await supabaseClient.from('menu_item_images').select('image_path').eq('item_key',itemKey).maybeSingle();
+ const {error:uploadError}=await supabaseClient.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type,upsert:false});
+ if(uploadError){setStatus('上傳失敗：'+uploadError.message,'danger');return}
+ const {error:saveError}=await supabaseClient.from('menu_item_images').upsert({item_key:itemKey,image_path:path,updated_at:new Date().toISOString()});
+ if(saveError){await supabaseClient.storage.from(MENU_IMAGE_BUCKET).remove([path]);setStatus('資料儲存失敗：'+saveError.message,'danger');return}
+ if(oldRow?.image_path)await supabaseClient.storage.from(MENU_IMAGE_BUCKET).remove([oldRow.image_path]);
+ document.getElementById('imageFile').value='';await loadPreview();setStatus('圖片已更新完成。前台重新整理後會優先顯示這張圖片。','ok')
 }
-
-async function checkSession(){
-  const {data, error} = await client.auth.getSession();
-
-  if(error){
-    console.error("取得登入狀態失敗：", error);
-  }
-
-  if(data && data.session){
-    showApp();
-  }else{
-    showLogin();
-  }
-}
-
-function restoreSavedEmail(){
-  const savedEmail = localStorage.getItem("admin_login_email");
-  const emailInput = document.getElementById("email");
-
-  if(savedEmail && emailInput){
-    emailInput.value = savedEmail;
-  }
-}
-
-function showLogin(){
-  document.getElementById("loginPage").classList.remove("hidden");
-  document.getElementById("app").classList.add("hidden");
-  restoreSavedEmail();
-}
-
-function showApp(){
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-
-  loadOrders();
-  startRealtime();
-  startAutoRefresh();
-}
-
-function setTab(status,button){
-  currentTab = status;
-
-  document.querySelectorAll(".tab").forEach(x=>{
-    x.classList.remove("active");
-  });
-
-  button.classList.add("active");
-
-  loadOrders();
-}
-
-async function loadOrders(){
-
-  const {data:orders,error} = await client
-    .from("orders")
-    .select("*")
-    .order("created_at",{ascending:false})
-    .limit(100);
-
-  if(error){
-    document.getElementById("orders").innerHTML =
-      '<div class="empty">讀取訂單失敗<br><small>'+escapeHtml(error.message)+'</small></div>';
-    return;
-  }
-
-  const today = new Date();
-  const todayText = today.toISOString().slice(0,10);
-
-  let newCount = 0;
-  let makingCount = 0;
-  let doneCount = 0;
-
-  (orders || []).forEach(order=>{
-    const status = normalizeStatus(order.status);
-
-    if(status === "new") newCount++;
-    if(status === "making") makingCount++;
-
-    if(
-      status === "done" &&
-      String(order.created_at || "").slice(0,10) === todayText
-    ){
-      doneCount++;
-    }
-  });
-
-  document.getElementById("newCount").textContent = newCount;
-  document.getElementById("pendingCount").textContent = newCount;
-  document.getElementById("makingTabCount").textContent = makingCount;
-  document.getElementById("doneTabCount").textContent = doneCount;
-  const cancelledCount = (orders || []).filter(order =>
-    normalizeStatus(order.status) === "cancelled"
-  ).length;
-  document.getElementById("cancelledTabCount").textContent = cancelledCount;
-  const pendingCount = document.getElementById("pendingCount");
-  if(pendingCount){
-    pendingCount.textContent = newCount;
-    pendingCount.style.display = newCount > 0 ? "inline-flex" : "none";
-  }
-  document.getElementById("makingCount").textContent = makingCount;
-  document.getElementById("doneCount").textContent = doneCount;
-
-  const filtered = (orders || []).filter(order=>{
-    return normalizeStatus(order.status) === currentTab;
-  });
-
-  // 沒有任何資料變化時，不重新建立整個訂單區塊，避免畫面跳動。
-  const signature = JSON.stringify(
-    (orders || []).map(order => ({
-      id: order.id,
-      status: order.status,
-      updated_at: order.updated_at,
-      created_at: order.created_at,
-      customer_name: order.customer_name,
-      customer_phone: order.customer_phone,
-      pickup_time: order.pickup_time,
-      total_amount: order.total_amount
-    }))
-  ) + "|" + currentTab;
-
-  if(signature === lastOrdersSignature){
-    return;
-  }
-
-  const scrollY = window.scrollY;
-  lastOrdersSignature = signature;
-
-  if(!filtered.length){
-    document.getElementById("orders").innerHTML =
-      '<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
-    requestAnimationFrame(() => window.scrollTo(0, scrollY));
-    return;
-  }
-
-  document.getElementById("orders").innerHTML =
-    filtered.map(orderCard).join("");
-
-  requestAnimationFrame(() => window.scrollTo(0, scrollY));
-
-  for(const order of filtered){
-    loadItems(order.id);
-  }
-}
-
-async function loadItems(orderId){
-
-  const {data,error} = await client
-    .from("order_items")
-    .select("*")
-    .eq("order_id",orderId)
-    .order("id",{ascending:true});
-
-  const box = document.getElementById("items-"+orderId);
-
-  if(!box) return;
-
-  if(error){
-    box.innerHTML = '<div class="item-options">餐點讀取失敗</div>';
-    return;
-  }
-
-  if(!data || !data.length){
-    box.innerHTML = '<div class="item-options">此訂單沒有餐點資料</div>';
-    return;
-  }
-
-  box.innerHTML = data.map(item=>{
-
-    let options = "";
-
-    if(item.options){
-
-      // 與前台購物車完全相同的細項排序規則：
-      // 主餐 → 奶酥 → 炸物 → 加麵/加辣/加起司 → 飲品
-      const getOptionRank = (option) => {
-        const name = String(option?.name || "");
-        const group = String(option?.group || "");
-
-        if(group === "main" || group.includes("主餐")) return 10;
-        if(group === "cream" || group.includes("奶酥")) return 20;
-        if(group === "fried" || group.includes("炸物")) return 30;
-        if(group === "extra" || group.includes("加麵") || group.includes("加辣") || group.includes("加起司")) return 40;
-        if(group === "drink" || group.includes("飲品")) return 50;
-
-        if(/加麵|加辣|加起司/.test(name)) return 40;
-        if(/紅茶|奶茶|冷泡茶|麥茶|咖啡|可樂|雪碧|飲料|飲品/.test(name)) return 50;
-
-        return 35;
-      };
-
-      const formatOptionName = (value) => {
-        if(value === null || value === undefined || value === ""){
-          return "";
-        }
-
-        if(Array.isArray(value)){
-          return value.map(formatOptionName).filter(Boolean).join("、");
-        }
-
-        if(typeof value === "object"){
-          if(value.name !== undefined && value.name !== null && value.name !== ""){
-            return formatOptionName(value.name);
-          }
-
-          if(value.label !== undefined && value.label !== null && value.label !== ""){
-            return formatOptionName(value.label);
-          }
-
-          if(value.title !== undefined && value.title !== null && value.title !== ""){
-            return formatOptionName(value.title);
-          }
-
-          if(value.value !== undefined && value.value !== null && value.value !== ""){
-            return formatOptionName(value.value);
-          }
-
-          return Object.entries(value)
-            .filter(([key]) => !["price","id","key","group"].includes(String(key).toLowerCase()))
-            .map(([,val]) => formatOptionName(val))
-            .filter(Boolean)
-            .join("、");
-        }
-
-        return String(value);
-      };
-
-      let optionList = [];
-
-      if(Array.isArray(item.options)){
-        optionList = item.options.map((option, index) => ({
-          option,
-          index,
-          rank: getOptionRank(option)
-        }));
-      }else if(typeof item.options === "object"){
-        optionList = [{
-          option: item.options,
-          index: 0,
-          rank: getOptionRank(item.options)
-        }];
-      }else{
-        const plain = formatOptionName(item.options);
-        if(plain){
-          optionList = [{
-            option: {name: plain},
-            index: 0,
-            rank: 35
-          }];
-        }
-      }
-
-      optionList.sort((a,b) => a.rank - b.rank || a.index - b.index);
-
-      options = optionList
-        .map(({option}) => formatOptionName(option))
-        .filter(Boolean)
-        .join("、");
-    }
-
-    return `
-      <div class="item">
-        <div class="item-main">
-          <span>${escapeHtml(item.item_name || "未命名品項")} × ${Number(item.quantity || 0)}</span>
-          <span class="item-price">$${Number(item.price || 0) * Number(item.quantity || 0)}</span>
-        </div>
-        ${options ? `<div class="item-options">${escapeHtml(options)}</div>` : ""}
-      </div>
-    `;
-  }).join("");
-}
-
-function orderCard(order){
-
-  const status = normalizeStatus(order.status);
-
-  return `
-    <div class="order">
-
-      <div class="order-head">
-        <div>
-          <div class="order-no">訂單 #${escapeHtml(String(order.id))}</div>
-          <div class="order-time">
-            ${formatDate(order.created_at)}
-          </div>
-        </div>
-
-        <div class="status ${statusClass(status)}">
-          ${statusText(status)}
-        </div>
-      </div>
-
-      <div class="order-info">
-
-        <div><b>顧客：</b>${escapeHtml(order.customer_name || "—")}</div>
-
-        <div>
-          <b>手機：</b>
-          <a href="tel:${escapeHtml(order.phone || "")}">
-            ${escapeHtml(order.phone || "—")}
-          </a>
-        </div>
-
-        <div><b>取餐時間：</b>${escapeHtml(order.pickup_time || "不指定")}</div>
-
-        <div><b>餐具：</b><span class="cutlery-value">${escapeHtml(order.cutlery || "—")}</span></div>
-
-        <div class="total">
-          $${Number(order.total || 0)}
-        </div>
-
-      </div>
-
-      <div class="items" id="items-${order.id}">
-        <div class="item-options">載入餐點中…</div>
-      </div>
-
-      <div class="actions">
-
-        ${status === "new" ? `
-          <button class="action primary" onclick="changeStatus(${order.id},'making')">
-            開始製作
-          </button>
-          <button class="action danger" onclick="changeStatus(${order.id},'cancelled')">
-            取消
-          </button>
-        ` : ""}
-
-        ${status === "making" ? `
-          <button class="action primary" onclick="changeStatus(${order.id},'done')">
-            餐點完成
-          </button>
-          <button class="action danger" onclick="changeStatus(${order.id},'cancelled')">
-            取消
-          </button>
-        ` : ""}
-
-        ${status === "done" ? `
-          <button class="action secondary" onclick="changeStatus(${order.id},'new')">
-            恢復待接單
-          </button>
-        ` : ""}
-
-        ${status === "cancelled" ? `
-          <button class="action secondary" onclick="changeStatus(${order.id},'new')">
-            恢復待接單
-          </button>
-        ` : ""}
-
-      </div>
-
-    </div>
-  `;
-}
-
-async function changeStatus(id,status){
-
-  const label = statusText(normalizeStatus(status));
-
-  if(!confirm("確定要將此訂單改為「"+label+"」嗎？")){
-    return;
-  }
-
-  const {error} = await client
-    .from("orders")
-    .update({status})
-    .eq("id",id);
-
-  if(error){
-    alert("修改失敗：" + error.message);
-    return;
-  }
-
-  loadOrders();
-}
-
-function startAutoRefresh(){
-  // 每 1 分鐘自動更新訂單
-  setInterval(() => {
-    loadOrders();
-  }, 30000);
-}
-
-function startRealtime(){
-
-  if(realtimeChannel){
-    client.removeChannel(realtimeChannel);
-  }
-
-  realtimeChannel = client
-    .channel("orders-admin")
-    .on(
-      "postgres_changes",
-      {
-        event:"*",
-        schema:"public",
-        table:"orders"
-      },
-      ()=>{
-        loadOrders();
-      }
-    )
-    .subscribe();
-}
-
-function normalizeStatus(status){
-
-  const s = String(status || "").toLowerCase();
-
-  if(
-    s === "new" ||
-    s === "pending" ||
-    s === "待接單" ||
-    s === "待處理"
-  ) return "new";
-
-  if(
-    s === "making" ||
-    s === "processing" ||
-    s === "製作中"
-  ) return "making";
-
-  if(
-    s === "done" ||
-    s === "completed" ||
-    s === "完成" ||
-    s === "已完成"
-  ) return "done";
-
-  if(
-    s === "cancelled" ||
-    s === "canceled" ||
-    s === "取消" ||
-    s === "已取消"
-  ) return "cancelled";
-
-  return "new";
-}
-
-function statusText(status){
-
-  if(status === "new") return "待接單";
-  if(status === "making") return "製作中";
-  if(status === "done") return "已完成";
-  if(status === "cancelled") return "已取消";
-
-  return status;
-}
-
-function statusClass(status){
-
-  if(status === "new") return "status-new";
-  if(status === "making") return "status-making";
-  if(status === "done") return "status-done";
-  if(status === "cancelled") return "status-cancel";
-
-  return "";
-}
-
-function tabName(status){
-
-  if(status === "new") return "待接單";
-  if(status === "making") return "製作中";
-  if(status === "done") return "已完成";
-  if(status === "cancelled") return "已取消";
-
-  return "";
-}
-
-function formatDate(value){
-
-  if(!value) return "—";
-
-  const d = new Date(value);
-
-  if(Number.isNaN(d.getTime())) return String(value);
-
-  return d.toLocaleString("zh-TW",{
-    year:"numeric",
-    month:"2-digit",
-    day:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit"
-  });
-}
-
-function escapeHtml(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-document.getElementById("password").addEventListener("keydown",e=>{
-  if(e.key === "Enter") login();
-});
-
-client.auth.onAuthStateChange((event,session)=>{
-  if(session){
-    showApp();
-  }
-});
-
-restoreSavedEmail();
+supabaseClient.auth.onAuthStateChange((_event,session)=>{if(session?.user?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase())showLoggedIn(session.user)});
 checkSession();
 </script>
-
 </body>
 </html>
