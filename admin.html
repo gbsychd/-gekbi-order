@@ -80,6 +80,7 @@ button{cursor:pointer}
   .items,.order-info,.actions{padding-left:11px;padding-right:11px}
 }
 
+.menu-tools{background:#fff;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 2px 8px #00000008}.menu-tools h3{margin:0 0 10px;font-size:18px}.manage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.manage-card{border:1px solid #eee;border-radius:12px;padding:12px}.manage-card label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}.manage-card select,.manage-card input[type=file]{width:100%;padding:9px;border:1px solid #ddd;border-radius:9px;background:#fff}.manage-actions{display:flex;gap:7px;margin-top:8px}.manage-actions button{flex:1;border:0;border-radius:9px;padding:9px;font-weight:800}.manage-primary{background:#111;color:#fff}.manage-secondary{background:#eee;color:#222}.manage-danger{background:#ffe4e4;color:#b00000}.manage-preview{width:100%;aspect-ratio:1.6;border-radius:10px;background:#f3f3f3;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:8px}.manage-preview img{width:100%;height:100%;object-fit:cover}.manage-status{font-size:12px;color:#666;line-height:1.5;margin-top:7px}.sold-list{max-height:280px;overflow:auto}.sold-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee}.sold-row:last-child{border-bottom:0}.sold-name{font-size:13px;font-weight:700}.sold-toggle{border:0;border-radius:8px;padding:7px 10px;font-weight:800}.sold-on{background:#777;color:#fff}.sold-off{background:#eee;color:#222}.management-toggle{border:1px solid #ddd;background:#fff;border-radius:9px;padding:9px 12px;font-weight:800;margin-bottom:10px}.hidden-manage{display:none!important}@media(max-width:650px){.manage-grid{grid-template-columns:1fr}}
 .pending-count{
   display:inline-flex;
   align-items:center;
@@ -95,8 +96,6 @@ button{cursor:pointer}
   font-weight:800;
   line-height:1;
 }
-
-.image-admin{background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}.image-admin h2{margin:0 0 5px;font-size:18px}.image-admin-note{font-size:12px;color:#777;margin-bottom:12px;line-height:1.5}.image-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.image-admin-field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}.image-admin-field select,.image-admin-field input{width:100%;height:42px;border:1px solid #ddd;border-radius:9px;padding:0 10px;background:#fff}.image-admin-preview{margin-top:12px;display:flex;gap:12px;align-items:center;padding:10px;background:#fafafa;border-radius:10px}.image-admin-preview img{width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee}.image-admin-preview .no-image{width:82px;height:82px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;text-align:center}.image-admin-actions{display:flex;gap:8px;margin-top:12px}.image-admin-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:800}.image-upload-btn{background:#111;color:#fff}.image-refresh-btn{background:#eee;color:#222}.image-admin-status{font-size:13px;margin-top:10px;min-height:20px;color:#555}@media(max-width:600px){.image-admin-grid{grid-template-columns:1fr}.image-admin-preview{align-items:flex-start}}
 </style>
 </head>
 
@@ -153,22 +152,30 @@ button{cursor:pointer}
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
+      <button class="tab" type="button" onclick="toggleManagement(this)">⚙️ 菜單管理</button>
+    </div>
+
+
+    <div id="managementPanel" class="menu-tools hidden-manage">
+      <h3>⚙️ 菜單管理</h3>
+      <div class="manage-grid">
+        <div class="manage-card">
+          <label>🖼️ 餐點圖片</label>
+          <select id="manageImageItem" onchange="loadManageImagePreview()"></select>
+          <div id="manageImagePreview" class="manage-preview">尚未選擇餐點</div>
+          <input id="manageImageFile" type="file" accept="image/jpeg,image/png,image/webp" style="margin-top:8px">
+          <div class="manage-actions"><button class="manage-primary" onclick="uploadManageImage()">上傳／更換</button><button class="manage-secondary" onclick="removeManageImage()">恢復預設</button></div>
+          <div id="manageImageStatus" class="manage-status"></div>
+        </div>
+        <div class="manage-card">
+          <label>🚫 餐點完售／恢復</label>
+          <div id="soldList" class="sold-list">載入中…</div>
+          <div id="soldStatus" class="manage-status"></div>
+        </div>
+      </div>
     </div>
 
     <div id="orders"></div>
-
-
-    <section class="image-admin" id="imageAdminSection">
-      <h2>🖼️ 餐點圖片管理</h2>
-      <div class="image-admin-note">只在店家後台使用。顧客前台不會看到上傳功能。上傳後會自動取代該餐點目前的圖片。</div>
-      <div class="image-admin-grid">
-        <div class="image-admin-field"><label for="imageAdminItem">選擇餐點</label><select id="imageAdminItem" onchange="previewAdminImage()"></select></div>
-        <div class="image-admin-field"><label for="imageAdminFile">選擇新圖片</label><input id="imageAdminFile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewAdminFile()"></div>
-      </div>
-      <div class="image-admin-preview"><div id="imageAdminPreviewBox" class="no-image">尚無圖片</div><div><b id="imageAdminPreviewName">請選擇餐點</b><div id="imageAdminPreviewPath" class="image-admin-note" style="margin:4px 0 0">—</div></div></div>
-      <div class="image-admin-actions"><button class="image-upload-btn" onclick="uploadMenuImage()">上傳／更換圖片</button><button class="image-refresh-btn" onclick="loadAdminImageData()">重新整理</button></div>
-      <div id="imageAdminStatus" class="image-admin-status"></div>
-    </section>
 
   </main>
 
@@ -225,8 +232,7 @@ async function logout(){
   location.reload();
 }
 
-async \nconst MENU_IMAGE_BUCKET="menu-images";\nconst IMAGE_ADMIN_EMAIL="smile510352@gmail.com";\nconst imageAdminMenus=[\n["隔壁奶酥",["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],["經典吐司",["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],["美味蛋餅",["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],["個人特餐-附紅茶",["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],["招牌麵食（乾）",["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","沙茶炒泡麵","招牌麻辣炒泡麵","香辣炒泡麵","豬排拌拌麵（大）"]],["秘製鍋燒(湯)",["原味鍋燒","沙茶鍋燒","麻辣鍋燒","咖哩鍋燒","起司牛奶鍋燒","泰式冬陰鍋燒"]],["點心炸物",["荷包蛋","單點豬排","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排"]],["飲品",["紅茶","麥茶","奶茶","冷泡茶"]],["隱藏版菜單",["豬排大套餐","單人獨享餐","單人經濟套餐","日式炸豬排烏龍麵"]]];\nlet adminImageRows={};\nfunction buildImageAdminItems(){const out=[];imageAdminMenus.forEach((g,gi)=>g[1].forEach((name,ii)=>out.push({key:gi===8?`hidden-${ii}`:`menu-${gi}-${ii}`,name:`${g[0]}｜${name}`})));return out}\nfunction imageAdminStatus(m){document.getElementById("imageAdminStatus").textContent=m||""}\nasync function loadAdminImageData(){const section=document.getElementById("imageAdminSection"),{data:{user}}=await client.auth.getUser();if(!user||user.email.toLowerCase()!==IMAGE_ADMIN_EMAIL){section.style.display="none";return}section.style.display="block";const select=document.getElementById("imageAdminItem");if(!select.options.length)select.innerHTML=buildImageAdminItems().map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join("");const {data,error}=await client.from("menu_item_images").select("item_key,image_path");if(error){imageAdminStatus("讀取圖片資料失敗："+error.message);return}adminImageRows={};(data||[]).forEach(r=>adminImageRows[r.item_key]=r);previewAdminImage();imageAdminStatus("圖片資料已更新")}\nasync function previewAdminImage(){const key=document.getElementById("imageAdminItem").value,opt=document.getElementById("imageAdminItem").selectedOptions[0],box=document.getElementById("imageAdminPreviewBox");document.getElementById("imageAdminPreviewName").textContent=opt?opt.textContent:"請選擇餐點";const row=adminImageRows[key];if(!row){box.className="no-image";box.textContent="尚無上傳圖片";document.getElementById("imageAdminPreviewPath").textContent="目前使用前台預設圖片";return}const {data}=client.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);if(data?.publicUrl){box.className="";box.innerHTML=`<img src="${data.publicUrl}" alt="">`;document.getElementById("imageAdminPreviewPath").textContent=row.image_path}}\nfunction previewAdminFile(){const file=document.getElementById("imageAdminFile").files?.[0];if(!file)return;const box=document.getElementById("imageAdminPreviewBox"),url=URL.createObjectURL(file);box.className="";box.innerHTML=`<img src="${url}" alt="預覽">`;document.getElementById("imageAdminPreviewPath").textContent=`準備上傳：${file.name}`}\nasync function uploadMenuImage(){const file=document.getElementById("imageAdminFile").files?.[0],itemKey=document.getElementById("imageAdminItem").value;if(!file){imageAdminStatus("請先選擇圖片");return}if(file.size>5*1024*1024){imageAdminStatus("圖片不可超過 5MB");return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){imageAdminStatus("僅支援 JPG、PNG、WebP");return}const {data:{user}}=await client.auth.getUser();if(user?.email?.toLowerCase()!==IMAGE_ADMIN_EMAIL){imageAdminStatus("目前登入帳號沒有圖片管理權限");return}imageAdminStatus("正在上傳圖片…");const ext=file.name.split(".").pop().toLowerCase(),path=`menu/${itemKey}-${Date.now()}.${ext}`,old=adminImageRows[itemKey];const {error:upErr}=await client.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type});if(upErr){imageAdminStatus("上傳失敗："+upErr.message);return}const {error:saveErr}=await client.from("menu_item_images").upsert({item_key:itemKey,image_path:path,updated_at:new Date().toISOString()});if(saveErr){await client.storage.from(MENU_IMAGE_BUCKET).remove([path]);imageAdminStatus("儲存失敗："+saveErr.message);return}if(old?.image_path)await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]);document.getElementById("imageAdminFile").value="";await loadAdminImageData();imageAdminStatus("圖片已更新完成")}\n
-function checkSession(){
+async function checkSession(){
   const {data, error} = await client.auth.getSession();
 
   if(error){
@@ -252,7 +258,6 @@ function showApp(){
   loadOrders();
   startRealtime();
   startAutoRefresh();
-  loadAdminImageData();
 }
 
 function setTab(status,button){
@@ -265,6 +270,58 @@ function setTab(status,button){
   button.classList.add("active");
 
   loadOrders();
+}
+
+const MENU_IMAGE_BUCKET='menu-images';
+const ADMIN_EMAIL='smile510352@gmail.com';
+const manageItems=[{"key": "menu-0-0", "name": "隔壁奶酥｜經典原味厚奶酥"}, {"key": "menu-0-1", "name": "隔壁奶酥｜日式抹茶厚奶酥"}, {"key": "menu-0-2", "name": "隔壁奶酥｜可可朗尼厚奶酥"}, {"key": "menu-0-3", "name": "隔壁奶酥｜香濃花生厚奶酥"}, {"key": "menu-0-4", "name": "隔壁奶酥｜經典芝麻厚奶酥"}, {"key": "menu-0-5", "name": "隔壁奶酥｜香蒜厚片"}, {"key": "menu-1-0", "name": "經典吐司｜起司蛋吐司"}, {"key": "menu-1-1", "name": "經典吐司｜火腿蛋吐司"}, {"key": "menu-1-2", "name": "經典吐司｜培根蛋吐司"}, {"key": "menu-1-3", "name": "經典吐司｜鮪魚蛋吐司"}, {"key": "menu-1-4", "name": "經典吐司｜薯餅蛋吐司"}, {"key": "menu-1-5", "name": "經典吐司｜豬排蛋吐司"}, {"key": "menu-1-6", "name": "經典吐司｜咔啦雞排蛋吐司"}, {"key": "menu-1-7", "name": "經典吐司｜熱狗捲"}, {"key": "menu-1-8", "name": "經典吐司｜果醬吐司"}, {"key": "menu-2-0", "name": "美味蛋餅｜原味蛋餅"}, {"key": "menu-2-1", "name": "美味蛋餅｜起司蛋餅"}, {"key": "menu-2-2", "name": "美味蛋餅｜火腿蛋餅"}, {"key": "menu-2-3", "name": "美味蛋餅｜熱狗蛋餅"}, {"key": "menu-2-4", "name": "美味蛋餅｜培根蛋餅"}, {"key": "menu-2-5", "name": "美味蛋餅｜鮪魚蛋餅"}, {"key": "menu-2-6", "name": "美味蛋餅｜薯餅蛋餅"}, {"key": "menu-2-7", "name": "美味蛋餅｜豬排蛋餅"}, {"key": "menu-2-8", "name": "美味蛋餅｜咔啦雞排蛋餅"}, {"key": "menu-2-9", "name": "美味蛋餅｜可可脆脆蛋餅"}, {"key": "menu-3-0", "name": "個人特餐-附紅茶｜豬排黑胡椒麵"}, {"key": "menu-3-1", "name": "個人特餐-附紅茶｜豬排蘑菇麵"}, {"key": "menu-3-2", "name": "個人特餐-附紅茶｜豬排炒泡麵"}, {"key": "menu-4-0", "name": "招牌麵食（乾）｜古早味紅蔥雞絲麵"}, {"key": "menu-4-1", "name": "招牌麵食（乾）｜古早味剝椒雞絲麵"}, {"key": "menu-4-2", "name": "招牌麵食（乾）｜招牌炒泡麵"}, {"key": "menu-4-3", "name": "招牌麵食（乾）｜沙茶炒泡麵"}, {"key": "menu-4-4", "name": "招牌麵食（乾）｜招牌麻辣炒泡麵"}, {"key": "menu-4-5", "name": "招牌麵食（乾）｜香辣炒泡麵"}, {"key": "menu-4-6", "name": "招牌麵食（乾）｜豬排拌拌麵（大）"}, {"key": "menu-5-0", "name": "秘製鍋燒(湯)｜原味鍋燒"}, {"key": "menu-5-1", "name": "秘製鍋燒(湯)｜沙茶鍋燒"}, {"key": "menu-5-2", "name": "秘製鍋燒(湯)｜麻辣鍋燒"}, {"key": "menu-5-3", "name": "秘製鍋燒(湯)｜咖哩鍋燒"}, {"key": "menu-5-4", "name": "秘製鍋燒(湯)｜起司牛奶鍋燒"}, {"key": "menu-5-5", "name": "秘製鍋燒(湯)｜泰式冬陰鍋燒"}, {"key": "menu-6-0", "name": "點心炸物｜荷包蛋"}, {"key": "menu-6-1", "name": "點心炸物｜單點豬排"}, {"key": "menu-6-2", "name": "點心炸物｜熱狗"}, {"key": "menu-6-3", "name": "點心炸物｜薯餅"}, {"key": "menu-6-4", "name": "點心炸物｜小肉豆"}, {"key": "menu-6-5", "name": "點心炸物｜甜不辣"}, {"key": "menu-6-6", "name": "點心炸物｜炸湯圓"}, {"key": "menu-6-7", "name": "點心炸物｜薯條"}, {"key": "menu-6-8", "name": "點心炸物｜玉米布丁酥"}, {"key": "menu-6-9", "name": "點心炸物｜小雞球"}, {"key": "menu-6-10", "name": "點心炸物｜麥香雞塊"}, {"key": "menu-6-11", "name": "點心炸物｜咔啦雞排（辣）"}, {"key": "menu-6-12", "name": "點心炸物｜酥炸杏鮑菇"}, {"key": "menu-6-13", "name": "點心炸物｜雙色地瓜QQ球"}, {"key": "menu-6-14", "name": "點心炸物｜芋泥球"}, {"key": "menu-6-15", "name": "點心炸物｜魷米花"}, {"key": "menu-6-16", "name": "點心炸物｜土魠魚塊（炸）"}, {"key": "menu-6-17", "name": "點心炸物｜炸元寶"}, {"key": "menu-6-18", "name": "點心炸物｜日式炸豬排"}, {"key": "menu-7-0", "name": "飲品｜紅茶"}, {"key": "menu-7-1", "name": "飲品｜麥茶"}, {"key": "menu-7-2", "name": "飲品｜奶茶"}, {"key": "menu-7-3", "name": "飲品｜冷泡茶"}, {"key": "hidden-0", "name": "隱藏版菜單｜豬排大套餐"}, {"key": "hidden-1", "name": "隱藏版菜單｜單人獨享餐"}, {"key": "hidden-2", "name": "隱藏版菜單｜單人經濟套餐"}, {"key": "hidden-3", "name": "隱藏版菜單｜日式炸豬排烏龍麵"}];
+function toggleManagement(btn){
+  const panel=document.getElementById('managementPanel');
+  const hidden=panel.classList.toggle('hidden-manage');
+  if(!hidden){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+    initMenuManagement();
+  }
+}
+async function initMenuManagement(){
+  const select=document.getElementById('manageImageItem');
+  if(select&&!select.options.length) select.innerHTML=manageItems.map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join('');
+  await loadManageImagePreview(); await loadSoldList();
+}
+async function loadManageImagePreview(){
+  const key=document.getElementById('manageImageItem')?.value; const box=document.getElementById('manageImagePreview'); if(!key||!box)return;
+  const {data}=await client.from('menu_item_images').select('image_path').eq('item_key',key).maybeSingle();
+  if(data?.image_path){const {data:u}=client.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(data.image_path); box.innerHTML=u?.publicUrl?`<img src="${escapeHtml(u.publicUrl)}" alt="">`:'目前圖片無法讀取';} else box.textContent='目前使用預設／平台圖片';
+}
+async function uploadManageImage(){
+  const file=document.getElementById('manageImageFile').files?.[0], key=document.getElementById('manageImageItem').value;
+  if(!file)return document.getElementById('manageImageStatus').textContent='請先選擇圖片。';
+  if(file.size>5*1024*1024)return document.getElementById('manageImageStatus').textContent='圖片不可超過 5MB。';
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type))return document.getElementById('manageImageStatus').textContent='僅支援 JPG、PNG、WebP。';
+  document.getElementById('manageImageStatus').textContent='上傳中…';
+  const {data:old}=await client.from('menu_item_images').select('image_path').eq('item_key',key).maybeSingle();
+  const ext=file.name.split('.').pop().toLowerCase(), path=`menu/${key}-${Date.now()}.${ext}`;
+  const {error:upErr}=await client.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type});
+  if(upErr)return document.getElementById('manageImageStatus').textContent='上傳失敗：'+upErr.message;
+  const {error:saveErr}=await client.from('menu_item_images').upsert({item_key:key,image_path:path,updated_at:new Date().toISOString()});
+  if(saveErr){await client.storage.from(MENU_IMAGE_BUCKET).remove([path]);return document.getElementById('manageImageStatus').textContent='儲存失敗：'+saveErr.message;}
+  if(old?.image_path)await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]);
+  document.getElementById('manageImageFile').value=''; document.getElementById('manageImageStatus').textContent='圖片已更新。'; await loadManageImagePreview();
+}
+async function removeManageImage(){
+  const key=document.getElementById('manageImageItem').value; const {data:old}=await client.from('menu_item_images').select('image_path').eq('item_key',key).maybeSingle();
+  if(!old?.image_path)return document.getElementById('manageImageStatus').textContent='目前沒有店家上傳圖片。';
+  if(!confirm('確定恢復此餐點的預設圖片嗎？'))return;
+  const {error}=await client.from('menu_item_images').delete().eq('item_key',key); if(error)return document.getElementById('manageImageStatus').textContent='移除失敗：'+error.message;
+  await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]); document.getElementById('manageImageStatus').textContent='已恢復預設圖片。'; await loadManageImagePreview();
+}
+async function loadSoldList(){
+  const {data}=await client.from('menu_item_status').select('item_key,sold_out'); const map={}; (data||[]).forEach(x=>map[x.item_key]=!!x.sold_out);
+  const box=document.getElementById('soldList'); box.innerHTML=manageItems.map(x=>`<div class="sold-row"><div class="sold-name">${escapeHtml(x.name)}</div><button class="sold-toggle ${map[x.key]?'sold-on':'sold-off'}" onclick="toggleSold('${x.key}',${!map[x.key]})">${map[x.key]?'已完售':'正常供應'}</button></div>`).join('');
+}
+async function toggleSold(key,value){
+  const {error}=await client.from('menu_item_status').upsert({item_key:key,sold_out:value,updated_at:new Date().toISOString()});
+  document.getElementById('soldStatus').textContent=error?'更新失敗：'+error.message:(value?'已設為完售':'已恢復供應'); if(!error)await loadSoldList();
 }
 
 async function loadOrders(){
@@ -281,8 +338,9 @@ async function loadOrders(){
     return;
   }
 
-  const today = new Date();
-  const todayText = today.toISOString().slice(0,10);
+  const nowTaipei=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'}));
+  if(nowTaipei.getHours()<1 || (nowTaipei.getHours()===1 && nowTaipei.getMinutes()<10)){nowTaipei.setDate(nowTaipei.getDate()-1)}
+  const todayText = `${nowTaipei.getFullYear()}-${String(nowTaipei.getMonth()+1).padStart(2,'0')}-${String(nowTaipei.getDate()).padStart(2,'0')}`;
 
   let newCount = 0;
   let makingCount = 0;
