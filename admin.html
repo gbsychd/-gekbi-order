@@ -121,6 +121,7 @@ button{cursor:pointer}
 .soldout-category.open .soldout-items{display:block}
 .soldout-item-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f2f2f2}
 .soldout-item-row:last-child{border-bottom:0}
+.soldout-item-wrap{border-bottom:1px solid #f2f2f2}.soldout-item-wrap:last-child{border-bottom:0}.soldout-detail-toggle{border:1px solid #ddd;background:#fff;border-radius:7px;padding:4px 7px;font-size:11px;font-weight:800;white-space:nowrap}.soldout-detail-list{display:none;margin:0 0 7px 28px;padding-left:10px;border-left:2px solid #eee}.soldout-detail-list.open{display:block}.soldout-detail-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px dashed #eee;font-size:13px}.soldout-detail-row:last-child{border-bottom:0}.soldout-detail-row input{width:16px;height:16px;margin:0}.soldout-detail-row span:nth-child(2){flex:1}.soldout-item-wrap>.soldout-item-row{border-bottom:0}.soldout-item-row{border-bottom:0!important}
 .soldout-item-row input{width:18px;height:18px;margin:0;flex:0 0 auto}
 .soldout-item-name{flex:1;font-size:14px;font-weight:700;min-width:0}
 .soldout-badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:6px;background:#777;color:#fff;white-space:nowrap}
@@ -290,6 +291,34 @@ const SOLDOUT_MENU_GROUPS = [
 ];
 let adminSoldOut = {};
 let soldOutRealtimeChannel = null;
+const SOLDOUT_ITEM_DETAILS = {
+  "menu-0-0":["起司","麻糬","酥皮"],
+  "menu-0-1":["起司","麻糬","酥皮"],
+  "menu-0-2":["起司","麻糬","酥皮"],
+  "menu-0-3":["起司","麻糬","酥皮"],
+  "menu-0-4":["起司","麻糬","酥皮"],
+  "menu-1-0":["起司"],"menu-1-1":["起司"],"menu-1-2":["起司"],"menu-1-3":["起司"],"menu-1-4":["起司"],"menu-1-5":["起司"],"menu-1-6":["起司"],"menu-1-7":["起司"],
+  "menu-1-8":["巧克力","花生","草莓"],
+  "menu-2-0":["雙蛋","起司"],"menu-2-1":["雙蛋","起司"],"menu-2-2":["雙蛋","起司"],"menu-2-3":["雙蛋","起司"],"menu-2-4":["雙蛋","起司"],"menu-2-5":["雙蛋","起司"],"menu-2-6":["雙蛋","起司"],"menu-2-7":["雙蛋","起司"],"menu-2-8":["雙蛋","起司"],"menu-2-9":["雙蛋","起司"],
+  "menu-3-0":["加麵","奶茶","冷泡茶"],"menu-3-1":["加麵","奶茶","冷泡茶"],"menu-3-2":["加麵","奶茶","冷泡茶","麻辣","香辣"],
+  "menu-4-0":["加麵","起司"],"menu-4-1":["加麵","起司"],"menu-4-2":["加麵","起司"],"menu-4-3":["加麵","起司"],"menu-4-4":["加麵","起司"],"menu-4-5":["加麵","起司"],"menu-4-6":["起司"],
+  "menu-5-0":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮"],"menu-5-1":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮"],"menu-5-2":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮"],"menu-5-3":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮"],"menu-5-4":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮","麻辣"],"menu-5-5":["意麵","雞絲","冬粉","泡麵","烏龍麵","加麵","起司","豆皮"],
+  "hidden-0":["豬排炒泡麵","豬排蘑菇麵","豬排黑胡椒麵","原味","可可","抹茶","花生","芝麻","香蒜","甜不辣","美國脆薯","小雞球","芋泥球","紅茶","奶茶","冷泡茶","加麵","麻辣","香辣"],
+  "hidden-1":["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","原味","可可","抹茶","花生","芝麻","香蒜","紅茶","奶茶","冷泡茶"],
+  "hidden-2":["招牌炒泡麵","小肉豆","紅茶","奶茶","冷泡茶"],
+  "hidden-3":["白醬","蘑菇","黑胡椒"]
+};
+function soldOutDetailKey(parentKey,detailName){return `${parentKey}::detail::${encodeURIComponent(String(detailName))}`}
+function getSoldOutDetails(parentKey){return SOLDOUT_ITEM_DETAILS[parentKey]||[]}
+function expandSoldOutKeys(keys){
+  const out=new Set();
+  (keys||[]).forEach(key=>{
+    out.add(key);
+    getSoldOutDetails(key).forEach(name=>out.add(soldOutDetailKey(key,name)));
+  });
+  return [...out];
+}
+
 
 function soldOutKey(groupIndex,itemIndex){
   return groupIndex === 8 ? `hidden-${itemIndex}` : `menu-${groupIndex}-${itemIndex}`;
@@ -310,10 +339,23 @@ function renderSoldOutAdmin(){
   const root=document.getElementById('soldoutCategories');
   if(!root)return;
   root.innerHTML=SOLDOUT_MENU_GROUPS.map((group,gi)=>{
-    const soldCount=group[1].filter((_,ii)=>adminSoldOut[soldOutKey(gi,ii)]).length;
+    const parentKeys=group[1].map((_,ii)=>soldOutKey(gi,ii));
+    const soldCount=parentKeys.filter(key=>adminSoldOut[key]).length;
     const rows=group[1].map((name,ii)=>{
-      const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key];
-      return `<label class="soldout-item-row"><input type="checkbox" class="soldout-check" data-key="${key}"><span class="soldout-item-name">${escapeHtml(name)}</span><span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span></label>`;
+      const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key], details=getSoldOutDetails(key);
+      const detailSoldCount=details.filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||sold).length;
+      const detailHtml=details.length?`<div class="soldout-detail-list" id="soldout-details-${key}">${details.map(d=>{
+        const dKey=soldOutDetailKey(key,d), dSold=!!adminSoldOut[dKey]||sold;
+        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}"><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
+      }).join('')}</div>`:'';
+      return `<div class="soldout-item-wrap">
+        <div class="soldout-item-row">
+          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}">
+          <span class="soldout-item-name">${escapeHtml(name)}</span>
+          ${details.length?`<button class="soldout-detail-toggle" type="button" onclick="toggleSoldOutDetails('${key}');event.stopPropagation()">細項 ${detailSoldCount}/${details.length}　▼</button>`:''}
+          <span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span>
+        </div>${detailHtml}
+      </div>`;
     }).join('');
     return `<div class="soldout-category" id="soldout-group-${gi}">
       <div class="soldout-category-head">
@@ -328,6 +370,9 @@ function renderSoldOutAdmin(){
       <div class="soldout-items">${rows}</div>
     </div>`;
   }).join('');
+}
+function toggleSoldOutDetails(key){
+  document.getElementById(`soldout-details-${key}`)?.classList.toggle('open');
 }
 function toggleSoldOutGroup(gi){
   document.getElementById(`soldout-group-${gi}`)?.classList.toggle('open');
@@ -354,14 +399,16 @@ function getSelectedSoldOutKeys(){
   return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
 }
 async function setSelectedSoldOut(value){
-  const keys=getSelectedSoldOutKeys();
-  if(!keys.length){alert('請先勾選要處理的品項。');return}
-  if(!confirm(`確定要將選取的 ${keys.length} 個品項${value?'設為完售':'恢復供應'}嗎？`))return;
+  const selected=getSelectedSoldOutKeys();
+  if(!selected.length){alert('請先勾選要處理的品項。');return}
+  const keys=expandSoldOutKeys(selected);
+  if(!confirm(`確定要將選取的 ${selected.length} 個品項及其相關細項${value?'設為完售':'恢復供應'}嗎？`))return;
   await saveSoldOutKeys(keys,value);
 }
 async function setSoldOutGroup(gi,value){
-  const keys=SOLDOUT_MENU_GROUPS[gi][1].map((_,ii)=>soldOutKey(gi,ii));
-  if(!confirm(`確定要將「${SOLDOUT_MENU_GROUPS[gi][0]}」${value?'全部設為完售':'全部恢復供應'}嗎？`))return;
+  const parentKeys=SOLDOUT_MENU_GROUPS[gi][1].map((_,ii)=>soldOutKey(gi,ii));
+  const keys=expandSoldOutKeys(parentKeys);
+  if(!confirm(`確定要將「${SOLDOUT_MENU_GROUPS[gi][0]}」的餐點與所有相關細項${value?'全部設為完售':'全部恢復供應'}嗎？`))return;
   await saveSoldOutKeys(keys,value);
 }
 async function saveSoldOutKeys(keys,value){
