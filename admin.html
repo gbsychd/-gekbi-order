@@ -192,54 +192,39 @@ button{cursor:pointer}
 </style>
 
 
-<style id="soldout-menu-actions-v6">
-.soldout-category-head{
-  position:relative;
+
+
+
+<style id="soldout-options-inline-v7">
+.soldout-options-inline{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  width:100%;
+  padding:8px 10px;
+  border-bottom:1px solid #eee;
+  background:#fafafa;
+  box-sizing:border-box;
 }
-.soldout-options{
-  position:relative;
+.soldout-options-inline .soldout-mini{
   flex:0 0 auto;
-}
-.soldout-options > summary{
-  list-style:none;
-  cursor:pointer;
-  border:1px solid #ddd;
-  background:#fff;
-  border-radius:8px;
-  padding:6px 10px;
-  font-size:12px;
-  font-weight:800;
+  min-height:36px;
+  padding:7px 13px;
   white-space:nowrap;
 }
-.soldout-options > summary::-webkit-details-marker{display:none}
-.soldout-options > summary::after{content:" ▾";font-size:10px}
-.soldout-options[open] > summary::after{content:" ▴"}
-.soldout-options-menu{
-  position:absolute;
-  right:0;
-  top:calc(100% + 6px);
-  z-index:50;
-  min-width:118px;
-  padding:7px;
-  background:#fff;
-  border:1px solid #ddd;
-  border-radius:10px;
-  box-shadow:0 8px 24px #0000001c;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.soldout-options-menu .soldout-mini{
-  width:100%;
-  min-height:34px;
-  text-align:center;
-}
-@media(max-width:480px){
-  .soldout-category-head{gap:6px;padding:9px}
-  .soldout-category-toggle{font-size:13px}
-  .soldout-count{font-size:11px}
-  .soldout-detail-summary{display:block;font-size:10px;margin-top:2px}
-  .soldout-options > summary{padding:7px 9px}
+@media(max-width:520px){
+  .soldout-options-inline{
+    flex-wrap:wrap;
+    gap:7px;
+    padding:8px;
+  }
+  .soldout-options-inline .soldout-mini{
+    flex:1 1 calc(25% - 7px);
+    min-width:0;
+    padding:8px 5px;
+    font-size:12px;
+  }
 }
 </style>
 
@@ -508,17 +493,16 @@ function renderSoldOutAdmin(){
           <span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-detail-summary">細項 ${groupDetailSoldCount}/${groupDetailTotal} 完售</span>　<span class="soldout-arrow">▼</span></span>
         </button>
 
-        <details class="soldout-options" onclick="event.stopPropagation()">
-          <summary>選項</summary>
-          <div class="soldout-options-menu" onclick="event.stopPropagation()">
-            <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);this.closest('details').removeAttribute('open')">全選</button>
-            <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
-            <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
-            <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
-          </div>
-        </details>
       </div>
-      <div class="soldout-items">${rows}</div>
+      <div class="soldout-items">
+        <div class="soldout-options-inline" onclick="event.stopPropagation()">
+          <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
+          <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
+          <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
+          <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
+        </div>
+        ${rows}
+      </div>
     </div>`;
   }).join('');
 }
@@ -530,9 +514,17 @@ function toggleSoldOutGroup(gi){
   const el=document.getElementById(`soldout-group-${gi}`);
   if(!el)return;
   const willOpen=!el.classList.contains('open');
-  el.classList.toggle('open',willOpen);
-  if(willOpen)soldOutOpenGroups.add(gi);
-  else soldOutOpenGroups.delete(gi);
+
+  // 只允許一個大項同時展開
+  soldOutOpenGroups.clear();
+  document.querySelectorAll('.soldout-category.open').forEach(node=>{
+    node.classList.remove('open');
+  });
+
+  if(willOpen){
+    el.classList.add('open');
+    soldOutOpenGroups.add(gi);
+  }
 }
 function updateSoldOutSelectedCount(){
   const el=document.getElementById('soldoutSelectedCount');
