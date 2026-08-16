@@ -96,6 +96,9 @@ button{cursor:pointer}
   line-height:1;
 }
 
+.tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;margin-left:4px;border-radius:10px;background:#eee;color:#555;font-size:11px;font-weight:900;line-height:1}
+.tab.active .tab-count{background:#fff;color:#111}
+
 .image-admin{background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}.image-admin h2{margin:0 0 5px;font-size:18px}.image-admin-note{font-size:12px;color:#777;margin-bottom:12px;line-height:1.5}.image-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.image-admin-field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}.image-admin-field select,.image-admin-field input{width:100%;height:42px;border:1px solid #ddd;border-radius:9px;padding:0 10px;background:#fff}.image-admin-preview{margin-top:12px;display:flex;gap:12px;align-items:center;padding:10px;background:#fafafa;border-radius:10px}.image-admin-preview img{width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee}.image-admin-preview .no-image{width:82px;height:82px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;text-align:center}.image-admin-actions{display:flex;gap:8px;margin-top:12px}.image-admin-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:800}.image-upload-btn{background:#111;color:#fff}.image-refresh-btn{background:#eee;color:#222}.image-admin-status{font-size:13px;margin-top:10px;min-height:20px;color:#555}@media(max-width:600px){.image-admin-grid{grid-template-columns:1fr}.image-admin-preview{align-items:flex-start}}
 
 
@@ -122,7 +125,7 @@ button{cursor:pointer}
 .soldout-item-name{flex:1;font-size:14px;font-weight:700;min-width:0}
 .soldout-badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:6px;background:#777;color:#fff;white-space:nowrap}
 .soldout-badge.available{background:#eaf8ed;color:#18752a}
-.soldout-bottom-actions{display:flex;gap:8px;margin-top:12px}
+.soldout-selected-count{font-size:13px;font-weight:800;color:#555;margin-top:12px}.soldout-bottom-actions{display:flex;gap:8px;margin-top:8px}
 .soldout-bottom-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:900}
 .soldout-all-btn{background:#111;color:#fff}
 .soldout-restore-btn{background:#eee;color:#222}
@@ -185,26 +188,28 @@ button{cursor:pointer}
     </div>
 
     <div class="tabs">
-      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="pending-count">0</span></button>
-      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
-      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
-      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
+      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中 <span id="makingTabCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count">0</span></button>
+      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消 <span id="cancelledTabCount" class="tab-count">0</span></button>
+      <button class="tab" type="button" onclick="toggleManagement(this)">⚙️ 菜單管理</button>
     </div>
 
+    <div id="orders"></div>
+
+    <div id="managementPanel" class="hidden">
 
     <section class="soldout-admin" id="soldoutAdminSection">
       <h2>🚫 餐點完售管理</h2>
       <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。原本單一品項完售狀態仍保留。</div>
       <div id="soldoutCategories"></div>
-      <div class="soldout-bottom-actions">
-        <button class="soldout-all-btn" type="button" onclick="setSelectedSoldOut(true)">一鍵設為完售</button>
-        <button class="soldout-restore-btn" type="button" onclick="setSelectedSoldOut(false)">一鍵恢復供應</button>
+      <div id="soldoutSelectedCount" class="soldout-selected-count">尚未選取品項</div>
+    <div class="soldout-bottom-actions">
+        <button class="soldout-all-btn" type="button" onclick="setSelectedSoldOut(true)">選取品項｜設為完售</button>
+        <button class="soldout-restore-btn" type="button" onclick="setSelectedSoldOut(false)">選取品項｜恢復供應</button>
       </div>
       <div id="soldoutStatus" class="soldout-status"></div>
     </section>
-
-    <div id="orders"></div>
-
 
     <section class="image-admin" id="imageAdminSection">
       <h2>🖼️ 餐點圖片管理</h2>
@@ -217,6 +222,8 @@ button{cursor:pointer}
       <div class="image-admin-actions"><button class="image-upload-btn" onclick="uploadMenuImage()">上傳／更換圖片</button><button class="image-refresh-btn" onclick="loadAdminImageData()">重新整理</button></div>
       <div id="imageAdminStatus" class="image-admin-status"></div>
     </section>
+
+    </div>
 
   </main>
 
@@ -328,12 +335,24 @@ function renderSoldOutAdmin(){
 function toggleSoldOutGroup(gi){
   document.getElementById(`soldout-group-${gi}`)?.classList.toggle('open');
 }
+function updateSoldOutSelectedCount(){
+  const el=document.getElementById('soldoutSelectedCount');
+  if(!el)return;
+  const n=document.querySelectorAll('.soldout-check:checked').length;
+  el.textContent=n ? `已選取 ${n} 個品項，可直接設定完售／恢復供應` : '尚未選取品項';
+}
 function selectSoldOutGroup(gi,checked){
   const group=document.getElementById(`soldout-group-${gi}`);
   if(!group)return;
   group.classList.add('open');
   group.querySelectorAll('.soldout-check').forEach(cb=>cb.checked=checked);
+  updateSoldOutSelectedCount();
 }
+document.addEventListener('change',function(e){
+  if(e.target && e.target.classList && e.target.classList.contains('soldout-check')){
+    updateSoldOutSelectedCount();
+  }
+});
 function getSelectedSoldOutKeys(){
   return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
 }
@@ -407,8 +426,31 @@ function showApp(){
   startSoldOutRealtime();
 }
 
+function toggleManagement(button){
+  const panel=document.getElementById("managementPanel");
+  const orders=document.getElementById("orders");
+  if(!panel || !orders) return;
+  const opening=panel.classList.contains("hidden");
+  panel.classList.toggle("hidden",!opening);
+  orders.style.display=opening?"none":"block";
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  button.classList.toggle("active",opening);
+  if(opening){
+    loadSoldOutAdmin();
+    loadAdminImageData();
+  }else{
+    const active=document.querySelector(`.tab[data-status="${currentTab}"]`);
+    if(active) active.classList.add("active");
+    loadOrders();
+  }
+}
+
 function setTab(status,button){
   currentTab = status;
+  const panel=document.getElementById("managementPanel");
+  const orders=document.getElementById("orders");
+  if(panel) panel.classList.add("hidden");
+  if(orders) orders.style.display="block";
 
   document.querySelectorAll(".tab").forEach(x=>{
     x.classList.remove("active");
@@ -439,12 +481,14 @@ async function loadOrders(){
   let newCount = 0;
   let makingCount = 0;
   let doneCount = 0;
+  let cancelledCount = 0;
 
   (orders || []).forEach(order=>{
     const status = normalizeStatus(order.status);
 
     if(status === "new") newCount++;
     if(status === "making") makingCount++;
+    if(status === "cancelled") cancelledCount++;
 
     if(
       status === "done" &&
@@ -456,12 +500,15 @@ async function loadOrders(){
 
   document.getElementById("newCount").textContent = newCount;
   const pendingCount = document.getElementById("pendingCount");
-  if(pendingCount){
-    pendingCount.textContent = newCount;
-    pendingCount.style.display = newCount > 0 ? "inline-flex" : "none";
-  }
+  if(pendingCount) pendingCount.textContent = newCount;
   document.getElementById("makingCount").textContent = makingCount;
   document.getElementById("doneCount").textContent = doneCount;
+  const makingTabCount = document.getElementById("makingTabCount");
+  const doneTabCount = document.getElementById("doneTabCount");
+  const cancelledTabCount = document.getElementById("cancelledTabCount");
+  if(makingTabCount) makingTabCount.textContent = makingCount;
+  if(doneTabCount) doneTabCount.textContent = doneCount;
+  if(cancelledTabCount) cancelledTabCount.textContent = cancelledCount;
 
   const filtered = (orders || []).filter(order=>{
     return normalizeStatus(order.status) === currentTab;
@@ -832,8 +879,13 @@ function escapeHtml(value){
     .replace(/'/g,"&#039;");
 }
 
-document.getElementById("password").addEventListener("keydown",e=>{
-  if(e.key === "Enter") login();
+["email","password"].forEach(id=>{
+  document.getElementById(id).addEventListener("keydown",e=>{
+    if(e.key === "Enter"){
+      e.preventDefault();
+      login();
+    }
+  });
 });
 
 client.auth.onAuthStateChange((event,session)=>{
