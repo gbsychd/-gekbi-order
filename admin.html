@@ -97,6 +97,42 @@ button{cursor:pointer}
 }
 
 .image-admin{background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}.image-admin h2{margin:0 0 5px;font-size:18px}.image-admin-note{font-size:12px;color:#777;margin-bottom:12px;line-height:1.5}.image-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.image-admin-field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}.image-admin-field select,.image-admin-field input{width:100%;height:42px;border:1px solid #ddd;border-radius:9px;padding:0 10px;background:#fff}.image-admin-preview{margin-top:12px;display:flex;gap:12px;align-items:center;padding:10px;background:#fafafa;border-radius:10px}.image-admin-preview img{width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee}.image-admin-preview .no-image{width:82px;height:82px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;text-align:center}.image-admin-actions{display:flex;gap:8px;margin-top:12px}.image-admin-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:800}.image-upload-btn{background:#111;color:#fff}.image-refresh-btn{background:#eee;color:#222}.image-admin-status{font-size:13px;margin-top:10px;min-height:20px;color:#555}@media(max-width:600px){.image-admin-grid{grid-template-columns:1fr}.image-admin-preview{align-items:flex-start}}
+
+
+/* ===== 完售管理 ===== */
+.soldout-admin{background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}
+.soldout-admin h2{margin:0 0 5px;font-size:18px}
+.soldout-note{font-size:12px;color:#777;line-height:1.5;margin-bottom:12px}
+.soldout-category{border:1px solid #e5e5e5;border-radius:12px;margin:9px 0;overflow:hidden;background:#fff}
+.soldout-category-head{display:flex;align-items:center;gap:8px;padding:11px 12px;background:#fafafa}
+.soldout-category-toggle{flex:1;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;text-align:left;font-weight:900;padding:0;min-width:0}
+.soldout-category-toggle span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.soldout-category-count{font-size:12px;color:#777;margin-left:8px;white-space:nowrap}
+.soldout-arrow{font-size:12px;transition:transform .2s}
+.soldout-category.open .soldout-arrow{transform:rotate(180deg)}
+.soldout-category-actions{display:flex;gap:6px;flex:0 0 auto}
+.soldout-mini{border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 8px;font-size:12px;font-weight:800}
+.soldout-mini.danger{background:#ffe7e7;color:#b00000;border-color:#ffd0d0}
+.soldout-mini.restore{background:#eaf8ed;color:#18752a;border-color:#cfead4}
+.soldout-items{display:none;border-top:1px solid #eee;padding:7px 10px 10px}
+.soldout-category.open .soldout-items{display:block}
+.soldout-item-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f2f2f2}
+.soldout-item-row:last-child{border-bottom:0}
+.soldout-item-row input{width:18px;height:18px;margin:0;flex:0 0 auto}
+.soldout-item-name{flex:1;font-size:14px;font-weight:700;min-width:0}
+.soldout-badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:6px;background:#777;color:#fff;white-space:nowrap}
+.soldout-badge.available{background:#eaf8ed;color:#18752a}
+.soldout-bottom-actions{display:flex;gap:8px;margin-top:12px}
+.soldout-bottom-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:900}
+.soldout-all-btn{background:#111;color:#fff}
+.soldout-restore-btn{background:#eee;color:#222}
+.soldout-status{font-size:13px;min-height:20px;margin-top:9px;color:#555}
+@media(max-width:600px){
+  .soldout-category-head{align-items:flex-start}
+  .soldout-category-actions{flex-direction:column}
+  .soldout-mini{white-space:nowrap}
+}
+
 </style>
 </head>
 
@@ -154,6 +190,18 @@ button{cursor:pointer}
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
     </div>
+
+
+    <section class="soldout-admin" id="soldoutAdminSection">
+      <h2>🚫 餐點完售管理</h2>
+      <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。原本單一品項完售狀態仍保留。</div>
+      <div id="soldoutCategories"></div>
+      <div class="soldout-bottom-actions">
+        <button class="soldout-all-btn" type="button" onclick="setSelectedSoldOut(true)">一鍵設為完售</button>
+        <button class="soldout-restore-btn" type="button" onclick="setSelectedSoldOut(false)">一鍵恢復供應</button>
+      </div>
+      <div id="soldoutStatus" class="soldout-status"></div>
+    </section>
 
     <div id="orders"></div>
 
@@ -225,8 +273,110 @@ async function logout(){
   location.reload();
 }
 
-async \nconst MENU_IMAGE_BUCKET="menu-images";\nconst IMAGE_ADMIN_EMAIL="smile510352@gmail.com";\nconst imageAdminMenus=[\n["隔壁奶酥",["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],["經典吐司",["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],["美味蛋餅",["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],["個人特餐-附紅茶",["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],["招牌麵食（乾）",["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","沙茶炒泡麵","招牌麻辣炒泡麵","香辣炒泡麵","豬排拌拌麵（大）"]],["秘製鍋燒(湯)",["原味鍋燒","沙茶鍋燒","麻辣鍋燒","咖哩鍋燒","起司牛奶鍋燒","泰式冬陰鍋燒"]],["點心炸物",["荷包蛋","單點豬排","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排"]],["飲品",["紅茶","麥茶","奶茶","冷泡茶"]],["隱藏版菜單",["豬排大套餐","單人獨享餐","單人經濟套餐","日式炸豬排烏龍麵"]]];\nlet adminImageRows={};\nfunction buildImageAdminItems(){const out=[];imageAdminMenus.forEach((g,gi)=>g[1].forEach((name,ii)=>out.push({key:gi===8?`hidden-${ii}`:`menu-${gi}-${ii}`,name:`${g[0]}｜${name}`})));return out}\nfunction imageAdminStatus(m){document.getElementById("imageAdminStatus").textContent=m||""}\nasync function loadAdminImageData(){const section=document.getElementById("imageAdminSection"),{data:{user}}=await client.auth.getUser();if(!user||user.email.toLowerCase()!==IMAGE_ADMIN_EMAIL){section.style.display="none";return}section.style.display="block";const select=document.getElementById("imageAdminItem");if(!select.options.length)select.innerHTML=buildImageAdminItems().map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join("");const {data,error}=await client.from("menu_item_images").select("item_key,image_path");if(error){imageAdminStatus("讀取圖片資料失敗："+error.message);return}adminImageRows={};(data||[]).forEach(r=>adminImageRows[r.item_key]=r);previewAdminImage();imageAdminStatus("圖片資料已更新")}\nasync function previewAdminImage(){const key=document.getElementById("imageAdminItem").value,opt=document.getElementById("imageAdminItem").selectedOptions[0],box=document.getElementById("imageAdminPreviewBox");document.getElementById("imageAdminPreviewName").textContent=opt?opt.textContent:"請選擇餐點";const row=adminImageRows[key];if(!row){box.className="no-image";box.textContent="尚無上傳圖片";document.getElementById("imageAdminPreviewPath").textContent="目前使用前台預設圖片";return}const {data}=client.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);if(data?.publicUrl){box.className="";box.innerHTML=`<img src="${data.publicUrl}" alt="">`;document.getElementById("imageAdminPreviewPath").textContent=row.image_path}}\nfunction previewAdminFile(){const file=document.getElementById("imageAdminFile").files?.[0];if(!file)return;const box=document.getElementById("imageAdminPreviewBox"),url=URL.createObjectURL(file);box.className="";box.innerHTML=`<img src="${url}" alt="預覽">`;document.getElementById("imageAdminPreviewPath").textContent=`準備上傳：${file.name}`}\nasync function uploadMenuImage(){const file=document.getElementById("imageAdminFile").files?.[0],itemKey=document.getElementById("imageAdminItem").value;if(!file){imageAdminStatus("請先選擇圖片");return}if(file.size>5*1024*1024){imageAdminStatus("圖片不可超過 5MB");return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){imageAdminStatus("僅支援 JPG、PNG、WebP");return}const {data:{user}}=await client.auth.getUser();if(user?.email?.toLowerCase()!==IMAGE_ADMIN_EMAIL){imageAdminStatus("目前登入帳號沒有圖片管理權限");return}imageAdminStatus("正在上傳圖片…");const ext=file.name.split(".").pop().toLowerCase(),path=`menu/${itemKey}-${Date.now()}.${ext}`,old=adminImageRows[itemKey];const {error:upErr}=await client.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type});if(upErr){imageAdminStatus("上傳失敗："+upErr.message);return}const {error:saveErr}=await client.from("menu_item_images").upsert({item_key:itemKey,image_path:path,updated_at:new Date().toISOString()});if(saveErr){await client.storage.from(MENU_IMAGE_BUCKET).remove([path]);imageAdminStatus("儲存失敗："+saveErr.message);return}if(old?.image_path)await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]);document.getElementById("imageAdminFile").value="";await loadAdminImageData();imageAdminStatus("圖片已更新完成")}\n
-function checkSession(){
+
+const SOLDOUT_MENU_GROUPS = [
+  ["隔壁奶酥", ["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],
+  ["經典吐司", ["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],
+  ["美味蛋餅", ["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],
+  ["個人特餐-附紅茶", ["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],
+  ["招牌麵食（乾）", ["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","沙茶炒泡麵","招牌麻辣炒泡麵","香辣炒泡麵","豬排拌拌麵（大）"]],
+  ["秘製鍋燒(湯)", ["原味鍋燒","沙茶鍋燒","麻辣鍋燒","咖哩鍋燒","起司牛奶鍋燒","泰式冬陰鍋燒"]],
+  ["點心炸物", ["荷包蛋","單點豬排","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排"]],
+  ["飲品", ["紅茶","麥茶","奶茶","冷泡茶"]],
+  ["隱藏版菜單", ["豬排大套餐","單人獨享餐","單人經濟套餐","日式炸豬排烏龍麵"]]
+];
+let adminSoldOut = {};
+let soldOutRealtimeChannel = null;
+
+function soldOutKey(groupIndex,itemIndex){
+  return groupIndex === 8 ? `hidden-${itemIndex}` : `menu-${groupIndex}-${itemIndex}`;
+}
+function soldOutStatusText(message){
+  const el=document.getElementById('soldoutStatus');
+  if(el)el.textContent=message||'';
+}
+async function loadSoldOutAdmin(){
+  const {data,error}=await client.from('menu_item_status').select('item_key,sold_out');
+  if(error){soldOutStatusText('讀取完售狀態失敗：'+error.message);return}
+  adminSoldOut={};
+  (data||[]).forEach(row=>adminSoldOut[row.item_key]=!!row.sold_out);
+  renderSoldOutAdmin();
+  soldOutStatusText('完售狀態已更新');
+}
+function renderSoldOutAdmin(){
+  const root=document.getElementById('soldoutCategories');
+  if(!root)return;
+  root.innerHTML=SOLDOUT_MENU_GROUPS.map((group,gi)=>{
+    const soldCount=group[1].filter((_,ii)=>adminSoldOut[soldOutKey(gi,ii)]).length;
+    const rows=group[1].map((name,ii)=>{
+      const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key];
+      return `<label class="soldout-item-row"><input type="checkbox" class="soldout-check" data-key="${key}"><span class="soldout-item-name">${escapeHtml(name)}</span><span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span></label>`;
+    }).join('');
+    return `<div class="soldout-category" id="soldout-group-${gi}">
+      <div class="soldout-category-head">
+        <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})"><span>${escapeHtml(group[0])}</span><span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-arrow">▼</span></span></button>
+        <div class="soldout-category-actions">
+          <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
+          <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
+          <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
+        </div>
+      </div>
+      <div class="soldout-items">${rows}</div>
+    </div>`;
+  }).join('');
+}
+function toggleSoldOutGroup(gi){
+  document.getElementById(`soldout-group-${gi}`)?.classList.toggle('open');
+}
+function selectSoldOutGroup(gi,checked){
+  const group=document.getElementById(`soldout-group-${gi}`);
+  if(!group)return;
+  group.classList.add('open');
+  group.querySelectorAll('.soldout-check').forEach(cb=>cb.checked=checked);
+}
+function getSelectedSoldOutKeys(){
+  return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
+}
+async function setSelectedSoldOut(value){
+  const keys=getSelectedSoldOutKeys();
+  if(!keys.length){alert('請先勾選要處理的品項。');return}
+  if(!confirm(`確定要將選取的 ${keys.length} 個品項${value?'設為完售':'恢復供應'}嗎？`))return;
+  await saveSoldOutKeys(keys,value);
+}
+async function setSoldOutGroup(gi,value){
+  const keys=SOLDOUT_MENU_GROUPS[gi][1].map((_,ii)=>soldOutKey(gi,ii));
+  if(!confirm(`確定要將「${SOLDOUT_MENU_GROUPS[gi][0]}」${value?'全部設為完售':'全部恢復供應'}嗎？`))return;
+  await saveSoldOutKeys(keys,value);
+}
+async function saveSoldOutKeys(keys,value){
+  soldOutStatusText('正在更新完售狀態…');
+  const rows=keys.map(key=>({item_key:key,sold_out:!!value,updated_at:new Date().toISOString()}));
+  const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
+  if(error){soldOutStatusText('更新失敗：'+error.message);alert('完售狀態更新失敗：'+error.message);return}
+  keys.forEach(key=>adminSoldOut[key]=!!value);
+  renderSoldOutAdmin();
+  soldOutStatusText(`已更新 ${keys.length} 個品項：${value?'完售':'恢復供應'}`);
+}
+function startSoldOutRealtime(){
+  if(soldOutRealtimeChannel)client.removeChannel(soldOutRealtimeChannel);
+  soldOutRealtimeChannel=client.channel('menu-item-status-admin')
+    .on('postgres_changes',{event:'*',schema:'public',table:'menu_item_status'},()=>loadSoldOutAdmin())
+    .subscribe();
+}
+
+const MENU_IMAGE_BUCKET="menu-images";
+const IMAGE_ADMIN_EMAIL="smile510352@gmail.com";
+const imageAdminMenus=[
+["隔壁奶酥",["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],["經典吐司",["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],["美味蛋餅",["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],["個人特餐-附紅茶",["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],["招牌麵食（乾）",["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","沙茶炒泡麵","招牌麻辣炒泡麵","香辣炒泡麵","豬排拌拌麵（大）"]],["秘製鍋燒(湯)",["原味鍋燒","沙茶鍋燒","麻辣鍋燒","咖哩鍋燒","起司牛奶鍋燒","泰式冬陰鍋燒"]],["點心炸物",["荷包蛋","單點豬排","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排"]],["飲品",["紅茶","麥茶","奶茶","冷泡茶"]],["隱藏版菜單",["豬排大套餐","單人獨享餐","單人經濟套餐","日式炸豬排烏龍麵"]]];
+let adminImageRows={};
+function buildImageAdminItems(){const out=[];imageAdminMenus.forEach((g,gi)=>g[1].forEach((name,ii)=>out.push({key:gi===8?`hidden-${ii}`:`menu-${gi}-${ii}`,name:`${g[0]}｜${name}`})));return out}
+function imageAdminStatus(m){document.getElementById("imageAdminStatus").textContent=m||""}
+async function loadAdminImageData(){const section=document.getElementById("imageAdminSection"),{data:{user}}=await client.auth.getUser();if(!user||user.email.toLowerCase()!==IMAGE_ADMIN_EMAIL){section.style.display="none";return}section.style.display="block";const select=document.getElementById("imageAdminItem");if(!select.options.length)select.innerHTML=buildImageAdminItems().map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join("");const {data,error}=await client.from("menu_item_images").select("item_key,image_path");if(error){imageAdminStatus("讀取圖片資料失敗："+error.message);return}adminImageRows={};(data||[]).forEach(r=>adminImageRows[r.item_key]=r);previewAdminImage();imageAdminStatus("圖片資料已更新")}
+async function previewAdminImage(){const key=document.getElementById("imageAdminItem").value,opt=document.getElementById("imageAdminItem").selectedOptions[0],box=document.getElementById("imageAdminPreviewBox");document.getElementById("imageAdminPreviewName").textContent=opt?opt.textContent:"請選擇餐點";const row=adminImageRows[key];if(!row){box.className="no-image";box.textContent="尚無上傳圖片";document.getElementById("imageAdminPreviewPath").textContent="目前使用前台預設圖片";return}const {data}=client.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);if(data?.publicUrl){box.className="";box.innerHTML=`<img src="${data.publicUrl}" alt="">`;document.getElementById("imageAdminPreviewPath").textContent=row.image_path}}
+function previewAdminFile(){const file=document.getElementById("imageAdminFile").files?.[0];if(!file)return;const box=document.getElementById("imageAdminPreviewBox"),url=URL.createObjectURL(file);box.className="";box.innerHTML=`<img src="${url}" alt="預覽">`;document.getElementById("imageAdminPreviewPath").textContent=`準備上傳：${file.name}`}
+async function uploadMenuImage(){const file=document.getElementById("imageAdminFile").files?.[0],itemKey=document.getElementById("imageAdminItem").value;if(!file){imageAdminStatus("請先選擇圖片");return}if(file.size>5*1024*1024){imageAdminStatus("圖片不可超過 5MB");return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){imageAdminStatus("僅支援 JPG、PNG、WebP");return}const {data:{user}}=await client.auth.getUser();if(user?.email?.toLowerCase()!==IMAGE_ADMIN_EMAIL){imageAdminStatus("目前登入帳號沒有圖片管理權限");return}imageAdminStatus("正在上傳圖片…");const ext=file.name.split(".").pop().toLowerCase(),path=`menu/${itemKey}-${Date.now()}.${ext}`,old=adminImageRows[itemKey];const {error:upErr}=await client.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type});if(upErr){imageAdminStatus("上傳失敗："+upErr.message);return}const {error:saveErr}=await client.from("menu_item_images").upsert({item_key:itemKey,image_path:path,updated_at:new Date().toISOString()});if(saveErr){await client.storage.from(MENU_IMAGE_BUCKET).remove([path]);imageAdminStatus("儲存失敗："+saveErr.message);return}if(old?.image_path)await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]);document.getElementById("imageAdminFile").value="";await loadAdminImageData();imageAdminStatus("圖片已更新完成")}
+
+async function checkSession(){
   const {data, error} = await client.auth.getSession();
 
   if(error){
@@ -253,6 +403,8 @@ function showApp(){
   startRealtime();
   startAutoRefresh();
   loadAdminImageData();
+  loadSoldOutAdmin();
+  startSoldOutRealtime();
 }
 
 function setTab(status,button){
