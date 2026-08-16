@@ -157,6 +157,16 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="soldout-detail-summary-style">
+.soldout-detail-summary{
+  font-size:11px;
+  font-weight:800;
+  color:#8a5a00;
+  white-space:nowrap;
+}
+</style>
+
 </head>
 
 <body>
@@ -389,6 +399,8 @@ function renderSoldOutAdmin(){
   root.innerHTML=SOLDOUT_MENU_GROUPS.map((group,gi)=>{
     const parentKeys=group[1].map((_,ii)=>soldOutKey(gi,ii));
     const soldCount=parentKeys.filter(key=>adminSoldOut[key]).length;
+    const groupDetailTotal=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).length,0);
+    const groupDetailSoldCount=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||adminSoldOut[key]||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length,0);
     const rows=group[1].map((name,ii)=>{
       const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key], details=getSoldOutDetails(key);
       const detailSoldCount=details.filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length;
@@ -407,7 +419,7 @@ function renderSoldOutAdmin(){
     }).join('');
     return `<div class="soldout-category" id="soldout-group-${gi}">
       <div class="soldout-category-head">
-        <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})"><span>${escapeHtml(group[0])}</span><span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-arrow">▼</span></span></button>
+        <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})"><span>${escapeHtml(group[0])}</span><span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-detail-summary">細項 ${groupDetailSoldCount}/${groupDetailTotal} 完售</span>　<span class="soldout-arrow">▼</span></span></button>
         <div class="soldout-category-actions">
           <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
           <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
