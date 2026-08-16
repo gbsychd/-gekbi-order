@@ -137,6 +137,52 @@ button{cursor:pointer}
   .soldout-mini{white-space:nowrap}
 }
 
+
+/* ===== 後台功能入口 / 日曆 ===== */
+.header-inner{align-items:center}
+.header-tools{display:flex;align-items:center;gap:6px;overflow-x:auto;flex:1;justify-content:flex-end}
+.header-tool{border:1px solid #555;background:#222;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:800;white-space:nowrap}
+.admin-feature-section{display:none}
+.admin-feature-section.feature-active{display:block}
+.admin-modal{position:fixed;inset:0;z-index:100;background:#0008;display:flex;align-items:center;justify-content:center;padding:14px}
+.admin-modal-card{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 15px 50px #0005}
+.history-card{width:min(720px,100%)}
+.admin-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.admin-modal-head h2{margin:0;font-size:19px}
+.modal-close{width:38px;height:38px;border:0;border-radius:50%;background:#eee;font-size:24px;line-height:1}
+.modal-note{font-size:12px;color:#777;line-height:1.5;margin:7px 0 12px}
+.calendar-toolbar{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;margin:8px 0 10px}
+.calendar-toolbar button{height:40px;border:1px solid #ddd;background:#fff;border-radius:9px;font-size:22px}
+.calendar-toolbar strong{text-align:center;font-size:16px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.calendar-week{font-size:11px;color:#888;text-align:center;padding:4px 0}
+.calendar-day{min-height:48px;border:1px solid #eee;background:#fff;border-radius:8px;font-weight:800}
+.calendar-day.other{color:#bbb;background:#fafafa}
+.calendar-day.today{border-color:#111}
+.calendar-day.selected{background:#111;color:#fff;border-color:#111}
+.calendar-day.closed{background:#ffe3e3;color:#b00000;border-color:#ffbcbc}
+.calendar-day.selected.closed{background:#111;color:#fff;border-color:#111}
+.calendar-day.has-orders{box-shadow:inset 0 -3px 0 #d46a00}
+.calendar-day:disabled{opacity:.45;cursor:not-allowed}
+.modal-status{min-height:22px;font-size:12px;color:#555;margin-top:9px}
+.modal-actions{display:flex;gap:8px;margin-top:10px}
+.modal-actions button{flex:1;height:44px;border:0;border-radius:9px;font-weight:900}
+.history-result{margin-top:12px}
+.history-summary{background:#f8f8f8;border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px;font-weight:800}
+.history-order{background:#fff;border:1px solid #eee;border-radius:10px;padding:11px;margin-bottom:8px}
+.history-order-head{display:flex;justify-content:space-between;gap:8px;font-weight:900}
+.history-order-meta{font-size:12px;color:#666;margin-top:4px;line-height:1.55}
+.history-items{margin-top:7px;padding-top:7px;border-top:1px dashed #eee;font-size:12px;line-height:1.6}
+@media(max-width:650px){
+  .header{padding:8px 9px}
+  .header-inner{display:grid;grid-template-columns:1fr;gap:7px}
+  .header-tools{justify-content:flex-start;overflow-x:auto}
+  .header-tool{padding:7px 9px}
+  .logout{position:absolute;right:9px;top:8px}
+  .brand{padding-right:52px}
+  .calendar-day{min-height:44px;font-size:13px}
+}
+
 </style>
 
 <style id="soldout-two-column-layout">
@@ -257,7 +303,13 @@ button{cursor:pointer}
   <header class="header">
     <div class="header-inner">
       <div class="brand">隔壁宵夜彰化店｜店家後台</div>
-      <button class="logout" onclick="logout()">登出</button>
+      <div class="header-tools">
+        <button class="header-tool" type="button" onclick="openAdminFeature('soldout')">完售管理</button>
+        <button class="header-tool" type="button" onclick="openAdminFeature('images')">圖片管理</button>
+        <button class="header-tool" type="button" onclick="openClosedDates()">店休</button>
+        <button class="header-tool" type="button" onclick="openHistoryCalendar()">歷史訂單</button>
+        <button class="logout" onclick="logout()">登出</button>
+      </div>
     </div>
   </header>
 
@@ -279,18 +331,17 @@ button{cursor:pointer}
     </div>
 
     <div class="tabs">
-      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單 <span id="pendingCount" class="tab-count">0</span></button>
-      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中 <span id="makingTabCount" class="tab-count">0</span></button>
-      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成 <span id="doneTabCount" class="tab-count">0</span></button>
-      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消 <span id="cancelledTabCount" class="tab-count">0</span></button>
-      <button class="tab" type="button" onclick="toggleManagement(this)">⚙️ 菜單管理</button>
+      <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
+      <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
+      <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
+      <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
     </div>
 
     <div id="orders"></div>
 
     <div id="managementPanel" class="hidden">
 
-    <section class="soldout-admin" id="soldoutAdminSection">
+    <section class="soldout-admin admin-feature-section" id="soldoutAdminSection">
       <h2>🚫 餐點完售管理</h2>
       <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。原本單一品項完售狀態仍保留。</div>
       <div id="soldoutCategories"></div>
@@ -298,7 +349,7 @@ button{cursor:pointer}
       <div id="soldoutStatus" class="soldout-status"></div>
     </section>
 
-    <section class="image-admin" id="imageAdminSection">
+    <section class="image-admin admin-feature-section" id="imageAdminSection">
       <h2>🖼️ 餐點圖片管理</h2>
       <div class="image-admin-note">只在店家後台使用。顧客前台不會看到上傳功能。上傳後會自動取代該餐點目前的圖片。</div>
       <div class="image-admin-grid">
@@ -313,6 +364,47 @@ button{cursor:pointer}
     </div>
 
   </main>
+
+
+    <div id="closedDatesModal" class="admin-modal hidden" aria-hidden="true">
+      <div class="admin-modal-card">
+        <div class="admin-modal-head">
+          <h2>📅 店休管理</h2>
+          <button class="modal-close" type="button" onclick="closeAdminModal('closedDatesModal')">×</button>
+        </div>
+        <div class="modal-note">可一次選擇多個店休日，點日期即可切換。已設定店休會明顯標示。</div>
+        <div class="calendar-toolbar">
+          <button type="button" onclick="moveCalendarMonth('closed',-1)">‹</button>
+          <strong id="closedCalendarTitle"></strong>
+          <button type="button" onclick="moveCalendarMonth('closed',1)">›</button>
+        </div>
+        <div id="closedCalendar" class="calendar-grid"></div>
+        <div id="closedDateStatus" class="modal-status"></div>
+        <div class="modal-actions">
+          <button type="button" class="secondary" onclick="closeAdminModal('closedDatesModal')">取消</button>
+          <button type="button" class="primary" onclick="saveClosedDates()">儲存店休</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="historyModal" class="admin-modal hidden" aria-hidden="true">
+      <div class="admin-modal-card history-card">
+        <div class="admin-modal-head">
+          <h2>🗓️ 查詢歷史訂單</h2>
+          <button class="modal-close" type="button" onclick="closeAdminModal('historyModal')">×</button>
+        </div>
+        <div class="modal-note">點選營業日查詢。營業日以 18:00～隔日 01:10 為同一天。</div>
+        <div class="calendar-toolbar">
+          <button type="button" onclick="moveCalendarMonth('history',-1)">‹</button>
+          <strong id="historyCalendarTitle"></strong>
+          <button type="button" onclick="moveCalendarMonth('history',1)">›</button>
+        </div>
+        <div id="historyCalendar" class="calendar-grid"></div>
+        <div id="historyResult" class="history-result">
+          <div class="empty">請先點選要查詢的營業日</div>
+        </div>
+      </div>
+    </div>
 
   <button class="refresh" onclick="loadOrders()" title="重新整理">↻</button>
 </div>
@@ -630,46 +722,47 @@ function showApp(){
   startSoldOutRealtime();
 }
 
-function toggleManagement(button){
+function hideAllAdminFeatureSections(){
+  document.querySelectorAll(".admin-feature-section").forEach(el=>el.classList.remove("feature-active"));
+  const panel=document.getElementById("managementPanel");
+  if(panel) panel.classList.add("hidden");
+}
+function openAdminFeature(feature){
   const panel=document.getElementById("managementPanel");
   const orders=document.getElementById("orders");
-  if(!panel || !orders) return;
-  const opening=panel.classList.contains("hidden");
-  panel.classList.toggle("hidden",!opening);
-  orders.style.display=opening?"none":"block";
+  if(!panel || !orders)return;
+  orders.style.display="none";
+  panel.classList.remove("hidden");
+  hideAllAdminFeatureSections();
+  const target = feature==="soldout" ? document.getElementById("soldoutAdminSection") : document.getElementById("imageAdminSection");
+  if(target) target.classList.add("feature-active");
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  button.classList.toggle("active",opening);
-  if(opening){
-    loadSoldOutAdmin();
-    loadAdminImageData();
-  }else{
-    const active=document.querySelector(`.tab[data-status="${currentTab}"]`);
-    if(active) active.classList.add("active");
-    loadOrders();
-  }
+  if(feature==="soldout") loadSoldOutAdmin();
+  if(feature==="images") loadAdminImageData();
 }
-
+function toggleManagement(){
+  openAdminFeature("soldout");
+}
 function setTab(status,button){
-  currentTab = status;
+  currentTab=status;
   const panel=document.getElementById("managementPanel");
   const orders=document.getElementById("orders");
   if(panel) panel.classList.add("hidden");
   if(orders) orders.style.display="block";
-
-  document.querySelectorAll(".tab").forEach(x=>{
-    x.classList.remove("active");
-  });
-
-  button.classList.add("active");
-
+  document.querySelectorAll(".admin-feature-section").forEach(x=>x.classList.remove("feature-active"));
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  if(button) button.classList.add("active");
   loadOrders();
 }
 
 async function loadOrders(){
+  const businessDate = getBusinessDate(new Date());
 
   const {data:orders,error} = await client
     .from("orders")
     .select("*")
+    .eq("business_date",businessDate)
+    .eq("is_archived",false)
     .order("created_at",{ascending:false})
     .limit(100);
 
@@ -679,59 +772,40 @@ async function loadOrders(){
     return;
   }
 
-  const today = new Date();
-  const todayText = today.toISOString().slice(0,10);
-
-  let newCount = 0;
-  let makingCount = 0;
-  let doneCount = 0;
-  let cancelledCount = 0;
-
-  (orders || []).forEach(order=>{
-    const status = normalizeStatus(order.status);
-
-    if(status === "new") newCount++;
-    if(status === "making") makingCount++;
-    if(status === "cancelled") cancelledCount++;
-
-    if(
-      status === "done" &&
-      String(order.created_at || "").slice(0,10) === todayText
-    ){
-      doneCount++;
-    }
+  let newCount=0,makingCount=0,doneCount=0,cancelledCount=0;
+  (orders||[]).forEach(order=>{
+    const status=normalizeStatus(order.status);
+    if(status==="new")newCount++;
+    if(status==="making")makingCount++;
+    if(status==="done")doneCount++;
+    if(status==="cancelled")cancelledCount++;
   });
 
-  document.getElementById("newCount").textContent = newCount;
-  const pendingCount = document.getElementById("pendingCount");
-  if(pendingCount) pendingCount.textContent = newCount;
-  document.getElementById("makingCount").textContent = makingCount;
-  document.getElementById("doneCount").textContent = doneCount;
-  const makingTabCount = document.getElementById("makingTabCount");
-  const doneTabCount = document.getElementById("doneTabCount");
-  const cancelledTabCount = document.getElementById("cancelledTabCount");
-  if(makingTabCount) makingTabCount.textContent = makingCount;
-  if(doneTabCount) doneTabCount.textContent = doneCount;
-  if(cancelledTabCount) cancelledTabCount.textContent = cancelledCount;
+  document.getElementById("newCount").textContent=newCount;
+  document.getElementById("makingCount").textContent=makingCount;
+  document.getElementById("doneCount").textContent=doneCount;
 
-  const filtered = (orders || []).filter(order=>{
-    return normalizeStatus(order.status) === currentTab;
-  });
-
+  const filtered=(orders||[]).filter(order=>normalizeStatus(order.status)===currentTab);
   if(!filtered.length){
-    document.getElementById("orders").innerHTML =
-      '<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
+    document.getElementById("orders").innerHTML='<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
     return;
   }
-
-  document.getElementById("orders").innerHTML =
-    filtered.map(orderCard).join("");
-
-  for(const order of filtered){
-    loadItems(order.id);
-  }
+  document.getElementById("orders").innerHTML=filtered.map(orderCard).join("");
+  for(const order of filtered)loadItems(order.id);
 }
 
+function getBusinessDate(date){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);
+  const map={};parts.forEach(p=>map[p.type]=p.value);
+  let y=Number(map.year),m=Number(map.month),d=Number(map.day);
+  const hour=Number(map.hour), minute=Number(map.minute);
+  if(hour<1 || (hour===1 && minute<10)){ // 01:10前均屬前一營業日
+    const utc=new Date(Date.UTC(y,m-1,d));
+    utc.setUTCDate(utc.getUTCDate()-1);
+    y=utc.getUTCFullYear();m=utc.getUTCMonth()+1;d=utc.getUTCDate();
+  }
+  return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
 async function loadItems(orderId){
 
   const {data,error} = await client
@@ -942,6 +1016,143 @@ function orderCard(order){
   `;
 }
 
+
+let closedCalendarCursor=new Date();
+let historyCalendarCursor=new Date();
+let closedDatesExisting=new Set();
+let closedDatesDraft=new Set();
+
+function closeAdminModal(id){
+  const el=document.getElementById(id);
+  if(el){el.classList.add("hidden");el.setAttribute("aria-hidden","true");}
+}
+function openModal(id){
+  const el=document.getElementById(id);
+  if(el){el.classList.remove("hidden");el.setAttribute("aria-hidden","false");}
+}
+function fmtDateKey(y,m,d){
+  return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+function monthKey(date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+}
+function moveCalendarMonth(type,delta){
+  const c=type==="closed"?closedCalendarCursor:historyCalendarCursor;
+  c.setMonth(c.getMonth()+delta,1);
+  if(type==="closed")renderClosedCalendar();else renderHistoryCalendar();
+}
+async function openClosedDates(){
+  openModal("closedDatesModal");
+  closedCalendarCursor=new Date();
+  closedCalendarCursor.setDate(1);
+  const {data,error}=await client.from("shop_closed_dates").select("closed_date").order("closed_date");
+  if(error){
+    document.getElementById("closedDateStatus").textContent="讀取店休日失敗："+error.message;
+    return;
+  }
+  closedDatesExisting=new Set((data||[]).map(r=>String(r.closed_date)));
+  closedDatesDraft=new Set(closedDatesExisting);
+  renderClosedCalendar();
+}
+function renderClosedCalendar(){
+  const y=closedCalendarCursor.getFullYear(),m=closedCalendarCursor.getMonth();
+  document.getElementById("closedCalendarTitle").textContent=`${y} 年 ${m+1} 月`;
+  const root=document.getElementById("closedCalendar");
+  const labels=["日","一","二","三","四","五","六"];
+  let out=labels.map(x=>`<div class="calendar-week">${x}</div>`).join("");
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  for(let i=0;i<first;i++){
+    out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
+  }
+  const todayKey=getTaipeiDateKey(new Date());
+  for(let d=1;d<=days;d++){
+    const key=fmtDateKey(y,m+1,d);
+    const cls=["calendar-day"];
+    if(key===todayKey)cls.push("today");
+    if(closedDatesExisting.has(key))cls.push("closed");
+    if(closedDatesDraft.has(key))cls.push("selected");
+    out+=`<button type="button" class="${cls.join(" ")}" onclick="toggleClosedDate('${key}')">${d}</button>`;
+  }
+  const total=first+days;
+  for(let i=total;i<42;i++)out+=`<button type="button" class="calendar-day other" disabled>${i-total+1}</button>`;
+  root.innerHTML=out;
+  document.getElementById("closedDateStatus").textContent=`已選 ${closedDatesDraft.size} 天店休`;
+}
+function toggleClosedDate(key){
+  if(closedDatesDraft.has(key))closedDatesDraft.delete(key);else closedDatesDraft.add(key);
+  renderClosedCalendar();
+}
+async function saveClosedDates(){
+  const add=[...closedDatesDraft].filter(x=>!closedDatesExisting.has(x));
+  const del=[...closedDatesExisting].filter(x=>!closedDatesDraft.has(x));
+  if(add.length){
+    const {error}=await client.from("shop_closed_dates").upsert(add.map(closed_date=>({closed_date})),{onConflict:"closed_date"});
+    if(error){document.getElementById("closedDateStatus").textContent="儲存失敗："+error.message;return;}
+  }
+  if(del.length){
+    const {error}=await client.from("shop_closed_dates").delete().in("closed_date",del);
+    if(error){document.getElementById("closedDateStatus").textContent="取消店休失敗："+error.message;return;}
+  }
+  closedDatesExisting=new Set(closedDatesDraft);
+  document.getElementById("closedDateStatus").textContent="店休日期已更新";
+  renderClosedCalendar();
+}
+
+function getTaipeiDateKey(date){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);
+  const map={};parts.forEach(p=>map[p.type]=p.value);
+  return `${map.year}-${map.month}-${map.day}`;
+}
+async function openHistoryCalendar(){
+  openModal("historyModal");
+  historyCalendarCursor=new Date();
+  historyCalendarCursor.setDate(1);
+  await renderHistoryCalendar();
+}
+async function renderHistoryCalendar(){
+  const y=historyCalendarCursor.getFullYear(),m=historyCalendarCursor.getMonth();
+  document.getElementById("historyCalendarTitle").textContent=`${y} 年 ${m+1} 月`;
+  const root=document.getElementById("historyCalendar");
+  const labels=["日","一","二","三","四","五","六"];
+  let out=labels.map(x=>`<div class="calendar-week">${x}</div>`).join("");
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  for(let i=0;i<first;i++)out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
+  const start=fmtDateKey(y,m+1,1),end=fmtDateKey(y,m+1,days);
+  const {data,error}=await client.from("orders").select("business_date").gte("business_date",start).lte("business_date",end);
+  const counts={};(data||[]).forEach(r=>counts[r.business_date]=(counts[r.business_date]||0)+1);
+  for(let d=1;d<=days;d++){
+    const key=fmtDateKey(y,m+1,d),cls=["calendar-day"];
+    if(key===getTaipeiDateKey(new Date()))cls.push("today");
+    if(counts[key])cls.push("has-orders");
+    out+=`<button type="button" class="${cls.join(" ")}" onclick="queryHistoryOrders('${key}')">${d}</button>`;
+  }
+  const total=first+days;
+  for(let i=total;i<42;i++)out+=`<button type="button" class="calendar-day other" disabled>${i-total+1}</button>`;
+  root.innerHTML=out;
+}
+async function queryHistoryOrders(businessDate){
+  const box=document.getElementById("historyResult");
+  box.innerHTML='<div class="empty">讀取中…</div>';
+  const {data:orders,error}=await client.from("orders").select("*").eq("business_date",businessDate).order("created_at",{ascending:true});
+  if(error){box.innerHTML='<div class="empty">查詢失敗<br><small>'+escapeHtml(error.message)+'</small></div>';return;}
+  if(!orders?.length){box.innerHTML='<div class="empty">'+businessDate+' 沒有訂單</div>';return;}
+  let html=`<div class="history-summary">${businessDate} 營業日｜共 ${orders.length} 筆訂單</div>`;
+  for(const o of orders){
+    const {data:items}=await client.from("order_items").select("item_name,quantity,price,options").eq("order_id",o.id).order("id");
+    const itemText=(items||[]).map(it=>`${escapeHtml(it.item_name)} ×${it.quantity}`).join("、");
+    html+=`<div class="history-order">
+      <div class="history-order-head"><span>訂單 #${escapeHtml(o.id)}</span><span>${escapeHtml(statusText(normalizeStatus(o.status)))}</span></div>
+      <div class="history-order-meta">建立：${escapeHtml(formatDate(o.created_at))}<br>顧客：${escapeHtml(o.customer_name||"—")}｜電話：${escapeHtml(o.phone||"—")}<br>取餐：${escapeHtml(o.pickup_time||"完成後通知")}｜金額：$${escapeHtml(o.total??0)}${o.is_archived?"｜已歸檔":""}</div>
+      <div class="history-items">${itemText||"無餐點資料"}</div>
+    </div>`;
+  }
+  box.innerHTML=html;
+}
+
 async function changeStatus(id,status){
 
   const label = statusText(normalizeStatus(status));
@@ -1097,6 +1308,10 @@ client.auth.onAuthStateChange((event,session)=>{
     showApp();
   }
 });
+document.querySelectorAll(".admin-modal").forEach(modal=>{
+  modal.addEventListener("click",e=>{if(e.target===modal)closeAdminModal(modal.id);});
+});
+
 
 checkSession();
 </script>
