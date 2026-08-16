@@ -554,11 +554,43 @@ function applySoldOutToOptionBox(box){
 function refreshOpenOptionSoldOut(){
   document.querySelectorAll('.inline-option-box[data-item-key]').forEach(applySoldOutToOptionBox);
 }
+function getDetailNameFromSoldOutKey(key){
+  const marker='::detail::';
+  const i=String(key||'').indexOf(marker);
+  if(i<0)return null;
+  try{return decodeURIComponent(String(key).slice(i+marker.length));}
+  catch(e){return String(key).slice(i+marker.length);}
+}
+function getAllFrontDetailKeysByName(detailName){
+  const keys=[];
+  (menus||[]).forEach((group,gi)=>{
+    (group[1]||[]).forEach((item,ii)=>{
+      const parentKey=`menu-${gi}-${ii}`;
+      const cfg=group[2]||{};
+      const options=Array.isArray(cfg.options)?cfg.options:[];
+      options.forEach(opt=>{
+        const name=Array.isArray(opt)?opt[0]:opt;
+        if(String(name)===String(detailName)) keys.push(soldOutDetailKey(parentKey,name));
+      });
+    });
+  });
+  return keys;
+}
 async function loadSoldOutStatus(){
   const {data,error}=await supabaseClient.from('menu_item_status').select('item_key,sold_out');
   if(error){console.error('讀取完售狀態失敗：',error);return}
   Object.keys(soldOut).forEach(k=>delete soldOut[k]);
   (data||[]).forEach(row=>{soldOut[row.item_key]=!!row.sold_out});
+  const soldDetailNames=new Set();
+  Object.keys(soldOut).forEach(key=>{
+    if(soldOut[key]){
+      const name=getDetailNameFromSoldOutKey(key);
+      if(name)soldDetailNames.add(name);
+    }
+  });
+  soldDetailNames.forEach(name=>{
+    getAllFrontDetailKeysByName(name).forEach(key=>soldOut[key]=true);
+  });
   soldOutLoaded=true;
   renderMenu();
   refreshOpenOptionSoldOut();
