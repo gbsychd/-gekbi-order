@@ -191,6 +191,58 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="soldout-menu-actions-v6">
+.soldout-category-head{
+  position:relative;
+}
+.soldout-options{
+  position:relative;
+  flex:0 0 auto;
+}
+.soldout-options > summary{
+  list-style:none;
+  cursor:pointer;
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:8px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.soldout-options > summary::-webkit-details-marker{display:none}
+.soldout-options > summary::after{content:" ▾";font-size:10px}
+.soldout-options[open] > summary::after{content:" ▴"}
+.soldout-options-menu{
+  position:absolute;
+  right:0;
+  top:calc(100% + 6px);
+  z-index:50;
+  min-width:118px;
+  padding:7px;
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:10px;
+  box-shadow:0 8px 24px #0000001c;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.soldout-options-menu .soldout-mini{
+  width:100%;
+  min-height:34px;
+  text-align:center;
+}
+@media(max-width:480px){
+  .soldout-category-head{gap:6px;padding:9px}
+  .soldout-category-toggle{font-size:13px}
+  .soldout-count{font-size:11px}
+  .soldout-detail-summary{display:block;font-size:10px;margin-top:2px}
+  .soldout-options > summary{padding:7px 9px}
+}
+</style>
+
 </head>
 
 <body>
@@ -417,6 +469,7 @@ async function loadSoldOutAdmin(){
   renderSoldOutAdmin();
   soldOutStatusText('完售狀態已更新');
 }
+const soldOutOpenGroups=new Set();
 function renderSoldOutAdmin(){
   const root=document.getElementById('soldoutCategories');
   if(!root)return;
@@ -425,41 +478,61 @@ function renderSoldOutAdmin(){
     const soldCount=parentKeys.filter(key=>adminSoldOut[key]).length;
     const groupDetailTotal=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).length,0);
     const groupDetailSoldCount=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||adminSoldOut[key]||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length,0);
+
     const rows=group[1].map((name,ii)=>{
       const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key], details=getSoldOutDetails(key);
       const detailSoldCount=details.filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length;
+
       const detailHtml=details.length?`<div class="soldout-detail-list" id="soldout-details-${key}">${details.map(d=>{
-        const dKey=soldOutDetailKey(key,d), dSold=!!adminSoldOut[dKey]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k]);
-        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}"><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
+        const dKey=soldOutDetailKey(key,d);
+        const dSold=!!adminSoldOut[dKey]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k]);
+        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
       }).join('')}</div>`:'';
+
       return `<div class="soldout-item-wrap">
         <div class="soldout-item-row">
-          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}">
+          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}" ${sold?'checked':''}>
           <span class="soldout-item-name">${escapeHtml(name)}</span>
           ${details.length?`<button class="soldout-detail-toggle" type="button" onclick="toggleSoldOutDetails('${key}');event.stopPropagation()">細項 ${detailSoldCount}/${details.length}　▼</button>`:''}
           <span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span>
         </div>${detailHtml}
       </div>`;
     }).join('');
-    return `<div class="soldout-category" id="soldout-group-${gi}">
+
+    const isOpen=soldOutOpenGroups.has(gi);
+
+    return `<div class="soldout-category${isOpen?' open':''}" id="soldout-group-${gi}">
       <div class="soldout-category-head">
-        <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})"><span>${escapeHtml(group[0])}</span><span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-detail-summary">細項 ${groupDetailSoldCount}/${groupDetailTotal} 完售</span>　<span class="soldout-arrow">▼</span></span></button>
-        <div class="soldout-category-actions">
-          <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
-          <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
-          <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
-          <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
-        </div>
+        <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})">
+          <span>${escapeHtml(group[0])}</span>
+          <span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-detail-summary">細項 ${groupDetailSoldCount}/${groupDetailTotal} 完售</span>　<span class="soldout-arrow">▼</span></span>
+        </button>
+
+        <details class="soldout-options" onclick="event.stopPropagation()">
+          <summary>選項</summary>
+          <div class="soldout-options-menu" onclick="event.stopPropagation()">
+            <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);this.closest('details').removeAttribute('open')">全選</button>
+            <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
+            <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
+            <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
+          </div>
+        </details>
       </div>
       <div class="soldout-items">${rows}</div>
     </div>`;
   }).join('');
 }
+
 function toggleSoldOutDetails(key){
   document.getElementById(`soldout-details-${key}`)?.classList.toggle('open');
 }
 function toggleSoldOutGroup(gi){
-  document.getElementById(`soldout-group-${gi}`)?.classList.toggle('open');
+  const el=document.getElementById(`soldout-group-${gi}`);
+  if(!el)return;
+  const willOpen=!el.classList.contains('open');
+  el.classList.toggle('open',willOpen);
+  if(willOpen)soldOutOpenGroups.add(gi);
+  else soldOutOpenGroups.delete(gi);
 }
 function updateSoldOutSelectedCount(){
   const el=document.getElementById('soldoutSelectedCount');
