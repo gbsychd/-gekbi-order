@@ -1145,7 +1145,7 @@ async function queryHistoryOrders(businessDate){
     const {data:items}=await client.from("order_items").select("item_name,quantity,price,options").eq("order_id",o.id).order("id");
     const itemText=(items||[]).map(it=>`${escapeHtml(it.item_name)} ×${it.quantity}`).join("、");
     html+=`<div class="history-order">
-      <div class="history-order-head"><span>訂單 #${escapeHtml(o.id)}</span><span>${escapeHtml(statusText(normalizeStatus(o.status)))}</span></div>
+      <div class="history-order-head"><span>訂單 #${escapeHtml(String(o.phone || "").replace(/\D/g, "").slice(-3) || String(o.id))}</span><span>${escapeHtml(statusText(normalizeStatus(o.status)))}</span></div>
       <div class="history-order-meta">建立：${escapeHtml(formatDate(o.created_at))}<br>顧客：${escapeHtml(o.customer_name||"—")}｜電話：${escapeHtml(o.phone||"—")}<br>取餐：${escapeHtml(o.pickup_time||"完成後通知")}｜金額：$${escapeHtml(o.total??0)}${o.is_archived?"｜已歸檔":""}</div>
       <div class="history-items">${itemText||"無餐點資料"}</div>
     </div>`;
