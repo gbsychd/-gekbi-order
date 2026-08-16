@@ -114,7 +114,7 @@ button{cursor:pointer}
 .soldout-arrow{font-size:12px;transition:transform .2s}
 .soldout-category.open .soldout-arrow{transform:rotate(180deg)}
 .soldout-category-actions{display:flex;gap:6px;flex:0 0 auto}
-.soldout-mini{border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 8px;font-size:12px;font-weight:800}
+.soldout-mini.selected{background:#fff3e8;color:#b84d00;border:1px solid #f0c7a8;font-weight:800}.soldout-mini{border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 8px;font-size:12px;font-weight:800}
 .soldout-mini.danger{background:#ffe7e7;color:#b00000;border-color:#ffd0d0}
 .soldout-mini.restore{background:#eaf8ed;color:#18752a;border-color:#cfead4}
 .soldout-items{display:none;border-top:1px solid #eee;padding:7px 10px 10px}
@@ -203,11 +203,7 @@ button{cursor:pointer}
       <h2>🚫 餐點完售管理</h2>
       <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。原本單一品項完售狀態仍保留。</div>
       <div id="soldoutCategories"></div>
-      <div id="soldoutSelectedCount" class="soldout-selected-count">尚未選取品項</div>
-    <div class="soldout-bottom-actions">
-        <button class="soldout-all-btn" type="button" onclick="setSelectedSoldOut(true)">選取品項｜設為完售</button>
-        <button class="soldout-restore-btn" type="button" onclick="setSelectedSoldOut(false)">選取品項｜恢復供應</button>
-      </div>
+      
       <div id="soldoutStatus" class="soldout-status"></div>
     </section>
 
@@ -324,6 +320,7 @@ function renderSoldOutAdmin(){
         <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})"><span>${escapeHtml(group[0])}</span><span class="soldout-count">${soldCount}/${group[1].length} 完售　<span class="soldout-arrow">▼</span></span></button>
         <div class="soldout-category-actions">
           <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
+          <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
           <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
           <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
         </div>
