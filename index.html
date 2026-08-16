@@ -19,7 +19,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .item{background:#fff;border-radius:16px;padding:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 2px 9px rgba(0,0,0,.06)}
 .item-info{flex:1;min-width:0}.item-name{font-size:18px;font-weight:700;line-height:1.5}.price{margin-top:5px;font-size:19px;color:#d35400;font-weight:800}
 .add-btn{border:0;background:#111;color:#fff;border-radius:12px;padding:12px 17px;font-size:16px;min-width:76px;cursor:pointer}.add-btn:active{transform:scale(.96)}
-.menu-card{cursor:pointer;user-select:none;touch-action:manipulation};position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.menu-card:active{transform:scale(.99)}
+.menu-card{cursor:pointer;user-select:none;touch-action:manipulation};position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.sold-out-option{opacity:.45!important;text-decoration:line-through!important;cursor:not-allowed!important;background:#eee!important;color:#777!important;border-color:#ccc!important}.sold-out-option .option-price{color:#777!important}.menu-card:active{transform:scale(.99)}
 .category-toggle{display:flex;align-items:center;justify-content:space-between;background:#111;color:#fff;border-radius:13px;padding:15px 17px;margin:16px 0 8px;font-size:18px;font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;z-index:50}
 .category-toggle:active{transform:scale(.99)}
 .category-arrow{font-size:14px;transition:transform .2s ease}
@@ -36,7 +36,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .inline-option-box{background:#fff;border-radius:15px;padding:17px;margin:-3px 0 14px;border:2px solid #eee;box-shadow:0 3px 12px rgba(0,0,0,.08)}
 .option-title{font-size:18px;font-weight:800;margin-bottom:14px}.option-group{margin-bottom:16px}.option-group-title{font-size:16px;font-weight:700;margin-bottom:9px}.option-list{display:flex;flex-wrap:wrap;gap:8px}
 .option-btn{border:1px solid #ddd;background:#fff;color:#222;border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer}.option-btn.selected{background:#111;color:#fff;border-color:#111}.option-price{color:#d35400;font-weight:700}.option-btn.selected .option-price{color:#fff}
-.confirm-option,.submit-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:5px}.cancel-option{width:100%;border:1px solid #ddd;background:#fff;color:#555;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
+.confirm-option:disabled{opacity:.5!important;cursor:not-allowed!important}.confirm-option,.submit-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:5px}.cancel-option{width:100%;border:1px solid #ddd;background:#fff;color:#555;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
 .hidden-title{margin-top:42px;background:#111;color:#fff;padding:15px;border-radius:14px;font-size:23px;font-weight:800;text-align:center}.hidden-subtitle{text-align:center;color:#777;font-size:14px;margin:8px 0 15px}
 .cart{margin-top:35px}.cart h2{margin:0 0 15px;font-size:25px}.cart-row{padding:14px 0;border-bottom:1px solid #eee}.cart-main{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.cart-name{font-weight:700;font-size:16px;line-height:1.5}.cart-price{font-weight:700;white-space:nowrap}.cart-options{color:#777;font-size:13px;margin-top:5px;line-height:1.6}.cart-controls{margin-top:9px;display:flex;justify-content:flex-end;align-items:center;gap:7px}.cart-controls button{border:0;background:#eee;font-size:15px;padding:7px 10px;border-radius:7px}.total{text-align:right;font-size:23px;font-weight:800;margin:20px 0}
 .order-form label{display:block;margin:15px 0 0;font-size:16px;font-weight:600}input,select{width:100%;padding:14px;margin-top:7px;border:1px solid #ddd;border-radius:11px;font-size:16px;background:#fff}.submit-btn{padding:16px;font-size:18px;margin-top:18px}.success{display:none;margin-top:15px;padding:15px;border-radius:12px;background:#eaf8ed;color:#217a35;line-height:1.7}
@@ -531,7 +531,29 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 <script>
 const soldOut = {};
 let soldOutLoaded=false;
+function soldOutDetailKey(parentKey,detailName){return `${parentKey}::detail::${encodeURIComponent(String(detailName))}`}
 function isSoldOut(key){return soldOut[key]===true}
+function isDetailSoldOut(parentKey,detailName){return isSoldOut(parentKey)||isSoldOut(soldOutDetailKey(parentKey,detailName))}
+function applySoldOutToOptionBox(box){
+  if(!box)return;
+  const parentKey=box.dataset.itemKey||'';
+  if(!parentKey)return;
+  box.querySelectorAll('.option-btn[data-name]').forEach(btn=>{
+    const name=btn.dataset.name||'';
+    const sold=isDetailSoldOut(parentKey,name);
+    btn.disabled=sold;
+    btn.classList.toggle('sold-out-option',sold);
+    btn.setAttribute('aria-disabled',sold?'true':'false');
+    if(sold)btn.classList.remove('selected');
+  });
+  const anyAvailable=Array.from(box.querySelectorAll('.option-btn[data-name]')).some(b=>!b.disabled);
+  const confirm=box.querySelector('.confirm-option');
+  if(confirm && !isOrderingOpen())return;
+  if(confirm)confirm.disabled=!anyAvailable && box.querySelectorAll('.option-btn[data-name]').length>0;
+}
+function refreshOpenOptionSoldOut(){
+  document.querySelectorAll('.inline-option-box[data-item-key]').forEach(applySoldOutToOptionBox);
+}
 async function loadSoldOutStatus(){
   const {data,error}=await supabaseClient.from('menu_item_status').select('item_key,sold_out');
   if(error){console.error('讀取完售狀態失敗：',error);return}
@@ -539,6 +561,7 @@ async function loadSoldOutStatus(){
   (data||[]).forEach(row=>{soldOut[row.item_key]=!!row.sold_out});
   soldOutLoaded=true;
   renderMenu();
+  refreshOpenOptionSoldOut();
 }
 async function setSoldOut(key,value){
   const {error}=await supabaseClient.from('menu_item_status').upsert({item_key:key,sold_out:!!value,updated_at:new Date().toISOString()});
@@ -847,6 +870,7 @@ function openItemBrowse(mi,ii,itemId){
 
   const card=document.getElementById(itemId);
   if(card) card.insertAdjacentHTML('afterend',html);
+  applySoldOutToOptionBox(document.getElementById('browse-'+itemId));
   applyOrderingHours();
 }
 function changeDirectQty(itemId,delta){
@@ -860,6 +884,7 @@ function changeDirectQty(itemId,delta){
 }
 function confirmDirectAdd(itemId){
   if(!isOrderingOpen())return;
+  if(isSoldOut(itemId)){alert('此餐點目前已完售。');return;}
   const box=document.getElementById('browse-'+itemId);
   if(!box)return;
   const qty=Math.max(1,Number(box.dataset.qty||1));
@@ -876,6 +901,7 @@ function closeBrowse(itemId){
 
 function confirmBrowseAdd(itemId){
   if(!isOrderingOpen())return;
+  if(isSoldOut(itemId)){alert('此餐點目前已完售。');return;}
   const box=document.getElementById('browse-'+itemId);
   if(!box)return;
   const name=box.dataset.baseName;
@@ -921,7 +947,7 @@ function openJamOptions(name,price,itemId){
     existing.scrollIntoView({behavior:'smooth',block:'nearest'});
     return;
   }
-  const html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}">
+  const html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}" data-item-key="${itemId}">
     <div class="option-title">${name}｜選擇口味</div>
     <div class="option-group">
       <div class="option-group-title">果醬口味（請選1種）</div>
@@ -932,10 +958,10 @@ function openJamOptions(name,price,itemId){
   </div>`;
   insertOptionBox(itemId,html);
 }
-function openHotpotOptions(name,price,itemId){const old=document.getElementById('option-'+itemId);if(old){old.remove();return}const noodles=[["意麵",0],["雞絲",0],["冬粉",0],["泡麵",0],["烏龍麵",20]];const extras=[["加麵",15],["起司",10],["豆皮",20]];let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}"><div class="option-title">${name}｜選擇細項</div><div class="option-group"><div class="option-group-title">麵體</div><div class="option-list">${noodles.map(o=>optionButton(o,true)).join('')}</div></div><div class="option-group"><div class="option-group-title">加料</div><div class="option-list">${extras.map(o=>optionButton(o,false)).join('')}</div></div>`;if(name==='起司牛奶鍋燒')html+=`<div class="option-group"><div class="option-group-title">口味</div><div class="option-list">${optionButton(["麻辣",10],false)}</div></div>`;html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;insertOptionBox(itemId,html)}
+function openHotpotOptions(name,price,itemId){const old=document.getElementById('option-'+itemId);if(old){old.remove();return}const noodles=[["意麵",0],["雞絲",0],["冬粉",0],["泡麵",0],["烏龍麵",20]];const extras=[["加麵",15],["起司",10],["豆皮",20]];let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}" data-item-key="${itemId}"><div class="option-title">${name}｜選擇細項</div><div class="option-group"><div class="option-group-title">麵體</div><div class="option-list">${noodles.map(o=>optionButton(o,true)).join('')}</div></div><div class="option-group"><div class="option-group-title">加料</div><div class="option-list">${extras.map(o=>optionButton(o,false)).join('')}</div></div>`;if(name==='起司牛奶鍋燒')html+=`<div class="option-group"><div class="option-group-title">口味</div><div class="option-list">${optionButton(["麻辣",10],false)}</div></div>`;html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;insertOptionBox(itemId,html)}
 function openOptions(name,price,config,itemId){
 const old=document.getElementById('option-'+itemId);if(old){old.remove();return}
-let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}"><div class="option-title">${name}｜選擇細項</div>`;
+let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}" data-item-key="${itemId}"><div class="option-title">${name}｜選擇細項</div>`;
 if(config.options){
   if(config.type==="個人特餐"){
     const drink=config.options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
@@ -1058,22 +1084,27 @@ function selectPackageMain(btn,itemId){
 
   html+=`</div>`;
   target.innerHTML=html;
+  applySoldOutToOptionBox(target.querySelector('.package-main-detail-box'));
 }
 function insertOptionBox(itemId,html){
   const existing=document.getElementById('option-'+itemId);
   if(existing){
     existing.outerHTML=html;
+    applySoldOutToOptionBox(document.getElementById('option-'+itemId));
     return;
   }
   document.getElementById(itemId).insertAdjacentHTML('afterend',html);
+  const box=document.getElementById('option-'+itemId);
+  applySoldOutToOptionBox(box);
   applyOrderingHours();
 }
-function toggleOption(btn){const box=btn.closest('.inline-option-box');const group=btn.closest('.option-group');const isSingle=btn.dataset.single==='1';const max=Number(btn.dataset.max||0);if(isSingle){
+function toggleOption(btn){if(btn.disabled||btn.classList.contains('sold-out-option'))return;const box=btn.closest('.inline-option-box');const group=btn.closest('.option-group');const isSingle=btn.dataset.single==='1';const max=Number(btn.dataset.max||0);if(isSingle){
   if(btn.classList.contains('selected')){btn.classList.remove('selected')}
   else{group.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
 }else{const selected=group.querySelectorAll('.option-btn.selected');if(!btn.classList.contains('selected')&&max===1&&selected.length>=1){selected.forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}else if(!btn.classList.contains('selected')&&max&&selected.length>=max){alert(`最多選 ${max} 項`);return}else{btn.classList.toggle('selected')}}const fried=box?.querySelector('[data-group="fried"]');const cream=box?.querySelector('[data-group="cream"]');if(fried&&cream){const creamSelected=cream.querySelector('.option-btn.selected');const friedBtns=fried.querySelectorAll('.option-btn');const limit=creamSelected?1:2;friedBtns.forEach(b=>{b.dataset.max=limit});const current=fried.querySelectorAll('.option-btn.selected');if(current.length>limit){current.forEach((b,i)=>{if(i>=limit)b.classList.remove('selected')})}fried.querySelector('.option-group-title').textContent=`炸物 4 選 ${limit}${creamSelected?'':'(奶酥不吃請選兩樣)'}`}}
 function confirmInlineOptions(itemId){
 if(!isOrderingOpen())return;
+if(isSoldOut(itemId)){alert('此餐點目前已完售。');return;}
 const box=document.getElementById('option-'+itemId);
 const name=box.dataset.baseName,basePrice=Number(box.dataset.basePrice);
 const selected=Array.from(box.querySelectorAll('.option-btn.selected'));
