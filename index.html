@@ -561,7 +561,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
   <span>｜</span>
   <a href="tel:047222297" class="shop-contact-link">☎️ 04-7222297　撥打</a>
 </div>
-<div class="pickup-notice">📢 訂單送出後，請等待店家通知「餐點完成」即可取餐</div>
+<div class="pickup-notice">📢 訂單送出後，請等待訂單狀態顯示「餐點完成」即可取餐</div>
 </div>
 <div id="menu"></div>
 <div class="cart" id="cartBox">
@@ -578,19 +578,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
   <label><input type="radio" name="cutlery" value="不需要"> 不需要</label>
 </div>
 <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
-<div class="success" id="successMessage">
-  <div class="success-title">✅ 訂單已送出</div><div>手機末3碼 <strong id="successPhoneLast3">---</strong></div>
-</div>
 
-  <div class="success-grid">
-    <div><span>訂單編號</span><strong id="successOrderId">#—</strong></div>
-    <div><span>預計取餐</span><strong id="successPickup">不指定</strong></div>
-    <div><span>訂單金額</span><strong id="successTotal">$0</strong></div>
-    <div><span>目前狀態</span><strong id="successStatus">🟡 等待店家接單</strong></div>
-  </div>
-  <div id="successCustomer"></div>
-  <div class="success-note">餐點完成後會通知您，取餐時請告知手機末三碼。</div>
-</div>
 </div></div></div>
 <div class="bottom-cart"><div class="bottom-cart-info"><div>🛒 已選 <span id="count">0</span> 項</div></div><div class="bottom-cart-total">總計 $<span id="bottomTotal">0</span></div><button onclick="collapseAllCategories();document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">結帳</button></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
@@ -1388,7 +1376,7 @@ async function confirmAndSubmitOrder(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
   try{
-    if(!isOrderingOpen()){ throw new Error('目前非線上點餐時間，請於 18:00 ～ 隔日 01:10 再下單。'); }
+    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，請於 18:00 ～ 隔日 01:10 再下單。');
 
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
@@ -1418,17 +1406,9 @@ async function confirmAndSubmitOrder(){
 
     const orderId=Number(data?.id);
     const serverTotal=Number(data?.total||0);
+    if(!orderId) throw new Error('訂單建立成功但未取得訂單編號，請勿重複送出，請聯絡店家確認。');
 
-    closeOrderConfirm();
-    cart=[];
-    renderCart();
-
-    document.getElementById('successOrderId').textContent=`#${phone.replace(/\D/g,'').slice(-3) || '—'}`;
-    document.getElementById('successPickup').textContent=pickup||'不指定';
-    document.getElementById('successTotal').textContent=`$${serverTotal.toLocaleString()}`;
-    document.getElementById('successCustomer').textContent=`${name}｜手機末三碼 ${phone.slice(-3)}`;
-
-    // 顧客端訂單保留 1 小時：關閉／重新整理網頁後仍可找回。
+    // 只保存顧客端目前訂單 1 小時；原本 V24 其餘前台流程不變。
     saveCustomerActiveOrder({
       orderId,
       phone,
@@ -1438,10 +1418,12 @@ async function confirmAndSubmitOrder(){
       createdAt:Date.now()
     });
 
-    document.getElementById('successStatus').textContent='🟡 等待店家接單';
-    document.getElementById('successMessage').style.display='block';
-    document.getElementById('successMessage').scrollIntoView({behavior:'smooth',block:'center'});
-    startCustomerOrderTracking();
+    cart=[];
+    renderCart();
+    closeOrderConfirm();
+
+    // 二次確認完成後，才進入獨立的訂單狀態頁。
+    window.location.href='order-status-v24.html';
   }catch(error){
     console.error(error);
     alert(error.message||'訂單送出失敗，請稍後再試。');
@@ -1449,7 +1431,6 @@ async function confirmAndSubmitOrder(){
     if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='確認';submitBtn.style.opacity='1';}
   }
 }
-
 function submitOrder(){
   if(!isOrderingOpen())return;
   if(!cart.length){alert('請先選擇餐點！');return}
