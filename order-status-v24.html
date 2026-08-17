@@ -4,100 +4,537 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>訂單狀態｜隔壁宵夜彰化店</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif}
-header{background:#111;color:#fff;text-align:center;padding:18px 14px}
-header h1{margin:0;font-size:22px}
-.wrap{max-width:620px;margin:auto;padding:15px}
-.card{background:#fff;border-radius:15px;padding:17px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
-.title{text-align:center;font-size:21px;font-weight:900;margin-bottom:15px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.label{font-size:12px;color:#777;margin-bottom:3px}
-.value{font-size:17px;font-weight:900}
-.notice{margin-top:15px;background:#eef8ef;color:#217a35;border-radius:10px;padding:12px;font-weight:700;line-height:1.65}
-h2{font-size:17px;margin:0 0 8px}
-.item{padding:10px 0;border-bottom:1px solid #eee}
-.item:last-child{border-bottom:0}
-.row{display:flex;justify-content:space-between;gap:10px;font-weight:800}
-.opt{font-size:13px;color:#777;margin-top:4px;line-height:1.5}
-.empty{text-align:center;color:#777;padding:20px;line-height:1.7}
-.back{display:block;text-decoration:none;text-align:center;background:#111;color:#fff;border-radius:10px;padding:13px;font-weight:800}
-.keep{text-align:center;color:#888;font-size:12px;margin-top:8px}
-@media(max-width:480px){.grid{gap:12px 8px}.value{font-size:16px}}
+
+body{
+  margin:0;
+  background:#f5f5f5;
+  color:#222;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif
+}
+
+header{
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:18px 14px
+}
+
+header h1{
+  margin:0;
+  font-size:22px
+}
+
+.wrap{
+  max-width:620px;
+  margin:auto;
+  padding:15px
+}
+
+.card{
+  background:#fff;
+  border-radius:15px;
+  padding:17px;
+  margin-bottom:13px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07)
+}
+
+.title{
+  text-align:center;
+  font-size:21px;
+  font-weight:900;
+  margin-bottom:15px
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px
+}
+
+.label{
+  font-size:12px;
+  color:#777;
+  margin-bottom:3px
+}
+
+.value{
+  font-size:17px;
+  font-weight:900
+}
+
+.notice{
+  margin-top:15px;
+  background:#eef8ef;
+  color:#217a35;
+  border-radius:10px;
+  padding:12px;
+  font-weight:700;
+  line-height:1.65
+}
+
+h2{
+  font-size:17px;
+  margin:0 0 8px
+}
+
+.item{
+  padding:10px 0;
+  border-bottom:1px solid #eee
+}
+
+.item:last-child{
+  border-bottom:0
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-weight:800
+}
+
+.opt{
+  font-size:13px;
+  color:#777;
+  margin-top:4px;
+  line-height:1.5
+}
+
+.empty{
+  text-align:center;
+  color:#777;
+  padding:20px;
+  line-height:1.7
+}
+
+.back{
+  display:block;
+  text-decoration:none;
+  text-align:center;
+  background:#111;
+  color:#fff;
+  border-radius:10px;
+  padding:13px;
+  font-weight:800
+}
+
+.keep{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  margin-top:8px
+}
+
+@media(max-width:480px){
+  .grid{
+    gap:12px 8px
+  }
+
+  .value{
+    font-size:16px
+  }
+}
 </style>
 </head>
+
 <body>
-<header><h1>隔壁宵夜彰化店</h1></header>
+
+<header>
+  <h1>隔壁宵夜彰化店</h1>
+</header>
+
 <div class="wrap" id="page">
+
   <div class="card">
-    <div class="title">訂單狀態</div>
-    <div class="grid">
-      <div><div class="label">訂單編號</div><div class="value" id="orderNo">#---</div></div>
-      <div><div class="label">預計取餐</div><div class="value" id="pickup">不指定</div></div>
-      <div><div class="label">訂單金額</div><div class="value" id="total">$0</div></div>
-      <div><div class="label">目前狀態</div><div class="value" id="status">🟡 等待店家接單</div></div>
+
+    <div class="title">
+      訂單狀態
     </div>
-    <div class="notice">訂單送出後，請等待訂單狀態顯示「餐點完成」即可取餐。</div>
+
+    <div class="grid">
+
+      <div>
+        <div class="label">訂單編號</div>
+        <div class="value" id="orderNo">#---</div>
+      </div>
+
+      <div>
+        <div class="label">預計取餐</div>
+        <div class="value" id="pickup">不指定</div>
+      </div>
+
+      <div>
+        <div class="label">訂單金額</div>
+        <div class="value" id="total">$0</div>
+      </div>
+
+      <div>
+        <div class="label">目前狀態</div>
+        <div class="value" id="status">🟡 等待店家接單</div>
+      </div>
+
+    </div>
+
+    <div class="notice">
+      訂單送出後，請等待訂單狀態顯示「餐點完成」即可取餐。
+    </div>
+
   </div>
+
 
   <div class="card">
+
     <h2>訂單內容</h2>
-    <div id="items"><div class="empty">訂單內容載入中…</div></div>
+
+    <div id="items">
+      <div class="empty">
+        訂單內容載入中…
+      </div>
+    </div>
+
   </div>
 
-  <a class="back" href="index-v24-獨立訂單狀態修正版.html">返回點餐頁面</a>
-  <div class="keep">訂單資訊保留 1 小時，重新整理或關閉後仍可查看。</div>
+
+  <!-- 已修正：返回真正的前台 index.html -->
+  <a class="back" href="index.html">
+    返回點餐頁面
+  </a>
+
+  <div class="keep">
+    訂單資訊保留 1 小時，重新整理或關閉後仍可查看。
+  </div>
+
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+
 const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
+
 const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const supabaseClient=
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
 
 function esc(v){
-  return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+  return String(v??'').replace(
+    /[&<>"]/g,
+    m=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;'
+    }[m])
+  );
+
 }
+
+
 function getActive(){
+
   try{
-    const o=JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'null');
-    if(!o||!o.orderId)return null;
-    if(Date.now()-Number(o.createdAt||o.savedAt||0)>3600000){
-      localStorage.removeItem('gekbi_customer_active_order_v1');
+
+    const o=
+      JSON.parse(
+        localStorage.getItem(
+          'gekbi_customer_active_order_v1'
+        )||'null'
+      );
+
+    if(!o || !o.orderId){
       return null;
     }
+
+    const createdTime=
+      Number(
+        o.createdAt ||
+        o.savedAt ||
+        0
+      );
+
+    /*
+      訂單最多保留 1 小時
+    */
+    if(
+      Date.now()-createdTime >
+      3600000
+    ){
+
+      localStorage.removeItem(
+        'gekbi_customer_active_order_v1'
+      );
+
+      return null;
+    }
+
     return o;
-  }catch(e){return null}
+
+  }catch(e){
+
+    return null;
+
+  }
+
 }
+
+
 function emptyPage(text){
-  document.getElementById('page').innerHTML='<div class="card"><div class="empty">'+esc(text)+'</div><a class="back" href="index-v24-獨立訂單狀態修正版.html">回到點餐頁面</a></div>';
+
+  document.getElementById('page').innerHTML=
+
+    '<div class="card">'+
+
+      '<div class="empty">'+
+        esc(text)+
+      '</div>'+
+
+      '<a class="back" href="index.html">'+
+        '回到點餐頁面'+
+      '</a>'+
+
+    '</div>';
+
 }
+
+
 async function loadOrder(){
+
   const active=getActive();
-  if(!active){emptyPage('目前沒有可查看的訂單。');return;}
 
-  const {data,error}=await supabaseClient.rpc('get_customer_order_status',{p_order_id:Number(active.orderId)});
-  if(error||!data){console.error(error);return;}
+  if(!active){
 
-  const o=Array.isArray(data)?data[0]:data;
-  document.getElementById('orderNo').textContent='#'+esc(o.order_number||o.order_no||active.orderId);
-  document.getElementById('pickup').textContent=esc(o.pickup_time||active.pickupTime||'不指定');
-  document.getElementById('total').textContent='$'+Number(o.total??active.total??0).toLocaleString();
-  document.getElementById('status').textContent=esc(o.status||'🟡 等待店家接單');
+    emptyPage(
+      '目前沒有可查看的訂單。'
+    );
 
-  let items=o.items||o.order_items||[];
-  if(typeof items==='string'){try{items=JSON.parse(items)}catch(e){items=[]}}
+    return;
+  }
 
-  document.getElementById('items').innerHTML=(Array.isArray(items)?items:[]).map(i=>{
-    const opts=Array.isArray(i.options)?i.options.map(x=>esc(x.name)+(Number(x.price)>0?' +$'+Number(x.price):'')).join('、'):'';
-    const sub=Number(i.subtotal??i.item_total??(Number(i.price||0)*Number(i.qty||1)));
-    return '<div class="item"><div class="row"><span>'+esc(i.name)+'</span><span>×'+Number(i.qty||1)+'　$'+sub.toLocaleString()+'</span></div>'+
-      (opts?'<div class="opt">細項：'+opts+'</div>':'')+'</div>';
-  }).join('')||'<div class="empty">目前沒有可顯示的品項。</div>';
+
+  const {
+    data,
+    error
+  }=
+    await supabaseClient.rpc(
+      'get_customer_order_status',
+      {
+        p_order_id:Number(
+          active.orderId
+        )
+      }
+    );
+
+
+  if(error || !data){
+
+    console.error(error);
+
+    return;
+  }
+
+
+  const o=
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+
+  /*
+    訂單編號
+  */
+  document.getElementById(
+    'orderNo'
+  ).textContent=
+
+    '#'+
+    esc(
+      o.order_number ||
+      o.order_no ||
+      active.orderId
+    );
+
+
+  /*
+    預計取餐
+  */
+  document.getElementById(
+    'pickup'
+  ).textContent=
+
+    esc(
+      o.pickup_time ||
+      active.pickupTime ||
+      '不指定'
+    );
+
+
+  /*
+    訂單金額
+  */
+  document.getElementById(
+    'total'
+  ).textContent=
+
+    '$'+
+    Number(
+      o.total ??
+      active.total ??
+      0
+    ).toLocaleString();
+
+
+  /*
+    訂單狀態
+  */
+  document.getElementById(
+    'status'
+  ).textContent=
+
+    esc(
+      o.status ||
+      '🟡 等待店家接單'
+    );
+
+
+  /*
+    訂單品項
+  */
+  let items=
+    o.items ||
+    o.order_items ||
+    [];
+
+
+  if(typeof items==='string'){
+
+    try{
+
+      items=
+        JSON.parse(items);
+
+    }catch(e){
+
+      items=[];
+
+    }
+
+  }
+
+
+  document.getElementById(
+    'items'
+  ).innerHTML=
+
+    (
+      Array.isArray(items)
+        ? items
+        : []
+    )
+    .map(i=>{
+
+      const opts=
+        Array.isArray(i.options)
+          ?
+            i.options
+              .map(
+                x=>
+                  esc(x.name)+
+                  (
+                    Number(x.price)>0
+                      ?
+                        ' +$'+
+                        Number(x.price)
+                      :
+                        ''
+                  )
+              )
+              .join('、')
+          :
+            '';
+
+
+      const sub=
+        Number(
+          i.subtotal ??
+          i.item_total ??
+          (
+            Number(i.price||0)*
+            Number(i.qty||1)
+          )
+        );
+
+
+      return (
+
+        '<div class="item">'+
+
+          '<div class="row">'+
+
+            '<span>'+
+              esc(i.name)+
+            '</span>'+
+
+            '<span>'+
+              '×'+
+              Number(i.qty||1)+
+              '　$'+
+              sub.toLocaleString()+
+            '</span>'+
+
+          '</div>'+
+
+          (
+            opts
+              ?
+                '<div class="opt">'+
+                  '細項：'+
+                  opts+
+                '</div>'
+              :
+                ''
+          )+
+
+        '</div>'
+
+      );
+
+    })
+    .join('')
+
+    ||
+
+    '<div class="empty">'+
+      '目前沒有可顯示的品項。'+
+    '</div>';
+
 }
+
+
+/*
+  第一次載入
+*/
 loadOrder();
-setInterval(loadOrder,5000);
+
+
+/*
+  每 5 秒更新一次訂單狀態
+*/
+setInterval(
+  loadOrder,
+  5000
+);
+
 </script>
+
 </body>
 </html>
