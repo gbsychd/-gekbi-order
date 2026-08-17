@@ -1378,7 +1378,7 @@ async function confirmAndSubmitOrder(){
 
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
-    const phone=normalizeTaiwanMobile(document.getElementById('phone').value);
+    const phone=document.getElementById('phone').value.trim().replace(/[\s-]/g,'');
     const pickup=document.getElementById('pickupTime').value||null;
 
     if(!cart.length) throw new Error('購物車目前沒有餐點。');
