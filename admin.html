@@ -544,6 +544,31 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="menu-editor-v17-compact">
+.menu-edit-head-v16-compact{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:nowrap}
+.menu-item-title-wrap-v16{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+.menu-top-name-v16{height:34px;min-width:0;flex:1;border:1px solid #ddd;border-radius:8px;padding:6px 9px;font-size:15px;font-weight:600;box-sizing:border-box}
+.menu-top-price-v16{display:flex;align-items:center;gap:5px;white-space:nowrap;margin-left:auto}
+.menu-top-price-v16>span:first-child{font-size:12px;color:#666}
+.menu-top-price-prefix-v16{font-weight:700;font-size:12px}
+.menu-top-price-v16 input{width:82px;height:34px;border:1px solid #ddd;border-radius:8px;padding:6px 8px;font-size:14px;box-sizing:border-box}
+.menu-item-head-actions{display:flex;gap:5px;flex-shrink:0}
+.menu-item-bottom-v16-compact{margin-top:4px;margin-bottom:7px}
+.menu-edit-fields-v16{display:none !important}
+.menu-options-editor-v16{gap:8px 12px}
+.menu-option-column-v16{gap:5px}
+.menu-option-row-v16{grid-template-columns:minmax(0,1fr) 105px 50px !important;gap:6px}
+.menu-option-row-v16 input{min-width:0}
+@media(max-width:650px){
+ .menu-edit-head-v16-compact{flex-wrap:wrap}
+ .menu-item-title-wrap-v16{flex:1 1 100%}
+ .menu-top-price-v16{margin-left:0}
+ .menu-item-head-actions{margin-left:auto}
+ .menu-top-name-v16{font-size:14px}
+}
+</style>
+
 </head>
 
 <body>
@@ -1552,8 +1577,6 @@ function renderMenuEditorItem(row,index){
 
   const options=Object.entries(row.option_prices||{});
   const active=row.is_active!==false;
-
-  // 細項超過 6 個時平均分成左右兩區；少量維持單區。
   const columns = options.length>6
     ? [options.slice(0,Math.ceil(options.length/2)), options.slice(Math.ceil(options.length/2))]
     : [options];
@@ -1572,23 +1595,28 @@ function renderMenuEditorItem(row,index){
 
   const renderColumn=(column)=>{
     let lastGroup=null;
-    return column.map((entry,localIndex)=>{
-      const oi = options.indexOf(entry);
+    return column.map(entry=>{
+      const oi=options.indexOf(entry);
       const group=menuEditorOptionGroupV16(entry[0],row.category_name,row.item_name);
       const heading=(group && group!==lastGroup)
-        ? `<div class="menu-option-group-title-v16">${escapeHtml(group)}</div>`
-        : "";
+        ? `<div class="menu-option-group-title-v16">${escapeHtml(group)}</div>` : "";
       lastGroup=group || lastGroup;
       return heading+renderOption(entry,oi);
     }).join("");
   };
 
   return `<div class="menu-edit-card ${active?'':'menu-item-disabled'}">
-    <div class="menu-edit-head">
-      <div class="menu-item-title-wrap">
+    <div class="menu-edit-head menu-edit-head-v16-compact">
+      <div class="menu-item-title-wrap menu-item-title-wrap-v16">
         <span class="menu-item-status ${active?'active':'inactive'}">${active?'供應中':'停用'}</span>
         <span class="menu-level-label">品項</span>
-        <strong>${escapeHtml(row.item_name)}</strong>
+        <input class="menu-top-name-v16" id="me-name-${index}" value="${escapeHtml(row.item_name)}" aria-label="品項名稱">
+        <input type="hidden" id="me-cat-${index}" value="${escapeHtml(row.category_name||'未分類')}">
+      </div>
+      <div class="menu-top-price-v16">
+        <span>價格</span>
+        <span class="menu-top-price-prefix-v16">NT$</span>
+        <input id="me-price-${index}" type="number" min="0" step="5" value="${Number(row.base_price)||0}" aria-label="基本價格">
       </div>
       <div class="menu-item-head-actions">
         <button type="button" class="menu-small-btn" onclick="duplicateMenuEditorItem(${index})">複製</button>
@@ -1596,18 +1624,7 @@ function renderMenuEditorItem(row,index){
       </div>
     </div>
 
-    <div class="menu-edit-fields menu-edit-fields-v16">
-      <label>品項名稱
-        <input id="me-name-${index}" value="${escapeHtml(row.item_name)}">
-      </label>
-      <label>基本價格
-        <div class="menu-price-input"><span>NT$</span>
-          <input id="me-price-${index}" type="number" min="0" step="5" value="${Number(row.base_price)||0}">
-        </div>
-      </label>
-    </div>
-
-    <div class="menu-item-bottom">
+    <div class="menu-item-bottom menu-item-bottom-v16-compact">
       <label class="menu-switch-row">
         <input id="me-active-${index}" type="checkbox" ${active?'checked':''}>
         <span>前台顯示／供應</span>
