@@ -99,7 +99,7 @@ button{cursor:pointer}
 .tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;margin-left:4px;border-radius:10px;background:#eee;color:#555;font-size:11px;font-weight:900;line-height:1}
 .tab.active .tab-count{background:#fff;color:#111}
 
-.image-admin{background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}.image-admin h2{margin:0 0 5px;font-size:18px}.image-admin-note{font-size:12px;color:#777;margin-bottom:12px;line-height:1.5}.image-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.image-admin-field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}.image-admin-field select,.image-admin-field input{width:100%;height:42px;border:1px solid #ddd;border-radius:9px;padding:0 10px;background:#fff}.image-admin-preview{margin-top:12px;display:flex;gap:12px;align-items:center;padding:10px;background:#fafafa;border-radius:10px}.image-admin-preview img{width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee}.image-admin-preview .no-image{width:82px;height:82px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;text-align:center}.image-admin-actions{display:flex;gap:8px;margin-top:12px}.image-admin-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:800}.image-upload-btn{background:#111;color:#fff}.image-refresh-btn{background:#eee;color:#222}.image-admin-status{font-size:13px;margin-top:10px;min-height:20px;color:#555}@media(max-width:600px){.image-admin-grid{grid-template-columns:1fr}.image-admin-preview{align-items:flex-start}}
+.image-admin{display:none;background:#fff;border-radius:14px;margin:16px 0;padding:14px;box-shadow:0 2px 8px #00000008}.image-admin h2{margin:0 0 5px;font-size:18px}.image-admin-note{font-size:12px;color:#777;margin-bottom:12px;line-height:1.5}.image-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.image-admin-field label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}.image-admin-field select,.image-admin-field input{width:100%;height:42px;border:1px solid #ddd;border-radius:9px;padding:0 10px;background:#fff}.image-admin-preview{margin-top:12px;display:flex;gap:12px;align-items:center;padding:10px;background:#fafafa;border-radius:10px}.image-admin-preview img{width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee}.image-admin-preview .no-image{width:82px;height:82px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;text-align:center}.image-admin-actions{display:flex;gap:8px;margin-top:12px}.image-admin-actions button{flex:1;height:42px;border:0;border-radius:9px;font-weight:800}.image-upload-btn{background:#111;color:#fff}.image-refresh-btn{background:#eee;color:#222}.image-admin-status{font-size:13px;margin-top:10px;min-height:20px;color:#555}@media(max-width:600px){.image-admin-grid{grid-template-columns:1fr}.image-admin-preview{align-items:flex-start}}
 
 
 /* ===== 完售管理 ===== */
@@ -394,6 +394,15 @@ button{cursor:pointer}
 }
 </style>
 
+<style id="menu-editor-status-v13">
+.menu-editor-status{font-size:13px;margin:8px 0;min-height:20px;color:#555}
+</style>
+<style id="menu-category-structure-v13">
+.menu-category-card{margin:12px 0 16px;border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff}
+.menu-category-head{background:#fafafa;border-bottom:1px solid #eee}
+.menu-category-body{display:flex;flex-direction:column;gap:8px}
+.menu-edit-card{width:100%;box-sizing:border-box}
+</style>
 </head>
 
 <body>
@@ -478,7 +487,7 @@ button{cursor:pointer}
         <button class="menu-tool-btn" type="button" onclick="loadMenuEditor()">重新整理</button>
       </div>
 
-      <div id="menuEditorStatus" class="image-admin-status"></div>
+      <div id="menuEditorStatus" class="menu-editor-status"></div>
       <div id="menuEditorList"></div>
     </section>
 
@@ -491,7 +500,13 @@ button{cursor:pointer}
       <div id="soldoutStatus" class="soldout-status"></div>
     </section>
 
+
+
+    </div>
+
     <section class="image-admin admin-feature-section" id="imageAdminSection">
+      <h2>🖼️ 圖片管理</h2>
+
       
       <div class="image-admin-note">只在店家後台使用。顧客前台不會看到上傳功能。上傳後會自動取代該餐點目前的圖片。</div>
       <div class="image-admin-grid">
@@ -502,8 +517,6 @@ button{cursor:pointer}
       <div class="image-admin-actions"><button class="image-upload-btn" onclick="uploadMenuImage()">上傳／更換圖片</button><button class="image-refresh-btn" onclick="loadAdminImageData()">重新整理</button></div>
       <div id="imageAdminStatus" class="image-admin-status"></div>
     </section>
-
-    </div>
 
   </main>
 
@@ -613,6 +626,11 @@ const SOLDOUT_MENU_GROUPS = [
   ["飲品", ["紅茶","麥茶","奶茶","冷泡茶"]],
   ["隱藏版菜單", ["豬排大套餐","單人獨享餐","單人經濟套餐","日式炸豬排烏龍麵"]]
 ];
+const MENU_EDITOR_CATEGORY_BY_ITEM = {};
+SOLDOUT_MENU_GROUPS.forEach(([category,items])=>{
+  items.forEach(item=>{ MENU_EDITOR_CATEGORY_BY_ITEM[String(item).trim()] = category; });
+});
+
 let adminSoldOut = {};
 let soldOutRealtimeChannel = null;
 const SOLDOUT_ITEM_DETAILS = {
@@ -828,7 +846,7 @@ const imageAdminMenus=[
 let adminImageRows={};
 function buildImageAdminItems(){const out=[];imageAdminMenus.forEach((g,gi)=>g[1].forEach((name,ii)=>out.push({key:gi===8?`hidden-${ii}`:`menu-${gi}-${ii}`,name:`${g[0]}｜${name}`})));return out}
 function imageAdminStatus(m){document.getElementById("imageAdminStatus").textContent=m||""}
-async function loadAdminImageData(){const section=document.getElementById("imageAdminSection"),{data:{user}}=await client.auth.getUser();if(!user||user.email.toLowerCase()!==IMAGE_ADMIN_EMAIL){section.style.display="none";return}section.style.display="block";const select=document.getElementById("imageAdminItem");if(!select.options.length)select.innerHTML=buildImageAdminItems().map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join("");const {data,error}=await client.from("menu_item_images").select("item_key,image_path");if(error){imageAdminStatus("讀取圖片資料失敗："+error.message);return}adminImageRows={};(data||[]).forEach(r=>adminImageRows[r.item_key]=r);previewAdminImage();imageAdminStatus("圖片資料已更新")}
+async function loadAdminImageData(){const section=document.getElementById("imageAdminSection"),{data:{user}}=await client.auth.getUser();if(!section)return;if(!user||user.email.toLowerCase()!==IMAGE_ADMIN_EMAIL){section.style.display="none";return}const select=document.getElementById("imageAdminItem");if(!select.options.length)select.innerHTML=buildImageAdminItems().map(x=>`<option value="${x.key}">${escapeHtml(x.name)}</option>`).join("");const {data,error}=await client.from("menu_item_images").select("item_key,image_path");if(error){imageAdminStatus("讀取圖片資料失敗："+error.message);return}adminImageRows={};(data||[]).forEach(r=>adminImageRows[r.item_key]=r);previewAdminImage();imageAdminStatus("圖片資料已更新")}
 async function previewAdminImage(){const key=document.getElementById("imageAdminItem").value,opt=document.getElementById("imageAdminItem").selectedOptions[0],box=document.getElementById("imageAdminPreviewBox");document.getElementById("imageAdminPreviewName").textContent=opt?opt.textContent:"請選擇餐點";const row=adminImageRows[key];if(!row){box.className="no-image";box.textContent="尚無上傳圖片";document.getElementById("imageAdminPreviewPath").textContent="目前使用前台預設圖片";return}const {data}=client.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);if(data?.publicUrl){box.className="";box.innerHTML=`<img src="${data.publicUrl}" alt="">`;document.getElementById("imageAdminPreviewPath").textContent=row.image_path}}
 function previewAdminFile(){const file=document.getElementById("imageAdminFile").files?.[0];if(!file)return;const box=document.getElementById("imageAdminPreviewBox"),url=URL.createObjectURL(file);box.className="";box.innerHTML=`<img src="${url}" alt="預覽">`;document.getElementById("imageAdminPreviewPath").textContent=`準備上傳：${file.name}`}
 async function uploadMenuImage(){const file=document.getElementById("imageAdminFile").files?.[0],itemKey=document.getElementById("imageAdminItem").value;if(!file){imageAdminStatus("請先選擇圖片");return}if(file.size>5*1024*1024){imageAdminStatus("圖片不可超過 5MB");return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){imageAdminStatus("僅支援 JPG、PNG、WebP");return}const {data:{user}}=await client.auth.getUser();if(user?.email?.toLowerCase()!==IMAGE_ADMIN_EMAIL){imageAdminStatus("目前登入帳號沒有圖片管理權限");return}imageAdminStatus("正在上傳圖片…");const ext=file.name.split(".").pop().toLowerCase(),path=`menu/${itemKey}-${Date.now()}.${ext}`,old=adminImageRows[itemKey];const {error:upErr}=await client.storage.from(MENU_IMAGE_BUCKET).upload(path,file,{contentType:file.type});if(upErr){imageAdminStatus("上傳失敗："+upErr.message);return}const {error:saveErr}=await client.from("menu_item_images").upsert({item_key:itemKey,image_path:path,updated_at:new Date().toISOString()});if(saveErr){await client.storage.from(MENU_IMAGE_BUCKET).remove([path]);imageAdminStatus("儲存失敗："+saveErr.message);return}if(old?.image_path)await client.storage.from(MENU_IMAGE_BUCKET).remove([old.image_path]);document.getElementById("imageAdminFile").value="";await loadAdminImageData();imageAdminStatus("圖片已更新完成")}
@@ -859,31 +877,55 @@ function showApp(){
   loadOrders();
   startRealtime();
   startAutoRefresh();
-  loadAdminImageData();
   loadSoldOutAdmin();
   startSoldOutRealtime();
 }
 
 function hideAllAdminFeatureSections(){
-  document.querySelectorAll(".admin-feature-section").forEach(el=>el.classList.remove("feature-active"));
+  document.querySelectorAll(".admin-feature-section").forEach(el=>{
+    el.classList.remove("feature-active");
+    el.style.display="none";
+  });
   const panel=document.getElementById("managementPanel");
   if(panel) panel.classList.add("hidden");
 }
+
 function openAdminFeature(feature){
   const panel=document.getElementById("managementPanel");
   const orders=document.getElementById("orders");
-  if(panel)panel.classList.remove("hidden");
-  if(orders)orders.style.display="none";
-  document.querySelectorAll(".admin-feature-section").forEach(x=>x.classList.remove("feature-active"));
-  const target=feature==="menu"?document.getElementById("menuEditorSection"):
-               feature==="soldout"?document.getElementById("soldoutAdminSection"):
-               document.getElementById("imageAdminSection");
-  if(target)target.classList.add("feature-active");
+
+  document.querySelectorAll(".admin-feature-section").forEach(el=>{
+    el.classList.remove("feature-active");
+    el.style.display="none";
+  });
+
+  if(orders) orders.style.display="none";
+
+  const target =
+    feature==="menu" ? document.getElementById("menuEditorSection") :
+    feature==="soldout" ? document.getElementById("soldoutAdminSection") :
+    feature==="images" ? document.getElementById("imageAdminSection") :
+    null;
+
+  if(!target)return;
+
+  target.classList.add("feature-active");
+  target.style.display="block";
+
+  if(feature==="menu" || feature==="soldout"){
+    if(panel) panel.classList.remove("hidden");
+  }else{
+    if(panel) panel.classList.add("hidden");
+  }
+
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  if(feature==="menu")loadMenuEditor();
-  if(feature==="soldout")loadSoldOutAdmin();
-  if(feature==="images")loadAdminImageData();
+
+  if(feature==="menu") loadMenuEditor();
+  if(feature==="soldout") loadSoldOutAdmin();
+  if(feature==="images") loadAdminImageData();
 }
+
+
 function toggleManagement(){
   openAdminFeature("soldout");
 }
@@ -1176,10 +1218,8 @@ async function loadMenuEditor(){
 
   let result=await client.from("menu_catalog")
     .select("item_name,base_price,option_prices,updated_at,category_name,is_active")
-    .order("category_name",{ascending:true})
     .order("item_name",{ascending:true});
 
-  // If older schema has no category_name/is_active, gracefully fall back.
   if(result.error && /category_name|is_active/i.test(result.error.message||"")){
     result=await client.from("menu_catalog")
       .select("item_name,base_price,option_prices,updated_at")
@@ -1191,15 +1231,33 @@ async function loadMenuEditor(){
     return;
   }
 
-  menuEditorRows=(result.data||[]).map(r=>({
-    item_name:String(r.item_name||""),
-    __original_name:String(r.item_name||""),
-    category_name:String(r.category_name||"未分類"),
-    base_price:Number(r.base_price||0),
-    option_prices:(r.option_prices&&typeof r.option_prices==="object")?r.option_prices:{},
-    is_active:r.is_active===false?false:true,
-    updated_at:r.updated_at||null
-  }));
+  menuEditorRows=(result.data||[]).map(r=>{
+    const itemName=String(r.item_name||"").trim();
+    const knownCategory=MENU_EDITOR_CATEGORY_BY_ITEM[itemName];
+    const dbCategory=String(r.category_name||"").trim();
+
+    return {
+      item_name:itemName,
+      __original_name:itemName,
+      category_name:knownCategory || dbCategory || "待整理",
+      base_price:Number(r.base_price||0),
+      option_prices:(r.option_prices&&typeof r.option_prices==="object")?r.option_prices:{},
+      is_active:r.is_active===false?false:true,
+      updated_at:r.updated_at||null
+    };
+  });
+
+  const categoryOrder=new Map(SOLDOUT_MENU_GROUPS.map((g,i)=>[g[0],i]));
+  menuEditorRows.sort((a,b)=>{
+    const ca=categoryOrder.has(a.category_name)?categoryOrder.get(a.category_name):999;
+    const cb=categoryOrder.has(b.category_name)?categoryOrder.get(b.category_name):999;
+    if(ca!==cb)return ca-cb;
+
+    const ia=ca<999 ? (SOLDOUT_MENU_GROUPS[ca]?.[1]?.indexOf(a.item_name) ?? -1) : -1;
+    const ib=cb<999 ? (SOLDOUT_MENU_GROUPS[cb]?.[1]?.indexOf(b.item_name) ?? -1) : -1;
+    if(ia!==-1 && ib!==-1)return ia-ib;
+    return a.item_name.localeCompare(b.item_name,"zh-Hant");
+  });
 
   renderMenuEditor();
   if(status)status.textContent=`已載入 ${menuEditorRows.length} 個品項`;
@@ -1216,11 +1274,17 @@ function visibleMenuEditorRows(){
 function menuEditorGrouped(){
   const groups=new Map();
   visibleMenuEditorRows().forEach((row,index)=>{
-    const cat=row.category_name||"未分類";
+    const cat=row.category_name||"待整理";
     if(!groups.has(cat))groups.set(cat,[]);
     groups.get(cat).push({row,index});
   });
-  return groups;
+
+  const order=new Map(SOLDOUT_MENU_GROUPS.map((g,i)=>[g[0],i]));
+  return new Map([...groups.entries()].sort((a,b)=>{
+    const ia=order.has(a[0])?order.get(a[0]):999;
+    const ib=order.has(b[0])?order.get(b[0]):999;
+    return ia-ib || a[0].localeCompare(b[0],"zh-Hant");
+  }));
 }
 
 function renderMenuEditor(){
