@@ -1406,6 +1406,10 @@ function closeOrderConfirm(){
 async function confirmAndSubmitOrder(){
   if(window.validateOrderCustomerFields && !window.validateOrderCustomerFields()) return false;
 
+  // 送出流程開始時先開啟獨立訂單狀態分頁，避免成功後被瀏覽器阻擋新分頁。
+  let orderStatusWindow=null;
+  try{ orderStatusWindow=window.open('about:blank','_blank'); }catch(e){}
+
   const submitBtn=document.querySelector('.order-confirm-submit');
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
@@ -1463,11 +1467,17 @@ async function confirmAndSubmitOrder(){
     });
 
     // 重要：不再顯示 V24 原本的前台 successMessage。
-    // 確認送出後直接跳到獨立訂單狀態頁。
-    window.location.href='order-status-v24.html';
+    // 確認送出後只顯示獨立訂單狀態頁，原點餐頁保留在原分頁。
+    if(orderStatusWindow && !orderStatusWindow.closed){
+      orderStatusWindow.location.href='order-status-v24.html';
+      try{ orderStatusWindow.focus(); }catch(e){}
+    }
     return true;
 
   }catch(error){
+    if(orderStatusWindow && !orderStatusWindow.closed){
+      try{ orderStatusWindow.close(); }catch(e){}
+    }
     console.error(error);
     alert(error.message||'訂單送出失敗，請稍後再試。');
     return false;
