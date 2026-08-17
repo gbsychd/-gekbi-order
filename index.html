@@ -725,6 +725,32 @@ async function uploadMenuImage(){
   setImageAdminStatus('圖片已更新。');
 }
 let cart=[];
+const CART_STORAGE_KEY='gekbi_customer_cart_v1';
+const CART_KEEP_MS=60*60*1000;
+function saveCustomerCart(){
+  try{
+    if(!cart.length){localStorage.removeItem(CART_STORAGE_KEY);return;}
+    localStorage.setItem(CART_STORAGE_KEY,JSON.stringify({cart,savedAt:Date.now()}));
+  }catch(e){console.warn('無法保存購物車資料',e);}
+}
+function restoreCustomerCart(){
+  try{
+    const raw=localStorage.getItem(CART_STORAGE_KEY);
+    if(!raw)return;
+    const saved=JSON.parse(raw);
+    if(!Array.isArray(saved?.cart)||!saved.cart.length||!saved.savedAt||Date.now()-Number(saved.savedAt)>=CART_KEEP_MS){
+      localStorage.removeItem(CART_STORAGE_KEY);
+      return;
+    }
+    cart=saved.cart;
+  }catch(e){
+    localStorage.removeItem(CART_STORAGE_KEY);
+    cart=[];
+  }
+}
+function clearCustomerCartStorage(){
+  try{localStorage.removeItem(CART_STORAGE_KEY);}catch(e){}
+}
 let activeMenuCategory='menu-0';
 function escapeQuotes(t){return t.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
 function escapeHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -1257,6 +1283,7 @@ function addToCart(name,price,options,itemKey){
   }else{
     cart.push({name,price,options:opts,qty:1,itemKey:itemKey||''});
   }
+  saveCustomerCart();
   renderCart();
 }
 function sortCartOptions(options){
@@ -1310,8 +1337,8 @@ function renderCart(){
   const bottomTotal=document.getElementById('bottomTotal'); if(bottomTotal) bottomTotal.textContent=total;
 }
 
-function changeQty(i,a){cart[i].qty+=a;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
-function removeItem(i){cart.splice(i,1);renderCart()}
+function changeQty(i,a){cart[i].qty+=a;if(cart[i].qty<=0)cart.splice(i,1);saveCustomerCart();renderCart()}
+function removeItem(i){cart.splice(i,1);saveCustomerCart();renderCart()}
 
 function pad2(n){return String(n).padStart(2,'0')}
 function getTaipeiNow(){
@@ -1422,6 +1449,7 @@ async function confirmAndSubmitOrder(){
 
     closeOrderConfirm();
     cart=[];
+    clearCustomerCartStorage();
     renderCart();
 
     // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
@@ -1590,7 +1618,7 @@ async function applyOrderingHours(){
   }
 }
 
-renderMenu();renderCart();initPickupTimes();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();setInterval(()=>{loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
+restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();setInterval(()=>{loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
 supabaseClient.channel('menu-item-status-public').on('postgres_changes',{event:'*',schema:'public',table:'menu_item_status'},()=>loadSoldOutStatus()).subscribe();
 </script>
 
