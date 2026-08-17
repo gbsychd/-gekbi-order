@@ -622,8 +622,8 @@ button{cursor:pointer}
   .soldout-count{font-size:11px;white-space:nowrap}
   .soldout-items{padding:0 10px 8px}
 
-  /* 四個操作鈕在手機維持整齊四格 */
-  .soldout-options-inline{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:9px 0}
+  /* 三個操作鈕在手機維持整齊三格 */
+  .soldout-options-inline{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px 0}
   .soldout-options-inline .soldout-mini{width:100%;min-width:0;min-height:40px;padding:7px 3px;font-size:12px}
 
   /* 品項改成「勾選／名稱／狀態」，細項按鈕放名稱下一行，避免任何文字直排 */
@@ -933,11 +933,40 @@ const SOLDOUT_ITEM_DETAILS = {
 };
 function soldOutDetailKey(parentKey,detailName){return `${parentKey}::detail::${encodeURIComponent(String(detailName))}`}
 function getSoldOutDetails(parentKey){return SOLDOUT_ITEM_DETAILS[parentKey]||[]}
+function getAllParentKeysByName(itemName){
+  const keys=[];
+  SOLDOUT_MENU_GROUPS.forEach((group,gi)=>{
+    group[1].forEach((name,ii)=>{
+      if(String(name).trim()===String(itemName).trim()) keys.push(soldOutKey(gi,ii));
+    });
+  });
+  return keys;
+}
+function getItemNameFromKey(key){
+  const text=String(key||'');
+  let gi=null, ii=null;
+  let m=text.match(/^menu-(\d+)-(\d+)$/);
+  if(m){ gi=Number(m[1]); ii=Number(m[2]); }
+  else {
+    m=text.match(/^hidden-(\d+)$/);
+    if(m){ gi=8; ii=Number(m[1]); }
+  }
+  if(gi===null || ii===null)return null;
+  return SOLDOUT_MENU_GROUPS[gi]?.[1]?.[ii] ?? null;
+}
 function expandSoldOutKeys(keys){
   const out=new Set();
   (keys||[]).forEach(key=>{
     out.add(key);
-    getSoldOutDetails(key).forEach(name=>out.add(soldOutDetailKey(key,name)));
+    const itemName=getItemNameFromKey(key);
+    const detailName=getDetailNameFromKey(key);
+    if(itemName){
+      // 品項只同步同名品項本身，不連帶修改任何細項。
+      getAllParentKeysByName(itemName).forEach(k=>out.add(k));
+    }else if(detailName){
+      // 細項只同步同名細項本身，不影響母品項。
+      getAllDetailKeysByName(detailName).forEach(k=>out.add(k));
+    }
   });
   return [...out];
 }
@@ -967,15 +996,24 @@ function getAllDetailKeysByName(detailName){
   return keys;
 }
 function normalizeGlobalDetailSoldOut(){
-  const names=new Set();
+  const detailNames=new Set();
+  const itemNames=new Set();
   Object.keys(adminSoldOut).forEach(key=>{
-    if(adminSoldOut[key]){
-      const name=getDetailNameFromKey(key);
-      if(name)names.add(name);
-    }
+    if(!adminSoldOut[key])return;
+    const detailName=getDetailNameFromKey(key);
+    if(detailName)detailNames.add(detailName);
+    const itemName=getItemNameFromKey(key);
+    if(itemName)itemNames.add(itemName);
   });
-  names.forEach(name=>{
+  // 細項只在同名細項之間同步。
+  detailNames.forEach(name=>{
     getAllDetailKeysByName(name).forEach(key=>adminSoldOut[key]=true);
+  });
+  // 品項只在同名品項之間同步，絕不自動把其細項設為完售。
+  itemNames.forEach(name=>{
+    getAllParentKeysByName(name).forEach(parentKey=>{
+      adminSoldOut[parentKey]=true;
+    });
   });
 }
 async function loadSoldOutAdmin(){
@@ -999,11 +1037,12 @@ function renderSoldOutAdmin(){
 
     const rows=group[1].map((name,ii)=>{
       const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key], details=getSoldOutDetails(key);
-      const detailSoldCount=details.filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length;
+      const detailSoldCount=details.filter(d=>!!adminSoldOut[soldOutDetailKey(key,d)]).length;
 
       const detailHtml=details.length?`<div class="soldout-detail-list" id="soldout-details-${key}">${details.map(d=>{
         const dKey=soldOutDetailKey(key,d);
-        const dSold=!!adminSoldOut[dKey]||sold||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k]);
+        // 細項獨立記錄狀態，讓取消勾選後可單獨恢復供應。
+        const dSold=!!adminSoldOut[dKey];
         return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
       }).join('')}</div>`:'';
 
@@ -1030,9 +1069,8 @@ function renderSoldOutAdmin(){
       <div class="soldout-items">
         <div class="soldout-options-inline" onclick="event.stopPropagation()">
           <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
-          <button class="soldout-mini selected" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">選取完售</button>
-          <button class="soldout-mini danger" type="button" onclick="setSoldOutGroup(${gi},true);event.stopPropagation()">整組完售</button>
-          <button class="soldout-mini restore" type="button" onclick="setSoldOutGroup(${gi},false);event.stopPropagation()">整組恢復</button>
+          <button class="soldout-mini danger" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">完售</button>
+          <button class="soldout-mini selected" type="button" onclick="confirmSoldOutChanges();event.stopPropagation()">確認</button>
         </div>
         ${rows}
       </div>
@@ -1077,41 +1115,66 @@ document.addEventListener('change',function(e){
     updateSoldOutSelectedCount();
   }
 });
+function getSoldOutGroupCheckboxes(gi){
+  const group=document.getElementById(`soldout-group-${gi}`);
+  return group ? Array.from(group.querySelectorAll('.soldout-check')) : [];
+}
 function getSelectedSoldOutKeys(){
   return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
 }
-async function setSelectedSoldOut(value){
-  const selected=getSelectedSoldOutKeys();
-  if(!selected.length){alert('請先勾選要處理的品項。');return}
-  const keys=expandSoldOutKeys(selected);
-  if(!confirm(`確定要將選取的 ${selected.length} 個品項及其相關細項${value?'設為完售':'恢復供應'}嗎？`))return;
-  await saveSoldOutKeys(keys,value);
+function getSoldOutCheckboxStates(){
+  const states=new Map();
+  document.querySelectorAll('.soldout-check').forEach(cb=>{
+    const key=cb.dataset.key;
+    if(key) states.set(key,!!cb.checked);
+  });
+  return states;
 }
-async function setSoldOutGroup(gi,value){
-  const parentKeys=SOLDOUT_MENU_GROUPS[gi][1].map((_,ii)=>soldOutKey(gi,ii));
-  const keys=expandSoldOutKeys(parentKeys);
-  if(!confirm(`確定要將「${SOLDOUT_MENU_GROUPS[gi][0]}」的餐點與所有相關細項${value?'全部設為完售':'全部恢復供應'}嗎？`))return;
-  await saveSoldOutKeys(keys,value);
+function setSelectedSoldOut(value){
+  const selected=getSelectedSoldOutKeys();
+  if(!selected.length){alert('請先勾選要設為完售的品項。');return}
+  selected.forEach(key=>{
+    const cb=document.querySelector(`.soldout-check[data-key="${CSS.escape(key)}"]`);
+    if(cb)cb.checked=!!value;
+  });
+  updateSoldOutSelectedCount();
+  soldOutStatusText(value?'已將選取項目標記為完售，請按「確認」儲存。':'已取消選取項目的完售標記，請按「確認」儲存。');
+}
+async function confirmSoldOutChanges(){
+  const states=getSoldOutCheckboxStates();
+  if(!states.size){alert('目前沒有可確認的完售項目。');return}
+  if(!confirm('確定要儲存目前勾選的完售狀態嗎？'))return;
+  await saveSoldOutCheckboxStates(states);
 }
 async function saveSoldOutKeys(keys,value){
+  const states=new Map((keys||[]).map(key=>[key,!!value]));
+  await saveSoldOutCheckboxStates(states);
+}
+async function saveSoldOutCheckboxStates(states){
   soldOutStatusText('正在更新完售狀態…');
-  const expanded=new Set();
-  (keys||[]).forEach(key=>{
-    expanded.add(key);
+  const expanded=new Map();
+  (states instanceof Map ? states : new Map()).forEach((value,key)=>{
+    const itemName=getItemNameFromKey(key);
     const detailName=getDetailNameFromKey(key);
     if(detailName){
-      // 細項是共用原料／選項：同名細項全部同步完售或恢復。
-      getAllDetailKeysByName(detailName).forEach(k=>expanded.add(k));
+      // 同名細項在所有大項同步，勾選與取消勾選都會同步。
+      getAllDetailKeysByName(detailName).forEach(k=>expanded.set(k,!!value));
+    }else if(itemName){
+      // 同名品項在所有大項同步；不連帶修改任何細項。
+      getAllParentKeysByName(itemName).forEach(parentKey=>{
+        expanded.set(parentKey,!!value);
+      });
+    }else{
+      expanded.set(key,!!value);
     }
   });
-  const finalKeys=[...expanded];
-  const rows=finalKeys.map(key=>({item_key:key,sold_out:!!value,updated_at:new Date().toISOString()}));
+  const now=new Date().toISOString();
+  const rows=[...expanded.entries()].map(([key,value])=>({item_key:key,sold_out:!!value,updated_at:now}));
   const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
   if(error){soldOutStatusText('更新失敗：'+error.message);alert('完售狀態更新失敗：'+error.message);return}
-  finalKeys.forEach(key=>adminSoldOut[key]=!!value);
-  normalizeGlobalDetailSoldOut();
+  expanded.forEach((value,key)=>adminSoldOut[key]=!!value);
   renderSoldOutAdmin();
-  soldOutStatusText(`已更新 ${finalKeys.length} 個相關項目：${value?'完售':'恢復供應'}`);
+  soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
 }
 function startSoldOutRealtime(){
   if(soldOutRealtimeChannel)client.removeChannel(soldOutRealtimeChannel);
