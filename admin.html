@@ -584,6 +584,81 @@ button{cursor:pointer}
 .closed-date-status-ok{color:#16733b !important;font-weight:800}
 @media(max-width:520px){.closed-date-guide{display:block}.closed-date-guide span{display:block}.closed-date-guide span+span{margin-top:3px}}
 </style>
+
+<style id="mobile-layout-fix-v19">
+/* ===== 手機版後台排版修正 v19 ===== */
+@media (max-width: 600px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+
+  /* 頂部：店名獨立一列，功能選單第二列橫向滑動，登出固定右上 */
+  .header{padding:8px 10px 0}
+  .header-inner{display:block;width:100%;max-width:none}
+  .header-inner>.brand{display:block;width:100%;font-size:18px;line-height:1.25;padding:3px 74px 8px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .header-tools{display:flex!important;width:100%;max-width:none;justify-content:flex-start!important;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .header-tools::-webkit-scrollbar{display:none}
+  .header-tool{flex:0 0 auto;min-height:38px;padding:8px 11px;font-size:13px}
+  .logout{position:absolute;right:10px;top:7px;padding:7px 10px;font-size:13px}
+
+  .main{width:100%;max-width:none;padding:10px 10px calc(80px + env(safe-area-inset-bottom,0px))}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .stat{min-width:0;padding:10px 5px}
+  .stat-num{font-size:20px}
+  .stat-label{font-size:11px}
+
+  /* 訂單頁籤只橫向滑動，不把內容擠窄 */
+  .tabs{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;margin-bottom:10px;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:9px 12px;font-size:13px}
+
+  /* 完售管理：手機固定單欄。原本的兩欄會讓餐點名稱被壓成直排。 */
+  .soldout-admin{width:100%;margin:10px 0;padding:12px;border-radius:14px}
+  .soldout-admin h2{font-size:19px}
+  .soldout-note{font-size:13px;line-height:1.6}
+  #soldoutCategories,.soldout-category-list{display:block!important;width:100%!important}
+  #soldoutCategories>.soldout-category,.soldout-category-list>.soldout-category{display:block!important;width:100%!important;min-width:0!important;margin:0 0 10px!important}
+  .soldout-category-head{padding:12px 11px;align-items:center}
+  .soldout-category-toggle{gap:8px}
+  .soldout-category-toggle span:first-child{font-size:15px}
+  .soldout-count{font-size:11px;white-space:nowrap}
+  .soldout-items{padding:0 10px 8px}
+
+  /* 四個操作鈕在手機維持整齊四格 */
+  .soldout-options-inline{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:9px 0}
+  .soldout-options-inline .soldout-mini{width:100%;min-width:0;min-height:40px;padding:7px 3px;font-size:12px}
+
+  /* 品項改成「勾選／名稱／狀態」，細項按鈕放名稱下一行，避免任何文字直排 */
+  .soldout-item-row{display:grid!important;grid-template-columns:22px minmax(0,1fr) auto!important;grid-template-rows:auto auto;column-gap:9px;row-gap:4px;align-items:center;padding:12px 2px!important;min-width:0}
+  .soldout-item-row input{grid-column:1;grid-row:1 / span 2;width:20px;height:20px}
+  .soldout-item-name{grid-column:2;grid-row:1;min-width:0;font-size:15px;line-height:1.35;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
+  .soldout-detail-toggle{grid-column:2;grid-row:2;justify-self:start;max-width:100%;font-size:12px;padding:5px 8px}
+  .soldout-item-row>.soldout-badge{grid-column:3;grid-row:1 / span 2;align-self:center;font-size:12px;padding:5px 8px}
+  .soldout-detail-list{margin-left:31px;padding-left:9px}
+  .soldout-detail-row{font-size:13px}
+
+  /* 菜單編輯、圖片管理、歷史訂單彈窗在手機不超出畫面 */
+  .menu-editor{width:100%;padding:10px!important}
+  .menu-editor-toolbar{gap:6px}
+  .menu-editor-toolbar input{min-width:0}
+  .menu-edit-card{padding:10px 9px!important}
+  .image-admin{width:100%;margin:10px 0;padding:12px}
+  .admin-modal{padding:8px}
+  .admin-modal-card{width:100%;max-width:none;max-height:94vh;border-radius:14px;padding:13px}
+}
+
+@media (max-width:380px){
+  .header-tool{padding-left:9px;padding-right:9px;font-size:12px}
+  .soldout-options-inline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .soldout-options-inline .soldout-mini{font-size:13px}
+  .soldout-item-name{font-size:14px}
+}
+
+/* 桌面維持原本兩欄；只有手機改成單欄 */
+@media (min-width:601px){
+  #soldoutCategories,.soldout-category-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:start!important}
+  #soldoutCategories>.soldout-category,.soldout-category-list>.soldout-category{width:100%!important;min-width:0!important;margin:0!important}
+}
+</style>
+
 </head>
 
 <body>
