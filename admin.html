@@ -569,6 +569,21 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="closed-dates-v18">
+.closed-date-guide{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 10px;padding:9px 10px;border-radius:9px;background:#f7f7f7;color:#555;font-size:12px;line-height:1.45}
+.closed-date-guide strong{color:#111}
+.closed-date-selected{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 4px}
+.closed-date-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 10px;border-radius:999px;background:#111;color:#fff;font-size:12px;font-weight:800}
+.closed-date-chip button{width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#fff;color:#111;font-weight:900;cursor:pointer;line-height:1}
+.closed-date-empty{font-size:12px;color:#999;padding:5px 0}
+.calendar-day.selected{position:relative;font-weight:900;box-shadow:inset 0 0 0 2px #111}
+.calendar-day.selected::after{content:'✓';position:absolute;right:4px;top:2px;font-size:11px}
+.calendar-day.closed:not(.selected){background:#ffe3e3;color:#b00000}
+.calendar-day.selected.closed{background:#111;color:#fff}
+.closed-date-status-ok{color:#16733b !important;font-weight:800}
+@media(max-width:520px){.closed-date-guide{display:block}.closed-date-guide span{display:block}.closed-date-guide span+span{margin-top:3px}}
+</style>
 </head>
 
 <body>
@@ -700,7 +715,9 @@ button{cursor:pointer}
           <button type="button" onclick="moveCalendarMonth('closed',1)">›</button>
         </div>
         <div id="closedCalendar" class="calendar-grid"></div>
-        <div id="closedDateStatus" class="modal-status"></div>
+         <div class="closed-date-guide"><span>點日期＝新增店休；<strong>已選日期不會因再次點擊而取消</strong>。</span><span>取消請在下方日期旁按 ×</span></div>
+         <div id="closedDateSelected" class="closed-date-selected"></div>
+         <div id="closedDateStatus" class="modal-status"></div>
         <div class="modal-actions">
           <button type="button" class="secondary" onclick="closeAdminModal('closedDatesModal')">取消</button>
           <button type="button" class="primary" onclick="saveClosedDates()">儲存店休</button>
@@ -1924,13 +1941,10 @@ function renderClosedCalendar(){
   const first=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
   const prevDays=new Date(y,m,0).getDate();
-  for(let i=0;i<first;i++){
-    out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
-  }
+  for(let i=0;i<first;i++)out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
   const todayKey=getTaipeiDateKey(new Date());
   for(let d=1;d<=days;d++){
-    const key=fmtDateKey(y,m+1,d);
-    const cls=["calendar-day"];
+    const key=fmtDateKey(y,m+1,d),cls=["calendar-day"];
     if(key===todayKey)cls.push("today");
     if(closedDatesExisting.has(key))cls.push("closed");
     if(closedDatesDraft.has(key))cls.push("selected");
@@ -1939,26 +1953,43 @@ function renderClosedCalendar(){
   const total=first+days;
   for(let i=total;i<42;i++)out+=`<button type="button" class="calendar-day other" disabled>${i-total+1}</button>`;
   root.innerHTML=out;
-  document.getElementById("closedDateStatus").textContent=`已選 ${closedDatesDraft.size} 天店休`;
+
+  const selected=[...closedDatesDraft].sort();
+  const selectedRoot=document.getElementById("closedDateSelected");
+  if(selectedRoot){
+    selectedRoot.innerHTML=selected.length
+      ? selected.map(key=>{const [yy,mm,dd]=key.split("-");return `<span class="closed-date-chip">${Number(mm)}/${Number(dd)} 店休 <button type="button" aria-label="移除 ${Number(mm)}/${Number(dd)} 店休" onclick="removeClosedDate('${key}')">×</button></span>`}).join("")
+      : '<span class="closed-date-empty">目前沒有選定店休日</span>';
+  }
+  const status=document.getElementById("closedDateStatus");
+  if(status){status.classList.remove("closed-date-status-ok");status.textContent=`已選 ${closedDatesDraft.size} 天店休`}
 }
 function toggleClosedDate(key){
-  if(closedDatesDraft.has(key))closedDatesDraft.delete(key);else closedDatesDraft.add(key);
-  renderClosedCalendar();
+  if(closedDatesDraft.has(key)){
+    const [,m,d]=key.split("-").map(Number);
+    document.getElementById("closedDateStatus").textContent=`${m}/${d} 已經選定店休；如要取消，請按下方日期旁的 ×。`;
+    return;
+  }
+  closedDatesDraft.add(key);renderClosedCalendar();
+  const [,m,d]=key.split("-").map(Number);
+  document.getElementById("closedDateStatus").textContent=`✓ 已選擇 ${m}/${d} 店休，請按「儲存店休」完成設定。`;
+}
+function removeClosedDate(key){
+  if(!closedDatesDraft.has(key))return;
+  closedDatesDraft.delete(key);renderClosedCalendar();
+  const [,m,d]=key.split("-").map(Number);
+  document.getElementById("closedDateStatus").textContent=`已手動移除 ${m}/${d} 店休；請按「儲存店休」套用變更。`;
 }
 async function saveClosedDates(){
   const add=[...closedDatesDraft].filter(x=>!closedDatesExisting.has(x));
   const del=[...closedDatesExisting].filter(x=>!closedDatesDraft.has(x));
-  if(add.length){
-    const {error}=await client.from("shop_closed_dates").upsert(add.map(closed_date=>({closed_date})),{onConflict:"closed_date"});
-    if(error){document.getElementById("closedDateStatus").textContent="儲存失敗："+error.message;return;}
-  }
-  if(del.length){
-    const {error}=await client.from("shop_closed_dates").delete().in("closed_date",del);
-    if(error){document.getElementById("closedDateStatus").textContent="取消店休失敗："+error.message;return;}
-  }
+  if(add.length){const {error}=await client.from("shop_closed_dates").upsert(add.map(closed_date=>({closed_date})),{onConflict:"closed_date"});if(error){document.getElementById("closedDateStatus").textContent="儲存失敗："+error.message;return}}
+  if(del.length){const {error}=await client.from("shop_closed_dates").delete().in("closed_date",del);if(error){document.getElementById("closedDateStatus").textContent="取消店休失敗："+error.message;return}}
   closedDatesExisting=new Set(closedDatesDraft);
-  document.getElementById("closedDateStatus").textContent="店休日期已更新";
+  const status=document.getElementById("closedDateStatus");
   renderClosedCalendar();
+  status.classList.add("closed-date-status-ok");
+  status.textContent=`✓ 店休已完成儲存，共 ${closedDatesDraft.size} 天；已選日期不會自動移除。`;
 }
 
 function getTaipeiDateKey(date){
