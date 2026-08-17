@@ -995,27 +995,28 @@ function getAllDetailKeysByName(detailName){
   });
   return keys;
 }
+function getAllSoldOutKeysByName(name){
+  const target=String(name||'').trim();
+  if(!target)return [];
+  const keys=new Set();
+  getAllParentKeysByName(target).forEach(k=>keys.add(k));
+  getAllDetailKeysByName(target).forEach(k=>keys.add(k));
+  return [...keys];
+}
 function normalizeGlobalDetailSoldOut(){
-  const detailNames=new Set();
-  const itemNames=new Set();
+  const names=new Set();
   Object.keys(adminSoldOut).forEach(key=>{
     if(!adminSoldOut[key])return;
-    const detailName=getDetailNameFromKey(key);
-    if(detailName)detailNames.add(detailName);
     const itemName=getItemNameFromKey(key);
-    if(itemName)itemNames.add(itemName);
+    const detailName=getDetailNameFromKey(key);
+    if(itemName)names.add(String(itemName).trim());
+    if(detailName)names.add(String(detailName).trim());
   });
-  // 細項只在同名細項之間同步。
-  detailNames.forEach(name=>{
-    getAllDetailKeysByName(name).forEach(key=>adminSoldOut[key]=true);
-  });
-  // 品項只在同名品項之間同步，絕不自動把其細項設為完售。
-  itemNames.forEach(name=>{
-    getAllParentKeysByName(name).forEach(parentKey=>{
-      adminSoldOut[parentKey]=true;
-    });
+  names.forEach(name=>{
+    getAllSoldOutKeysByName(name).forEach(key=>adminSoldOut[key]=true);
   });
 }
+
 async function loadSoldOutAdmin(){
   const {data,error}=await client.from('menu_item_status').select('item_key,sold_out');
   if(error){soldOutStatusText('讀取完售狀態失敗：'+error.message);return}
@@ -1138,12 +1139,16 @@ function setSelectedSoldOut(value){
     if(cb)cb.checked=!!value;
   });
   updateSoldOutSelectedCount();
-  soldOutStatusText(value?'已將選取項目標記為完售，請按「確認」儲存。':'已取消選取項目的完售標記，請按「確認」儲存。');
+  if(value){
+    confirmSoldOutChanges(true);
+  }else{
+    soldOutStatusText('已取消勾選項目，請按「確認」儲存。');
+  }
 }
-async function confirmSoldOutChanges(){
+async function confirmSoldOutChanges(skipConfirm=false){
   const states=getSoldOutCheckboxStates();
   if(!states.size){alert('目前沒有可確認的完售項目。');return}
-  if(!confirm('確定要儲存目前勾選的完售狀態嗎？'))return;
+  if(!skipConfirm && !confirm('確定要儲存目前勾選的完售狀態嗎？'))return;
   await saveSoldOutCheckboxStates(states);
 }
 async function saveSoldOutKeys(keys,value){
@@ -1156,14 +1161,10 @@ async function saveSoldOutCheckboxStates(states){
   (states instanceof Map ? states : new Map()).forEach((value,key)=>{
     const itemName=getItemNameFromKey(key);
     const detailName=getDetailNameFromKey(key);
-    if(detailName){
-      // 同名細項在所有大項同步，勾選與取消勾選都會同步。
-      getAllDetailKeysByName(detailName).forEach(k=>expanded.set(k,!!value));
-    }else if(itemName){
-      // 同名品項在所有大項同步；不連帶修改任何細項。
-      getAllParentKeysByName(itemName).forEach(parentKey=>{
-        expanded.set(parentKey,!!value);
-      });
+    const name=itemName || detailName;
+    if(name){
+      // 不限制層級：品項或細項只要名稱相同，就全部同步；但品項不會連帶其他不同名稱細項。
+      getAllSoldOutKeysByName(name).forEach(k=>expanded.set(k,!!value));
     }else{
       expanded.set(key,!!value);
     }
@@ -1176,6 +1177,7 @@ async function saveSoldOutCheckboxStates(states){
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
 }
+
 function startSoldOutRealtime(){
   if(soldOutRealtimeChannel)client.removeChannel(soldOutRealtimeChannel);
   soldOutRealtimeChannel=client.channel('menu-item-status-admin')
@@ -2045,25 +2047,27 @@ async function saveMenuEditorRow(i){
   const category=String(document.getElementById(`me-cat-${i}`)?.value||row.category_name||"未分類").trim()||"未分類";
   const name=String(document.getElementById(`me-name-${i}`)?.value||"").trim();
   const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${i}`)?.value)||0));
+  const active=document.getElementById(`me-active-${i}`)?.checked ?? row.is_active ?? true;
   if(!name){if(status)status.textContent="品項名稱不可空白";return;}
-  const opts={}; Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
+  const opts={};
+  Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
     const nn=String(document.getElementById(`me-on-${i}-${oi}`)?.value??n).trim();
     const pp=Math.max(0,Math.round(Number(document.getElementById(`me-op-${i}-${oi}`)?.value??p)||0));
     if(nn)opts[nn]=pp;
   });
   if(status)status.textContent=`正在儲存「${name}」…`;
-  let result;
-  if(row.__new){
-    result=await client.from("menu_catalog").insert({
-      item_name:name,category_name:category,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
-    });
-  }else{
-    result=await client.from("menu_catalog").update({
-      item_name:name,category_name:category,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
-    }).eq("item_name",row.__original_name);
+  const payload={item_name:name,category_name:category,base_price:price,option_prices:opts,is_active:!!active,updated_at:new Date().toISOString()};
+  let result=row.__new
+    ? await client.from("menu_catalog").insert(payload)
+    : await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
+  // 相容沒有 category_name / is_active 欄位的舊資料表，避免整個儲存功能失效。
+  if(result.error && /category_name|is_active/i.test(result.error.message||"")){
+    const fallback={item_name:name,base_price:price,option_prices:opts,updated_at:new Date().toISOString()};
+    result=row.__new
+      ? await client.from("menu_catalog").insert(fallback)
+      : await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
   }
-  const {error}=result;
-  if(error){if(status)status.textContent="儲存失敗："+error.message;return;}
+  if(result.error){if(status)status.textContent="儲存失敗："+result.error.message;return;}
   if(status)status.textContent=`「${name}」已儲存`;
   await loadMenuEditor();
 }
