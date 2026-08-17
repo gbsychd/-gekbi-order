@@ -370,6 +370,30 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="menu-soldout-v12">
+.menu-category-badge,.menu-level-label{font-size:10px;font-weight:800;border-radius:5px;padding:3px 6px;background:#eee;color:#666;flex:0 0 auto}
+.menu-category-badge{background:#222;color:#fff}
+.menu-category-title{font-size:16px;font-weight:900}
+.menu-category-body{padding:6px 10px 12px;background:#f7f7f7}
+.menu-edit-card{border-left:4px solid #ccc}
+.menu-item-title-wrap{min-width:0}
+.menu-item-title-wrap strong{font-size:15px}
+.menu-option-title{padding-top:4px;border-top:1px solid #eee}
+.menu-price-input,.menu-option-price{display:flex;align-items:center;gap:4px;margin-top:4px}
+.menu-price-input>span,.menu-option-price>span{font-size:11px;font-weight:800;color:#555;white-space:nowrap}
+.menu-price-input input{margin-top:0!important}
+.menu-option-price{margin-top:0}
+.menu-option-price input{margin:0!important;min-width:0}
+.menu-option-row{grid-template-columns:minmax(0,1fr) 105px 50px}
+@media(max-width:600px){
+  .menu-option-row{grid-template-columns:minmax(0,1fr) 82px 46px}
+  .menu-category-left{gap:5px}
+  .menu-category-count,.menu-category-active{font-size:10px}
+  .menu-edit-card{padding:10px 9px}
+}
+</style>
+
 </head>
 
 <body>
@@ -468,7 +492,7 @@ button{cursor:pointer}
     </section>
 
     <section class="image-admin admin-feature-section" id="imageAdminSection">
-      <h2>🖼️ 餐點圖片管理</h2>
+      
       <div class="image-admin-note">只在店家後台使用。顧客前台不會看到上傳功能。上傳後會自動取代該餐點目前的圖片。</div>
       <div class="image-admin-grid">
         <div class="image-admin-field"><label for="imageAdminItem">選擇餐點</label><select id="imageAdminItem" onchange="previewAdminImage()"></select></div>
@@ -1217,17 +1241,16 @@ function renderMenuEditor(){
     return `<details class="menu-category-card" open id="${catId}">
       <summary class="menu-category-head">
         <div class="menu-category-left">
+          <span class="menu-category-badge">大項</span>
           <span class="menu-category-title">${escapeHtml(category)}</span>
-          <span class="menu-category-count">${items.length} 項</span>
+          <span class="menu-category-count">${items.length} 個品項</span>
           <span class="menu-category-active">${activeCount} 供應中</span>
         </div>
         <span class="menu-category-arrow">⌄</span>
       </summary>
-
       <div class="menu-category-actions">
         <button type="button" class="menu-small-btn" onclick="addMenuItemToCategory(${JSON.stringify(category)});event.stopPropagation()">＋新增品項</button>
       </div>
-
       <div class="menu-category-body">
         ${items.map(({row,index})=>renderMenuEditorItem(row,index)).join("")}
       </div>
@@ -1243,6 +1266,7 @@ function renderMenuEditorItem(row,index){
     <div class="menu-edit-head">
       <div class="menu-item-title-wrap">
         <span class="menu-item-status ${active?'active':'inactive'}">${active?'供應中':'停用'}</span>
+        <span class="menu-level-label">品項</span>
         <strong>${escapeHtml(row.item_name)}</strong>
       </div>
       <div class="menu-item-head-actions">
@@ -1259,7 +1283,9 @@ function renderMenuEditorItem(row,index){
         <input id="me-name-${index}" value="${escapeHtml(row.item_name)}">
       </label>
       <label>基本價格
-        <input id="me-price-${index}" type="number" min="0" step="5" value="${Number(row.base_price)||0}">
+        <div class="menu-price-input"><span>NT$</span>
+          <input id="me-price-${index}" type="number" min="0" step="5" value="${Number(row.base_price)||0}">
+        </div>
       </label>
     </div>
 
@@ -1272,7 +1298,7 @@ function renderMenuEditorItem(row,index){
     </div>
 
     <div class="menu-option-title">
-      <span>細項／選項</span>
+      <span><span class="menu-level-label">細項</span>／選項</span>
       <span class="menu-option-hint">${options.length} 個</span>
     </div>
 
@@ -1280,7 +1306,9 @@ function renderMenuEditorItem(row,index){
       ${options.length ? options.map(([n,p],oi)=>`
         <div class="menu-option-row">
           <input id="me-on-${index}-${oi}" value="${escapeHtml(n)}" placeholder="細項名稱">
-          <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}" placeholder="加價">
+          <div class="menu-option-price"><span>NT$</span>
+            <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}" placeholder="加價">
+          </div>
           <button type="button" class="menu-option-delete" onclick="removeMenuOption(${index},${oi})">刪除</button>
         </div>
       `).join("") : '<div class="menu-empty-option">目前沒有細項</div>'}
