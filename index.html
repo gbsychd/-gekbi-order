@@ -561,7 +561,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
   <span>｜</span>
   <a href="tel:047222297" class="shop-contact-link">☎️ 04-7222297　撥打</a>
 </div>
-<div class="pickup-notice">📢 訂單送出後，請等待訂單狀態顯示「餐點完成」即可取餐</div>
+<div class="pickup-notice">📢 訂單送出後，請等待店家通知「餐點完成」即可取餐</div>
 </div>
 <div id="menu"></div>
 <div class="cart" id="cartBox">
@@ -578,8 +578,6 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
   <label><input type="radio" name="cutlery" value="不需要"> 不需要</label>
 </div>
 <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
-
-</div></div></div>
 <div class="bottom-cart"><div class="bottom-cart-info"><div>🛒 已選 <span id="count">0</span> 項</div></div><div class="bottom-cart-total">總計 $<span id="bottomTotal">0</span></div><button onclick="collapseAllCategories();document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">結帳</button></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 function validateTaiwanMobile(value){
@@ -1383,16 +1381,20 @@ async function confirmAndSubmitOrder(){
     const phone=normalizeTaiwanMobile(document.getElementById('phone').value);
     const pickup=document.getElementById('pickupTime').value||null;
 
-    if(!cart.length)throw new Error('購物車目前沒有餐點。');
-    if(!name)throw new Error('請輸入姓名。');
-    if(!isValidTaiwanMobile(phone))throw new Error('請輸入有效的台灣手機號碼（09 開頭共 10 碼）。');
+    if(!cart.length) throw new Error('購物車目前沒有餐點。');
+    if(!name) throw new Error('請輸入姓名。');
+    if(!isValidTaiwanMobile(phone)) throw new Error('請輸入有效的台灣手機號碼（09 開頭共 10 碼）。');
 
     const items=cart.map(item=>({
       item_key:item.itemKey||'',
       name:item.name,
       qty:Number(item.qty||1),
       price:Number(item.price||0),
-      options:(item.options||[]).map(o=>({name:o.name,price:Number(o.price||0),group:o.group||''}))
+      options:(item.options||[]).map(o=>({
+        name:o.name,
+        price:Number(o.price||0),
+        group:o.group||''
+      }))
     }));
 
     const {data,error}=await supabaseClient.rpc('create_order_atomic',{
@@ -1402,13 +1404,18 @@ async function confirmAndSubmitOrder(){
       p_cutlery:cutlery,
       p_items:items
     });
-    if(error)throw new Error(error.message||'訂單送出失敗。');
+
+    if(error) throw new Error(error.message||'訂單送出失敗。');
 
     const orderId=Number(data?.id);
     const serverTotal=Number(data?.total||0);
-    if(!orderId) throw new Error('訂單建立成功但未取得訂單編號，請勿重複送出，請聯絡店家確認。');
+    if(!orderId) throw new Error('訂單建立成功，但沒有取得訂單編號。');
 
-    // 只保存顧客端目前訂單 1 小時；原本 V24 其餘前台流程不變。
+    closeOrderConfirm();
+    cart=[];
+    renderCart();
+
+    // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
     saveCustomerActiveOrder({
       orderId,
       phone,
@@ -1418,19 +1425,21 @@ async function confirmAndSubmitOrder(){
       createdAt:Date.now()
     });
 
-    cart=[];
-    renderCart();
-    closeOrderConfirm();
+    // 重要：不再顯示 V24 原本的前台 successMessage。
+    // 確認送出後直接跳到獨立訂單狀態頁。
+    window.location.href='order-status-v24-獨立頁.html';
+    return true;
 
-    // 二次確認完成後，才進入獨立的訂單狀態頁。
-    window.location.href='order-status-v24.html';
   }catch(error){
     console.error(error);
     alert(error.message||'訂單送出失敗，請稍後再試。');
+    return false;
   }finally{
     if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='確認';submitBtn.style.opacity='1';}
   }
 }
+
+
 function submitOrder(){
   if(!isOrderingOpen())return;
   if(!cart.length){alert('請先選擇餐點！');return}
