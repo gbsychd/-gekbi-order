@@ -1171,7 +1171,7 @@ if(box.dataset.package==='0'){
   options.push({name:drink.dataset.name,price:Number(drink.dataset.price||0),group:'drink'});
   extra+=Number(drink.dataset.price||0);
 
-  addToCart(name,basePrice+extra,options);
+  addToCart(name,basePrice+extra,options,box.dataset.itemKey||itemId);
   box.remove();
   return;
 }
@@ -1193,7 +1193,7 @@ if(name==='單人經濟套餐'){
   // 主餐、炸物已在畫面上以固定反黑選項存在，selected 已會被上面的
   // 通用流程收集，因此這裡不再重複加入。
 }
-addToCart(name,basePrice+extra,options);
+addToCart(name,basePrice+extra,options,box.dataset.itemKey||itemId);
 box.remove();
 }
 
