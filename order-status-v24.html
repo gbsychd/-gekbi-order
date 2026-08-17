@@ -580,21 +580,35 @@ async function loadOrder(){
 
   }
 
+  /*
+
+   * 訂單編號：
+
+   * 使用顧客手機號碼最後三碼
+
+   * 例如 0912345678 → #678
+
+   */
+
+  const customerPhone=
+
+    String(
+
+      active.phone||''
+
+    ).replace(/\D/g,'');
+
   document.getElementById(
 
     'orderNo'
 
   ).textContent=
 
-    '#'+String(
+    customerPhone.length>=3
 
-      o.order_number ||
+      ? '#'+customerPhone.slice(-3)
 
-      o.order_no ||
-
-      active.orderId
-
-    );
+      : '#---';
 
   document.getElementById(
 
