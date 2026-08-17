@@ -1848,10 +1848,6 @@ async function saveMenuEditorRow(index){
   const status=document.getElementById("menuEditorStatus");
   if(!row)return;
 
-  // 儲存前記住目前畫面位置，完成後恢復原位置，避免整個頁面跳動。
-  const scrollX=window.scrollX||0;
-  const scrollY=window.scrollY||0;
-
   const category=String(document.getElementById(`me-cat-${index}`)?.value||row.category_name||"未分類").trim()||"未分類";
   const name=String(document.getElementById(`me-name-${index}`)?.value||"").trim();
   const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${index}`)?.value)||0));
@@ -1863,7 +1859,8 @@ async function saveMenuEditorRow(index){
     return;
   }
 
-  // 直接從目前這一張品項卡片讀取所有細項，確保名稱與價格修改都能被抓到。
+  // 直接讀取目前這張品項卡片裡的所有細項名稱與價格。
+  // 不重新 render 頁面，避免儲存後手機畫面跳走。
   const opts={};
   const optionRoot=document.getElementById(`me-options-${index}`);
   const optionRows=optionRoot ? [...optionRoot.querySelectorAll('.menu-option-row-v16')] : [];
@@ -1877,48 +1874,76 @@ async function saveMenuEditorRow(index){
 
   if(status)status.textContent=`正在儲存「${name}」…`;
 
-  const payload={
+  const updatedAt=new Date().toISOString();
+  const fullPayload={
     item_name:name,
     category_name:category,
     base_price:price,
     option_prices:opts,
     is_active:!!active,
-    updated_at:new Date().toISOString()
+    updated_at:updatedAt
+  };
+  const basicPayload={
+    item_name:name,
+    base_price:price,
+    option_prices:opts,
+    updated_at:updatedAt
   };
 
-  let result=row.__new
-    ? await client.from("menu_catalog").insert(payload)
-    : await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
+  let result;
 
-  // 舊資料表若沒有 category_name / is_active，仍保留原本可儲存的相容方式。
-  if(result.error && /category_name|is_active/i.test(result.error.message||"")){
-    const fallback={
-      item_name:name,
-      base_price:price,
-      option_prices:opts,
-      updated_at:new Date().toISOString()
-    };
-    result=row.__new
-      ? await client.from("menu_catalog").insert(fallback)
-      : await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
+  if(row.__new){
+    result=await client.from("menu_catalog")
+      .insert(fullPayload)
+      .select("item_name,base_price,option_prices,updated_at")
+      .single();
+
+    if(result.error && /category_name|is_active/i.test(result.error.message||"")){
+      result=await client.from("menu_catalog")
+        .insert(basicPayload)
+        .select("item_name,base_price,option_prices,updated_at")
+        .single();
+    }
+  }else{
+    result=await client.from("menu_catalog")
+      .update(fullPayload)
+      .eq("item_name",row.__original_name)
+      .select("item_name,base_price,option_prices,updated_at")
+      .single();
+
+    if(result.error && /category_name|is_active/i.test(result.error.message||"")){
+      result=await client.from("menu_catalog")
+        .update(basicPayload)
+        .eq("item_name",row.__original_name)
+        .select("item_name,base_price,option_prices,updated_at")
+        .single();
+    }
   }
 
   if(result.error){
     if(status)status.textContent="儲存失敗："+result.error.message;
-    window.scrollTo(scrollX,scrollY);
     return;
   }
 
+  // 不重新載入整個菜單，直接更新目前記憶中的資料。
+  // 因此儲存後會留在原本正在編輯的位置，不會跳回頁面頂端。
+  row.item_name=name;
+  row.__original_name=name;
+  row.__new=false;
+  row.category_name=category;
+  row.base_price=price;
+  row.option_prices={...opts};
+  row.is_active=!!active;
+  row.updated_at=updatedAt;
+
+  const card=optionRoot?.closest('.menu-edit-card');
+  const updatedEl=card?.querySelector('.menu-updated');
+  if(updatedEl)updatedEl.textContent=`最後更新：${formatDate(updatedAt)}`;
+
+  const titleInput=document.getElementById(`me-name-${index}`);
+  if(titleInput)titleInput.value=name;
+
   if(status)status.textContent=`「${name}」已儲存`;
-
-  // 只重新讀取資料，不讓瀏覽器停在頁面頂端。
-  await loadMenuEditor();
-
-  // render 完成後多次恢復位置，避免 details 重繪造成手機頁面跳動。
-  requestAnimationFrame(()=>{
-    window.scrollTo({left:scrollX,top:scrollY,behavior:"auto"});
-    setTimeout(()=>window.scrollTo({left:scrollX,top:scrollY,behavior:"auto"}),0);
-  });
 }
 
 function addMenuOption(index){
