@@ -497,6 +497,58 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="menu-editor-logic-v15">
+.menu-edit-fields-v15{
+  grid-template-columns:minmax(0,1fr) 180px !important;
+  align-items:end;
+}
+.menu-edit-fields-v15 label:nth-child(1){grid-column:1 !important}
+.menu-edit-fields-v15 label:nth-child(2){grid-column:2 !important;grid-row:1 !important}
+
+.menu-options-editor-v15{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 14px;
+  align-items:start;
+}
+.menu-option-column-v15{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.menu-option-row{
+  margin:0 !important;
+}
+.menu-option-group-v15{
+  border:1px solid #eee;
+  border-radius:9px;
+  padding:8px;
+  background:#fafafa;
+}
+.menu-option-group-title-v15{
+  font-size:11px;
+  font-weight:800;
+  color:#555;
+  margin:0 0 6px;
+}
+.menu-option-group-v15 .menu-option-row{
+  background:#fff;
+  border-radius:7px;
+  padding:5px;
+  box-sizing:border-box;
+}
+@media(max-width:650px){
+  .menu-edit-fields-v15{
+    grid-template-columns:minmax(0,1fr) 125px !important;
+  }
+  .menu-options-editor-v15{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -1381,6 +1433,76 @@ function menuEditorGrouped(){
   }));
 }
 
+
+function menuEditorOptionRank(name, category, itemName){
+  const n=String(name||"").trim();
+  const c=String(category||"");
+  const i=String(itemName||"");
+
+  // 鍋燒：先麵體，再加購／配料；順序固定，不再依資料庫字母/文字排序。
+  if(c.includes("鍋燒")){
+    const noodle=["意麵","雞絲","冬粉","泡麵","烏龍麵"];
+    const extra=["加麵","起司","豆皮"];
+    const ni=noodle.indexOf(n);
+    if(ni>=0)return [10,ni];
+    const ei=extra.indexOf(n);
+    if(ei>=0)return [20,ei];
+  }
+
+  // 一般加購／口味
+  const flavor=["原味","可可","抹茶","芝麻","花生","香蒜","香辣","麻辣"];
+  const fi=flavor.indexOf(n);
+  if(fi>=0)return [30,fi];
+
+  // 飲品
+  const drink=["紅茶","麥茶","奶茶","冷泡茶"];
+  const di=drink.indexOf(n);
+  if(di>=0)return [40,di];
+
+  // 炸物／配菜
+  const fried=["荷包蛋","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排","美國脆薯"];
+  const xi=fried.indexOf(n);
+  if(xi>=0)return [50,xi];
+
+  // 套餐／主餐類：若選項本身是菜單品項，最後依正式菜單順序。
+  const allItems=SOLDOUT_MENU_GROUPS.flatMap(g=>g[1]);
+  const mi=allItems.indexOf(n);
+  if(mi>=0)return [60,mi];
+
+  // 未知新細項維持原本順序，由呼叫端提供原始 index。
+  return [999,0];
+}
+
+function menuEditorSortedOptions(row){
+  return Object.entries(row.option_prices||{}).map(([name,price],originalIndex)=>({
+    name, price, originalIndex,
+    rank:menuEditorOptionRank(name,row.category_name,row.item_name)
+  })).sort((a,b)=>{
+    const ra=a.rank, rb=b.rank;
+    if(ra[0]!==rb[0])return ra[0]-rb[0];
+    if(ra[1]!==rb[1])return ra[1]-rb[1];
+    return a.originalIndex-b.originalIndex;
+  });
+}
+
+function menuEditorOptionGroup(name, category){
+  const n=String(name||"").trim();
+  if(String(category||"").includes("鍋燒")){
+    if(["意麵","雞絲","冬粉","泡麵","烏龍麵"].includes(n))return "麵體";
+    if(["加麵","起司","豆皮"].includes(n))return "加購";
+  }
+  if(["紅茶","麥茶","奶茶","冷泡茶"].includes(n))return "飲品";
+  if(["原味","可可","抹茶","芝麻","花生","香蒜","香辣","麻辣"].includes(n))return "口味";
+  return "其他細項";
+}
+
+function menuEditorBalancedColumns(entries){
+  const count=entries.length;
+  if(count<=6)return [entries];
+  const leftCount=Math.ceil(count/2);
+  return [entries.slice(0,leftCount),entries.slice(leftCount)];
+}
+
 function renderMenuEditor(){
   const root=document.getElementById("menuEditorList");
   if(!root)return;
@@ -1417,8 +1539,32 @@ function renderMenuEditor(){
 }
 
 function renderMenuEditorItem(row,index){
-  const options=Object.entries(row.option_prices||{});
+  const entries=menuEditorSortedOptions(row);
   const active=row.is_active!==false;
+
+  const optionColumns=menuEditorBalancedColumns(entries);
+
+  const renderOption=(entry)=>{
+    const oi=entry.originalIndex;
+    return `
+      <div class="menu-option-row">
+        <input id="me-on-${index}-${oi}" value="${escapeHtml(entry.name)}" placeholder="細項名稱">
+        <div class="menu-option-price"><span>NT$</span>
+          <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(entry.price)||0}" placeholder="加價">
+        </div>
+        <button type="button" class="menu-option-delete" onclick="removeMenuOption(${index},${oi})">刪除</button>
+      </div>`;
+  };
+
+  const renderColumn=(column)=>{
+    let lastGroup="";
+    return column.map(entry=>{
+      const group=menuEditorOptionGroup(entry.name,row.category_name);
+      const title=group!==lastGroup ? `<div class="menu-option-group-title-v15">${escapeHtml(group)}</div>` : "";
+      lastGroup=group;
+      return title+renderOption(entry);
+    }).join("");
+  };
 
   return `<div class="menu-edit-card ${active?'':'menu-item-disabled'}">
     <div class="menu-edit-head">
@@ -1433,10 +1579,7 @@ function renderMenuEditorItem(row,index){
       </div>
     </div>
 
-    <div class="menu-edit-fields">
-      <label>大項
-        <input id="me-cat-${index}" value="${escapeHtml(row.category_name||"未分類")}">
-      </label>
+    <div class="menu-edit-fields menu-edit-fields-v15">
       <label>品項名稱
         <input id="me-name-${index}" value="${escapeHtml(row.item_name)}">
       </label>
@@ -1457,19 +1600,12 @@ function renderMenuEditorItem(row,index){
 
     <div class="menu-option-title">
       <span><span class="menu-level-label">細項</span>／選項</span>
-      <span class="menu-option-hint">${options.length} 個</span>
+      <span class="menu-option-hint">${entries.length} 個</span>
     </div>
 
-    <div id="me-options-${index}" class="menu-options-editor">
-      ${options.length ? options.map(([n,p],oi)=>`
-        <div class="menu-option-row">
-          <input id="me-on-${index}-${oi}" value="${escapeHtml(n)}" placeholder="細項名稱">
-          <div class="menu-option-price"><span>NT$</span>
-            <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}" placeholder="加價">
-          </div>
-          <button type="button" class="menu-option-delete" onclick="removeMenuOption(${index},${oi})">刪除</button>
-        </div>
-      `).join("") : '<div class="menu-empty-option">目前沒有細項</div>'}
+    <div id="me-options-${index}" class="menu-options-editor-v15">
+      ${entries.length ? optionColumns.map(column=>`<div class="menu-option-column-v15">${renderColumn(column)}</div>`).join("")
+        : '<div class="menu-empty-option">目前沒有細項</div>'}
     </div>
 
     <div class="menu-edit-actions">
@@ -1550,474 +1686,15 @@ function addMenuOption(index){
   renderMenuEditor();
 }
 
-function removeMenuOption(index,oi){
-  const row=visibleMenuEditorRows()[index];
-  if(!row)return;
-  const entries=Object.entries(row.option_prices||{});
-  if(!entries[oi])return;
-  delete row.option_prices[entries[oi][0]];
-  renderMenuEditor();
-}
-
-async function addMenuItemToCategory(category){
-  const row={
-    item_name:"新商品",
-    __original_name:"",
-    __new:true,
-    category_name:String(category||"未分類"),
-    base_price:0,
-    option_prices:{},
-    is_active:true,
-    updated_at:null
-  };
-  menuEditorRows.push(row);
-  renderMenuEditor();
-  const cards=[...document.querySelectorAll(".menu-category-card")];
-  cards.forEach(card=>{
-    if(card.querySelector(".menu-category-title")?.textContent===row.category_name)card.open=true;
-  });
-  setTimeout(()=>{
-    const inputs=[...document.querySelectorAll('input[id^="me-name-"]')];
-    inputs.at(-1)?.focus();
-  },50);
-}
-
-function addMenuEditorCategory(){
-  const name=prompt("請輸入新的大項名稱");
-  if(name===null)return;
-  const category=String(name).trim();
-  if(!category)return;
-
-  if(menuEditorRows.some(r=>String(r.category_name||"未分類")===category)){
-    alert("這個大項已存在");
-    return;
-  }
-
-  // Create a first editable item so the category can be saved immediately.
-  menuEditorRows.push({
-    item_name:"新商品",
-    __original_name:"",
-    __new:true,
-    category_name:category,
-    base_price:0,
-    option_prices:{},
-    is_active:true,
-    updated_at:null
-  });
-  renderMenuEditor();
-}
-
-function duplicateMenuEditorItem(index){
-  const source=visibleMenuEditorRows()[index];
-  if(!source)return;
-
-  const copy={
-    item_name:`${source.item_name}（複製）`,
-    __original_name:"",
-    __new:true,
-    category_name:source.category_name,
-    base_price:source.base_price,
-    option_prices:{...(source.option_prices||{})},
-    is_active:true,
-    updated_at:null
-  };
-  menuEditorRows.push(copy);
-  renderMenuEditor();
-}
-
-async function deleteMenuEditorItem(index){
-  const row=visibleMenuEditorRows()[index];
-  if(!row)return;
-
-  if(!confirm(`確定要刪除「${row.item_name}」嗎？`))return;
-
-  if(row.__new){
-    const pos=menuEditorRows.indexOf(row);
-    if(pos>=0)menuEditorRows.splice(pos,1);
-    renderMenuEditor();
-    return;
-  }
-
-  const {error}=await client.from("menu_catalog").delete().eq("item_name",row.__original_name);
-  if(error){
-    alert("刪除失敗："+error.message);
-    return;
-  }
-  await loadMenuEditor();
-}
-
-
-function addMenuEditorCategory(){
-  const name=prompt("請輸入新的大項名稱");
-  if(name===null)return;
-  const category=String(name).trim();
-  if(!category)return;
-  const exists=menuEditorRows.some(r=>String(r.category_name||"未分類")===category);
-  if(exists){alert("這個大項已存在");return;}
-  menuEditorRows.push({
-    item_name:"新商品",
-    __original_name:"",
-    category_name:category,
-    base_price:0,
-    option_prices:{},
-    updated_at:null,
-    __new:true
-  });
-  renderMenuEditor();
-  document.querySelector(".menu-category-card:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
-function addMenuOption(i){
-  const row=visibleMenuEditorRows()[i]; if(!row)return;
-  const o={...(row.option_prices||{})}; let n="新選項",x=2;
-  while(Object.prototype.hasOwnProperty.call(o,n))n=`新選項${x++}`;
-  o[n]=0; row.option_prices=o; renderMenuEditor();
-}
 function removeMenuOption(i,oi){
   const row=visibleMenuEditorRows()[i]; if(!row)return;
-  const entries=Object.entries(row.option_prices||{}); if(!entries[oi])return;
-  delete row.option_prices[entries[oi][0]]; renderMenuEditor();
-}
-async function saveMenuEditorRow(i){
-  const row=visibleMenuEditorRows()[i], status=document.getElementById("menuEditorStatus");
-  if(!row)return;
-  const category=String(document.getElementById(`me-cat-${i}`)?.value||row.category_name||"未分類").trim()||"未分類";
-  const name=String(document.getElementById(`me-name-${i}`)?.value||"").trim();
-  const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${i}`)?.value)||0));
-  if(!name){if(status)status.textContent="品項名稱不可空白";return;}
-  const opts={}; Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
-    const nn=String(document.getElementById(`me-on-${i}-${oi}`)?.value??n).trim();
-    const pp=Math.max(0,Math.round(Number(document.getElementById(`me-op-${i}-${oi}`)?.value??p)||0));
-    if(nn)opts[nn]=pp;
+  const entries=menuEditorSortedOptions(row);
+  const entry=entries.find(x=>x.originalIndex===oi);
+  if(!entry)return;
+  const o={};
+  entries.forEach(x=>{
+    if(x.originalIndex!==oi)o[x.name]=x.price;
   });
-  if(status)status.textContent=`正在儲存「${name}」…`;
-  let result;
-  if(row.__new){
-    result=await client.from("menu_catalog").insert({
-      item_name:name,category_name:category,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
-    });
-  }else{
-    result=await client.from("menu_catalog").update({
-      item_name:name,category_name:category,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
-    }).eq("item_name",row.__original_name);
-  }
-  const {error}=result;
-  if(error){if(status)status.textContent="儲存失敗："+error.message;return;}
-  if(status)status.textContent=`「${name}」已儲存`;
-  await loadMenuEditor();
+  row.option_prices=o;
+  renderMenuEditor();
 }
-
-let closedCalendarCursor=new Date();
-let historyCalendarCursor=new Date();
-let closedDatesExisting=new Set();
-let closedDatesDraft=new Set();
-
-function closeAdminModal(id){
-  const el=document.getElementById(id);
-  if(el){el.classList.add("hidden");el.setAttribute("aria-hidden","true");}
-}
-function openModal(id){
-  const el=document.getElementById(id);
-  if(el){el.classList.remove("hidden");el.setAttribute("aria-hidden","false");}
-}
-function fmtDateKey(y,m,d){
-  return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-}
-function monthKey(date){
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
-}
-function moveCalendarMonth(type,delta){
-  const c=type==="closed"?closedCalendarCursor:historyCalendarCursor;
-  c.setMonth(c.getMonth()+delta,1);
-  if(type==="closed")renderClosedCalendar();else renderHistoryCalendar();
-}
-async function openClosedDates(){
-  openModal("closedDatesModal");
-  closedCalendarCursor=new Date();
-  closedCalendarCursor.setDate(1);
-  const {data,error}=await client.from("shop_closed_dates").select("closed_date").order("closed_date");
-  if(error){
-    document.getElementById("closedDateStatus").textContent="讀取店休日失敗："+error.message;
-    return;
-  }
-  closedDatesExisting=new Set((data||[]).map(r=>String(r.closed_date)));
-  closedDatesDraft=new Set(closedDatesExisting);
-  renderClosedCalendar();
-}
-function renderClosedCalendar(){
-  const y=closedCalendarCursor.getFullYear(),m=closedCalendarCursor.getMonth();
-  document.getElementById("closedCalendarTitle").textContent=`${y} 年 ${m+1} 月`;
-  const root=document.getElementById("closedCalendar");
-  const labels=["日","一","二","三","四","五","六"];
-  let out=labels.map(x=>`<div class="calendar-week">${x}</div>`).join("");
-  const first=new Date(y,m,1).getDay();
-  const days=new Date(y,m+1,0).getDate();
-  const prevDays=new Date(y,m,0).getDate();
-  for(let i=0;i<first;i++){
-    out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
-  }
-  const todayKey=getTaipeiDateKey(new Date());
-  for(let d=1;d<=days;d++){
-    const key=fmtDateKey(y,m+1,d);
-    const cls=["calendar-day"];
-    if(key===todayKey)cls.push("today");
-    if(closedDatesExisting.has(key))cls.push("closed");
-    if(closedDatesDraft.has(key))cls.push("selected");
-    out+=`<button type="button" class="${cls.join(" ")}" onclick="toggleClosedDate('${key}')">${d}</button>`;
-  }
-  const total=first+days;
-  for(let i=total;i<42;i++)out+=`<button type="button" class="calendar-day other" disabled>${i-total+1}</button>`;
-  root.innerHTML=out;
-  document.getElementById("closedDateStatus").textContent=`已選 ${closedDatesDraft.size} 天店休`;
-}
-function toggleClosedDate(key){
-  if(closedDatesDraft.has(key))closedDatesDraft.delete(key);else closedDatesDraft.add(key);
-  renderClosedCalendar();
-}
-async function saveClosedDates(){
-  const add=[...closedDatesDraft].filter(x=>!closedDatesExisting.has(x));
-  const del=[...closedDatesExisting].filter(x=>!closedDatesDraft.has(x));
-  if(add.length){
-    const {error}=await client.from("shop_closed_dates").upsert(add.map(closed_date=>({closed_date})),{onConflict:"closed_date"});
-    if(error){document.getElementById("closedDateStatus").textContent="儲存失敗："+error.message;return;}
-  }
-  if(del.length){
-    const {error}=await client.from("shop_closed_dates").delete().in("closed_date",del);
-    if(error){document.getElementById("closedDateStatus").textContent="取消店休失敗："+error.message;return;}
-  }
-  closedDatesExisting=new Set(closedDatesDraft);
-  document.getElementById("closedDateStatus").textContent="店休日期已更新";
-  renderClosedCalendar();
-}
-
-function getTaipeiDateKey(date){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);
-  const map={};parts.forEach(p=>map[p.type]=p.value);
-  return `${map.year}-${map.month}-${map.day}`;
-}
-async function openHistoryCalendar(){
-  openModal("historyModal");
-  historyCalendarCursor=new Date();
-  historyCalendarCursor.setDate(1);
-  await renderHistoryCalendar();
-}
-async function renderHistoryCalendar(){
-  const y=historyCalendarCursor.getFullYear(),m=historyCalendarCursor.getMonth();
-  document.getElementById("historyCalendarTitle").textContent=`${y} 年 ${m+1} 月`;
-  const root=document.getElementById("historyCalendar");
-  const labels=["日","一","二","三","四","五","六"];
-  let out=labels.map(x=>`<div class="calendar-week">${x}</div>`).join("");
-  const first=new Date(y,m,1).getDay();
-  const days=new Date(y,m+1,0).getDate();
-  const prevDays=new Date(y,m,0).getDate();
-  for(let i=0;i<first;i++)out+=`<button type="button" class="calendar-day other" disabled>${prevDays-first+i+1}</button>`;
-  const start=fmtDateKey(y,m+1,1),end=fmtDateKey(y,m+1,days);
-  const {data,error}=await client.from("orders").select("business_date").gte("business_date",start).lte("business_date",end);
-  const counts={};(data||[]).forEach(r=>counts[r.business_date]=(counts[r.business_date]||0)+1);
-  for(let d=1;d<=days;d++){
-    const key=fmtDateKey(y,m+1,d),cls=["calendar-day"];
-    if(key===getTaipeiDateKey(new Date()))cls.push("today");
-    if(counts[key])cls.push("has-orders");
-    out+=`<button type="button" class="${cls.join(" ")}" onclick="queryHistoryOrders('${key}')">${d}</button>`;
-  }
-  const total=first+days;
-  for(let i=total;i<42;i++)out+=`<button type="button" class="calendar-day other" disabled>${i-total+1}</button>`;
-  root.innerHTML=out;
-}
-async function queryHistoryOrders(businessDate){
-  const box=document.getElementById("historyResult");
-  box.innerHTML='<div class="empty">讀取中…</div>';
-  const {data:orders,error}=await client.from("orders").select("*").eq("business_date",businessDate).order("created_at",{ascending:true});
-  if(error){box.innerHTML='<div class="empty">查詢失敗<br><small>'+escapeHtml(error.message)+'</small></div>';return;}
-  if(!orders?.length){box.innerHTML='<div class="empty">'+businessDate+' 沒有訂單</div>';return;}
-  let html=`<div class="history-summary">${businessDate} 營業日｜共 ${orders.length} 筆訂單</div>`;
-  for(const o of orders){
-    const {data:items}=await client.from("order_items").select("item_name,quantity,price,options").eq("order_id",o.id).order("id");
-    const itemText=(items||[]).map(it=>`${escapeHtml(it.item_name)} ×${it.quantity}`).join("、");
-    html+=`<div class="history-order">
-      <div class="history-order-head"><span>訂單 #${escapeHtml(String(o.phone || "").replace(/\D/g, "").slice(-3) || String(o.id))}</span><span>${escapeHtml(statusText(normalizeStatus(o.status)))}</span></div>
-      <div class="history-order-meta">建立：${escapeHtml(formatDate(o.created_at))}<br>顧客：${escapeHtml(o.customer_name||"—")}｜電話：${escapeHtml(o.phone||"—")}<br>取餐：${escapeHtml(o.pickup_time||"完成後通知")}｜金額：$${escapeHtml(o.total??0)}${o.is_archived?"｜已歸檔":""}</div>
-      <div class="history-items">${itemText||"無餐點資料"}</div>
-    </div>`;
-  }
-  box.innerHTML=html;
-}
-
-async function changeStatus(id,status){
-
-  const label = statusText(normalizeStatus(status));
-
-  if(!confirm("確定要將此訂單改為「"+label+"」嗎？")){
-    return;
-  }
-
-  const {error} = await client
-    .from("orders")
-    .update({status})
-    .eq("id",id);
-
-  if(error){
-    alert("修改失敗：" + error.message);
-    return;
-  }
-
-  loadOrders();
-}
-
-function startAutoRefresh(){
-  // 測試期間：每 30 秒自動重新整理訂單
-  setInterval(() => {
-    loadOrders();
-  }, 30000);
-}
-
-function startRealtime(){
-
-  if(realtimeChannel){
-    client.removeChannel(realtimeChannel);
-  }
-
-  realtimeChannel = client
-    .channel("orders-admin")
-    .on(
-      "postgres_changes",
-      {
-        event:"*",
-        schema:"public",
-        table:"orders"
-      },
-      ()=>{
-        loadOrders();
-      }
-    )
-    .subscribe();
-}
-
-function normalizeStatus(status){
-
-  const s = String(status || "").toLowerCase();
-
-  if(
-    s === "new" ||
-    s === "pending" ||
-    s === "待接單" ||
-    s === "待處理"
-  ) return "new";
-
-  if(
-    s === "making" ||
-    s === "processing" ||
-    s === "製作中"
-  ) return "making";
-
-  if(
-    s === "done" ||
-    s === "completed" ||
-    s === "完成" ||
-    s === "已完成"
-  ) return "done";
-
-  if(
-    s === "cancelled" ||
-    s === "canceled" ||
-    s === "取消" ||
-    s === "已取消"
-  ) return "cancelled";
-
-  return "new";
-}
-
-function statusText(status){
-
-  if(status === "new") return "待接單";
-  if(status === "making") return "製作中";
-  if(status === "done") return "已完成";
-  if(status === "cancelled") return "已取消";
-
-  return status;
-}
-
-function statusClass(status){
-
-  if(status === "new") return "status-new";
-  if(status === "making") return "status-making";
-  if(status === "done") return "status-done";
-  if(status === "cancelled") return "status-cancel";
-
-  return "";
-}
-
-function tabName(status){
-
-  if(status === "new") return "待接單";
-  if(status === "making") return "製作中";
-  if(status === "done") return "已完成";
-  if(status === "cancelled") return "已取消";
-
-  return "";
-}
-
-function formatDate(value){
-
-  if(!value) return "—";
-
-  const d = new Date(value);
-
-  if(Number.isNaN(d.getTime())) return String(value);
-
-  return d.toLocaleString("zh-TW",{
-    year:"numeric",
-    month:"2-digit",
-    day:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit"
-  });
-}
-
-function escapeHtml(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-["email","password"].forEach(id=>{
-  document.getElementById(id).addEventListener("keydown",e=>{
-    if(e.key === "Enter"){
-      e.preventDefault();
-      login();
-    }
-  });
-});
-
-client.auth.onAuthStateChange((event,session)=>{
-  if(session){
-    showApp();
-  }
-});
-document.querySelectorAll(".admin-modal").forEach(modal=>{
-  modal.addEventListener("click",e=>{if(e.target===modal)closeAdminModal(modal.id);});
-});
-
-
-checkSession();
-</script>
-
-
-<script id="menu-editor-single-open-v14">
-(function(){
-  document.addEventListener("toggle", function(ev){
-    const d=ev.target;
-    if(!d || !d.classList || !d.classList.contains("menu-category-card") || !d.open) return;
-    document.querySelectorAll("#menuEditorList .menu-category-card[open]").forEach(other=>{
-      if(other!==d) other.open=false;
-    });
-  }, true);
-})();
-</script>
-
-</body>
-</html>
