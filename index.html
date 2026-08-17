@@ -620,9 +620,9 @@ const menus=[
 ]
 const hiddenMenus=[
 ["豬排大套餐",190,[
-{title:"主餐 3 選 1",single:true,options:[["豬排炒泡麵",0],["豬排蘑菇麵",0],["豬排黑胡椒麵",0]],main:true},
+{title:"主餐",single:true,options:[["豬排炒泡麵",0],["豬排蘑菇麵",0],["豬排黑胡椒麵",0]],main:true},
 {title:"奶酥(不吃請勿選擇)",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]],cream:true},
-{title:"炸物 4 選 1(奶酥不吃請選兩樣)",single:false,max:1,options:[["甜不辣",0],["美國脆薯",0],["小雞球",0],["芋泥球",0]],fried:true},
+{title:"炸物",single:false,max:1,options:[["甜不辣",0],["美國脆薯",0],["小雞球",0],["芋泥球",0]],fried:true},
 {title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}
 ]],
 ["單人獨享餐",125,[{title:"主餐 2 選 1",single:true,options:[["古早味紅蔥雞絲麵",0],["古早味剝椒雞絲麵",10]]},{title:"奶酥 6 選 1",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
@@ -876,7 +876,7 @@ function openItemBrowse(mi,ii,itemId){
   }else if(name==="原味蛋餅"){
     html+=`<div class="option-group-title">細項</div><div class="option-list">${optionButton(["雙蛋",15],false)}</div>`;
   }else if(config && config.jam && name==="果醬吐司"){
-    html+=`<div class="option-group-title">果醬口味（請選1種）</div><div class="option-list">${[["巧克力",0],["花生",0],["草莓",0]].map(o=>optionButton(o,true)).join('')}</div>`;
+    html+=`<div class="option-group-title">果醬口味</div><div class="option-list">${[["巧克力",0],["花生",0],["草莓",0]].map(o=>optionButton(o,true)).join('')}</div>`;
   }else if(config && config.options){
     let options=config.options.slice();
     if(name==="豬排黑胡椒麵"||name==="豬排蘑菇麵"){
@@ -885,7 +885,16 @@ function openItemBrowse(mi,ii,itemId){
     if(config.noNoodleExtra && config.noNoodleExtra.includes(name)){
       options=options.filter(o=>o[0]!=="加麵");
     }
-    html+=`<div class="option-group-title">選擇細項</div><div class="option-list">${options.map(o=>optionButton(o,false)).join('')}</div>`;
+    if(config.type==="個人特餐"){
+      const drink=options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
+      const other=options.filter(o=>o[0]!=="奶茶"&&o[0]!=="冷泡茶"&&o[0]!=="麻辣"&&o[0]!=="香辣");
+      const spicy=options.filter(o=>o[0]==="麻辣"||o[0]==="香辣");
+      if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,true)).join('')}</div></div>`;
+      if(spicy.length)html+=`<div class="option-group"><div class="option-group-title">辣度</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
+      if(drink.length)html+=`<div class="option-group"><div class="option-group-title">飲品</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    }else{
+      html+=`<div class="option-group-title">選擇細項</div><div class="option-list">${options.map(o=>optionButton(o,false)).join('')}</div>`;
+    }
   }else{
     html+=`<div class="quantity-direct" data-qty="1">
       <div class="quantity-label">數量</div>
@@ -986,7 +995,7 @@ function openJamOptions(name,price,itemId){
   const html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}">
     <div class="option-title">${name}｜選擇口味</div>
     <div class="option-group">
-      <div class="option-group-title">果醬口味（請選1種）</div>
+      <div class="option-group-title">果醬口味</div>
       <div class="option-list">${[["巧克力",0],["花生",0],["草莓",0]].map(o=>optionButton(o,true)).join('')}</div>
     </div>
     <button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
@@ -1003,9 +1012,9 @@ if(config.options){
     const drink=config.options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
     const other=config.options.filter(o=>o[0]!=="奶茶"&&o[0]!=="冷泡茶"&&o[0]!=="麻辣"&&o[0]!=="香辣");
     const spicy=config.options.filter(o=>o[0]==="麻辣"||o[0]==="香辣");
-    if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,false)).join('')}</div></div>`;
-    if(spicy.length)html+=`<div class="option-group" data-mutual="spicy"><div class="option-group-title">辣度（只能選1種）</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
-    if(drink.length)html+=`<div class="option-group" data-mutual="drink"><div class="option-group-title">飲品（只能選1種）</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(spicy.length)html+=`<div class="option-group" data-mutual="spicy"><div class="option-group-title">辣度</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(drink.length)html+=`<div class="option-group" data-mutual="drink"><div class="option-group-title">飲品</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
   }else{
     html+=`<div class="option-group"><div class="option-group-title">可加購</div><div class="option-list">${config.options.map(o=>optionButton(o,false)).join('')}</div></div>`;
   }
@@ -1052,7 +1061,7 @@ function openHiddenOptions(index,itemId){
   const mains=item[2][0].options;
   let html=`<div class="inline-option-box hidden-option-box" id="option-${itemId}" data-base-name="${escapeHtml(item[0])}" data-base-price="${item[1]}" data-package="0" data-item-key="${itemId}">
     <div class="option-group" data-group="main">
-      <div class="option-group-title">主餐 3 選 1</div>
+      <div class="option-group-title">主餐</div>
       <div class="option-list">
         ${mains.map(o=>`<button class="option-btn package-main-btn" data-name="${escapeHtml(o[0])}" data-price="0" data-single="1" onclick="selectPackageMain(this,'${itemId}')">${o[0]}</button>`).join('')}
       </div>
@@ -1065,7 +1074,7 @@ function openHiddenOptions(index,itemId){
       </div>
     </div>
     <div class="option-group" data-group="fried">
-      <div class="option-group-title">炸物 4 選 1(奶酥不吃請選兩樣)</div>
+      <div class="option-group-title">炸物</div>
       <div class="option-list">
         ${item[2][2].options.map(o=>optionButton(o,false,1)).join('')}
       </div>
@@ -1171,7 +1180,7 @@ if(box.dataset.package==='0'){
   options.push({name:drink.dataset.name,price:Number(drink.dataset.price||0),group:'drink'});
   extra+=Number(drink.dataset.price||0);
 
-  addToCart(name,basePrice+extra,options,box.dataset.itemKey||itemId);
+  addToCart(name,basePrice+extra,options);
   box.remove();
   return;
 }
@@ -1193,7 +1202,7 @@ if(name==='單人經濟套餐'){
   // 主餐、炸物已在畫面上以固定反黑選項存在，selected 已會被上面的
   // 通用流程收集，因此這裡不再重複加入。
 }
-addToCart(name,basePrice+extra,options,box.dataset.itemKey||itemId);
+addToCart(name,basePrice+extra,options);
 box.remove();
 }
 
