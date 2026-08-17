@@ -1843,14 +1843,19 @@ function renderMenuEditorItem(row,index){
 }
 
 async function saveMenuEditorRow(index){
-  const row=visibleMenuEditorRows()[index];
+  const rows=visibleMenuEditorRows();
+  const row=rows[index];
   const status=document.getElementById("menuEditorStatus");
   if(!row)return;
+
+  // 儲存前記住目前畫面位置，完成後恢復原位置，避免整個頁面跳動。
+  const scrollX=window.scrollX||0;
+  const scrollY=window.scrollY||0;
 
   const category=String(document.getElementById(`me-cat-${index}`)?.value||row.category_name||"未分類").trim()||"未分類";
   const name=String(document.getElementById(`me-name-${index}`)?.value||"").trim();
   const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${index}`)?.value)||0));
-  const active=!!document.getElementById(`me-active-${index}`)?.checked;
+  const active=document.getElementById(`me-active-${index}`)?.checked ?? row.is_active ?? true;
 
   if(!name){
     if(status)status.textContent="品項名稱不可空白";
@@ -1858,10 +1863,15 @@ async function saveMenuEditorRow(index){
     return;
   }
 
+  // 直接從目前這一張品項卡片讀取所有細項，確保名稱與價格修改都能被抓到。
   const opts={};
-  Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
-    const nn=String(document.getElementById(`me-on-${index}-${oi}`)?.value??n).trim();
-    const pp=Math.max(0,Math.round(Number(document.getElementById(`me-op-${index}-${oi}`)?.value??p)||0));
+  const optionRoot=document.getElementById(`me-options-${index}`);
+  const optionRows=optionRoot ? [...optionRoot.querySelectorAll('.menu-option-row-v16')] : [];
+  optionRows.forEach(optionRow=>{
+    const nameInput=optionRow.querySelector('input[placeholder="細項名稱"]');
+    const priceInput=optionRow.querySelector('input[type="number"]');
+    const nn=String(nameInput?.value||"").trim();
+    const pp=Math.max(0,Math.round(Number(priceInput?.value)||0));
     if(nn)opts[nn]=pp;
   });
 
@@ -1872,21 +1882,21 @@ async function saveMenuEditorRow(index){
     category_name:category,
     base_price:price,
     option_prices:opts,
-    is_active:active,
+    is_active:!!active,
     updated_at:new Date().toISOString()
   };
 
-  let result;
-  if(row.__new){
-    result=await client.from("menu_catalog").insert(payload);
-  }else{
-    result=await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
-  }
+  let result=row.__new
+    ? await client.from("menu_catalog").insert(payload)
+    : await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
 
-  // Backward-compatible fallback if optional columns do not exist.
+  // 舊資料表若沒有 category_name / is_active，仍保留原本可儲存的相容方式。
   if(result.error && /category_name|is_active/i.test(result.error.message||"")){
     const fallback={
-      item_name:name,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
+      item_name:name,
+      base_price:price,
+      option_prices:opts,
+      updated_at:new Date().toISOString()
     };
     result=row.__new
       ? await client.from("menu_catalog").insert(fallback)
@@ -1895,11 +1905,20 @@ async function saveMenuEditorRow(index){
 
   if(result.error){
     if(status)status.textContent="儲存失敗："+result.error.message;
+    window.scrollTo(scrollX,scrollY);
     return;
   }
 
   if(status)status.textContent=`「${name}」已儲存`;
+
+  // 只重新讀取資料，不讓瀏覽器停在頁面頂端。
   await loadMenuEditor();
+
+  // render 完成後多次恢復位置，避免 details 重繪造成手機頁面跳動。
+  requestAnimationFrame(()=>{
+    window.scrollTo({left:scrollX,top:scrollY,behavior:"auto"});
+    setTimeout(()=>window.scrollTo({left:scrollX,top:scrollY,behavior:"auto"}),0);
+  });
 }
 
 function addMenuOption(index){
@@ -1950,13 +1969,10 @@ function addMenuEditorCategory(){
   if(name===null)return;
   const category=String(name).trim();
   if(!category)return;
-
   if(menuEditorRows.some(r=>String(r.category_name||"未分類")===category)){
     alert("這個大項已存在");
     return;
   }
-
-  // Create a first editable item so the category can be saved immediately.
   menuEditorRows.push({
     item_name:"新商品",
     __original_name:"",
@@ -1973,7 +1989,6 @@ function addMenuEditorCategory(){
 function duplicateMenuEditorItem(index){
   const source=visibleMenuEditorRows()[index];
   if(!source)return;
-
   const copy={
     item_name:`${source.item_name}（複製）`,
     __original_name:"",
@@ -1991,84 +2006,18 @@ function duplicateMenuEditorItem(index){
 async function deleteMenuEditorItem(index){
   const row=visibleMenuEditorRows()[index];
   if(!row)return;
-
   if(!confirm(`確定要刪除「${row.item_name}」嗎？`))return;
-
   if(row.__new){
     const pos=menuEditorRows.indexOf(row);
     if(pos>=0)menuEditorRows.splice(pos,1);
     renderMenuEditor();
     return;
   }
-
   const {error}=await client.from("menu_catalog").delete().eq("item_name",row.__original_name);
   if(error){
     alert("刪除失敗："+error.message);
     return;
   }
-  await loadMenuEditor();
-}
-
-
-function addMenuEditorCategory(){
-  const name=prompt("請輸入新的大項名稱");
-  if(name===null)return;
-  const category=String(name).trim();
-  if(!category)return;
-  const exists=menuEditorRows.some(r=>String(r.category_name||"未分類")===category);
-  if(exists){alert("這個大項已存在");return;}
-  menuEditorRows.push({
-    item_name:"新商品",
-    __original_name:"",
-    category_name:category,
-    base_price:0,
-    option_prices:{},
-    updated_at:null,
-    __new:true
-  });
-  renderMenuEditor();
-  document.querySelector(".menu-category-card:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
-function addMenuOption(i){
-  const row=visibleMenuEditorRows()[i]; if(!row)return;
-  const o={...(row.option_prices||{})}; let n="新選項",x=2;
-  while(Object.prototype.hasOwnProperty.call(o,n))n=`新選項${x++}`;
-  o[n]=0; row.option_prices=o; renderMenuEditor();
-}
-function removeMenuOption(i,oi){
-  const row=visibleMenuEditorRows()[i]; if(!row)return;
-  const entries=Object.entries(row.option_prices||{}); if(!entries[oi])return;
-  delete row.option_prices[entries[oi][0]]; renderMenuEditor();
-}
-async function saveMenuEditorRow(i){
-  const row=visibleMenuEditorRows()[i], status=document.getElementById("menuEditorStatus");
-  if(!row)return;
-  const category=String(document.getElementById(`me-cat-${i}`)?.value||row.category_name||"未分類").trim()||"未分類";
-  const name=String(document.getElementById(`me-name-${i}`)?.value||"").trim();
-  const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${i}`)?.value)||0));
-  const active=document.getElementById(`me-active-${i}`)?.checked ?? row.is_active ?? true;
-  if(!name){if(status)status.textContent="品項名稱不可空白";return;}
-  const opts={};
-  Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
-    const nn=String(document.getElementById(`me-on-${i}-${oi}`)?.value??n).trim();
-    const pp=Math.max(0,Math.round(Number(document.getElementById(`me-op-${i}-${oi}`)?.value??p)||0));
-    if(nn)opts[nn]=pp;
-  });
-  if(status)status.textContent=`正在儲存「${name}」…`;
-  const payload={item_name:name,category_name:category,base_price:price,option_prices:opts,is_active:!!active,updated_at:new Date().toISOString()};
-  let result=row.__new
-    ? await client.from("menu_catalog").insert(payload)
-    : await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
-  // 相容沒有 category_name / is_active 欄位的舊資料表，避免整個儲存功能失效。
-  if(result.error && /category_name|is_active/i.test(result.error.message||"")){
-    const fallback={item_name:name,base_price:price,option_prices:opts,updated_at:new Date().toISOString()};
-    result=row.__new
-      ? await client.from("menu_catalog").insert(fallback)
-      : await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
-  }
-  if(result.error){if(status)status.textContent="儲存失敗："+result.error.message;return;}
-  if(status)status.textContent=`「${name}」已儲存`;
   await loadMenuEditor();
 }
 
