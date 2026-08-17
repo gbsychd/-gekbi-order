@@ -274,6 +274,35 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="admin-v9-complete-fix">
+.menu-editor{padding:16px}
+.menu-editor-note{font-size:13px;line-height:1.6;color:#666;margin-bottom:12px}
+.menu-editor-toolbar{display:flex;gap:8px;margin-bottom:8px}
+.menu-editor-toolbar input{flex:1;min-width:0;padding:10px 12px;border:1px solid #ddd;border-radius:9px;font-size:14px}
+.menu-edit-card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:12px;margin:10px 0}
+.menu-edit-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.menu-edit-updated{font-size:11px;color:#999}
+.menu-edit-fields{display:grid;grid-template-columns:1fr 150px;gap:8px}
+.menu-edit-fields label{font-size:12px;color:#666}
+.menu-edit-fields input,.menu-option-row input{width:100%;box-sizing:border-box;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:4px}
+.menu-option-title{font-size:12px;font-weight:800;margin:12px 0 6px}
+.menu-option-row{display:grid;grid-template-columns:minmax(0,1fr) 100px 54px;gap:6px;align-items:end;margin:6px 0}
+.menu-option-row input{margin:0}
+.menu-option-delete,.menu-option-add,.menu-save-btn{border:0;border-radius:7px;padding:8px 10px;cursor:pointer}
+.menu-option-delete{background:#f6e9e9;color:#b33}
+.menu-option-add{background:#f2f2f2}
+.menu-save-btn{background:#222;color:#fff}
+.menu-edit-actions{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+.menu-empty-option{font-size:12px;color:#aaa;padding:6px 0}
+@media(max-width:520px){
+  .menu-editor-toolbar{flex-direction:column}
+  .menu-edit-fields{grid-template-columns:1fr 100px}
+  .menu-option-row{grid-template-columns:minmax(0,1fr) 80px 48px}
+  .menu-option-row input{font-size:13px}
+}
+</style>
+
 </head>
 
 <body>
@@ -304,6 +333,7 @@ button{cursor:pointer}
     <div class="header-inner">
       <div class="brand">隔壁宵夜彰化店｜店家後台</div>
       <div class="header-tools">
+        <button class="header-tool" type="button" onclick="openAdminFeature('menu')">菜單編輯</button>
         <button class="header-tool" type="button" onclick="openAdminFeature('soldout')">完售管理</button>
         <button class="header-tool" type="button" onclick="openAdminFeature('images')">圖片管理</button>
         <button class="header-tool" type="button" onclick="openClosedDates()">店休</button>
@@ -340,6 +370,18 @@ button{cursor:pointer}
     <div id="orders"></div>
 
     <div id="managementPanel" class="hidden">
+
+
+    <section class="menu-editor admin-feature-section" id="menuEditorSection">
+      <h2>📝 菜單編輯</h2>
+      <div class="menu-editor-note">可編輯目前菜單資料庫中的品項名稱、基本價格、選項與加價，儲存後寫入 menu_catalog。</div>
+      <div class="menu-editor-toolbar">
+        <input id="menuEditorSearch" type="search" placeholder="搜尋品項名稱…" oninput="renderMenuEditor()">
+        <button class="image-refresh-btn" type="button" onclick="loadMenuEditor()">重新整理</button>
+      </div>
+      <div id="menuEditorStatus" class="image-admin-status"></div>
+      <div id="menuEditorList"></div>
+    </section>
 
     <section class="soldout-admin admin-feature-section" id="soldoutAdminSection">
       <h2>🚫 餐點完售管理</h2>
@@ -730,15 +772,17 @@ function hideAllAdminFeatureSections(){
 function openAdminFeature(feature){
   const panel=document.getElementById("managementPanel");
   const orders=document.getElementById("orders");
-  if(!panel || !orders)return;
-  orders.style.display="none";
-  panel.classList.remove("hidden");
-  hideAllAdminFeatureSections();
-  const target = feature==="soldout" ? document.getElementById("soldoutAdminSection") : document.getElementById("imageAdminSection");
-  if(target) target.classList.add("feature-active");
+  if(panel)panel.classList.remove("hidden");
+  if(orders)orders.style.display="none";
+  document.querySelectorAll(".admin-feature-section").forEach(x=>x.classList.remove("feature-active"));
+  const target=feature==="menu"?document.getElementById("menuEditorSection"):
+               feature==="soldout"?document.getElementById("soldoutAdminSection"):
+               document.getElementById("imageAdminSection");
+  if(target)target.classList.add("feature-active");
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  if(feature==="soldout") loadSoldOutAdmin();
-  if(feature==="images") loadAdminImageData();
+  if(feature==="menu")loadMenuEditor();
+  if(feature==="soldout")loadSoldOutAdmin();
+  if(feature==="images")loadAdminImageData();
 }
 function toggleManagement(){
   openAdminFeature("soldout");
@@ -755,7 +799,12 @@ function setTab(status,button){
   loadOrders();
 }
 
+async function archiveOldBusinessOrders(){
+  const {error}=await client.rpc("archive_gekbi_orders");
+  if(error)console.warn("自動歸檔檢查失敗：",error.message);
+}
 async function loadOrders(){
+  await archiveOldBusinessOrders();
   const businessDate = getBusinessDate(new Date());
 
   const {data:orders,error} = await client
@@ -1016,6 +1065,88 @@ function orderCard(order){
   `;
 }
 
+
+
+let menuEditorRows=[];
+
+async function loadMenuEditor(){
+  const status=document.getElementById("menuEditorStatus");
+  if(status)status.textContent="讀取菜單資料…";
+  const {data,error}=await client.from("menu_catalog").select("item_name,base_price,option_prices,updated_at").order("item_name");
+  if(error){if(status)status.textContent="讀取失敗："+error.message;return;}
+  menuEditorRows=(data||[]).map(r=>({
+    item_name:String(r.item_name||""),
+    __original_name:String(r.item_name||""),
+    base_price:Number(r.base_price||0),
+    option_prices:(r.option_prices&&typeof r.option_prices==="object")?r.option_prices:{},
+    updated_at:r.updated_at||null
+  }));
+  renderMenuEditor();
+  if(status)status.textContent=`已載入 ${menuEditorRows.length} 個品項`;
+}
+
+function visibleMenuEditorRows(){
+  const q=String(document.getElementById("menuEditorSearch")?.value||"").trim().toLowerCase();
+  return menuEditorRows.filter(r=>!q||r.item_name.toLowerCase().includes(q));
+}
+function renderMenuEditor(){
+  const root=document.getElementById("menuEditorList");
+  if(!root)return;
+  const rows=visibleMenuEditorRows();
+  if(!rows.length){root.innerHTML='<div class="empty">找不到符合的品項</div>';return;}
+  root.innerHTML=rows.map((r,i)=>{
+    const options=Object.entries(r.option_prices||{});
+    return `<div class="menu-edit-card">
+      <div class="menu-edit-head"><strong>${escapeHtml(r.item_name)}</strong><span class="menu-edit-updated">${r.updated_at?escapeHtml(formatDate(r.updated_at)):"—"}</span></div>
+      <div class="menu-edit-fields">
+        <label>品項名稱<input id="me-name-${i}" value="${escapeHtml(r.item_name)}"></label>
+        <label>基本價格<input id="me-price-${i}" type="number" min="0" step="5" value="${Number(r.base_price)||0}"></label>
+      </div>
+      <div class="menu-option-title">選項／加價</div>
+      <div id="me-options-${i}" class="menu-options-editor">
+        ${options.length?options.map(([n,p],oi)=>`<div class="menu-option-row">
+          <input id="me-on-${i}-${oi}" value="${escapeHtml(n)}">
+          <input id="me-op-${i}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}">
+          <button type="button" class="menu-option-delete" onclick="removeMenuOption(${i},${oi})">刪除</button>
+        </div>`).join(""):'<div class="menu-empty-option">目前沒有選項</div>'}
+      </div>
+      <div class="menu-edit-actions">
+        <button type="button" class="menu-option-add" onclick="addMenuOption(${i})">＋新增選項</button>
+        <button type="button" class="menu-save-btn" onclick="saveMenuEditorRow(${i})">儲存此品項</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function addMenuOption(i){
+  const row=visibleMenuEditorRows()[i]; if(!row)return;
+  const o={...(row.option_prices||{})}; let n="新選項",x=2;
+  while(Object.prototype.hasOwnProperty.call(o,n))n=`新選項${x++}`;
+  o[n]=0; row.option_prices=o; renderMenuEditor();
+}
+function removeMenuOption(i,oi){
+  const row=visibleMenuEditorRows()[i]; if(!row)return;
+  const entries=Object.entries(row.option_prices||{}); if(!entries[oi])return;
+  delete row.option_prices[entries[oi][0]]; renderMenuEditor();
+}
+async function saveMenuEditorRow(i){
+  const row=visibleMenuEditorRows()[i], status=document.getElementById("menuEditorStatus");
+  if(!row)return;
+  const name=String(document.getElementById(`me-name-${i}`)?.value||"").trim();
+  const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${i}`)?.value)||0));
+  if(!name){if(status)status.textContent="品項名稱不可空白";return;}
+  const opts={}; Object.entries(row.option_prices||{}).forEach(([n,p],oi)=>{
+    const nn=String(document.getElementById(`me-on-${i}-${oi}`)?.value??n).trim();
+    const pp=Math.max(0,Math.round(Number(document.getElementById(`me-op-${i}-${oi}`)?.value??p)||0));
+    if(nn)opts[nn]=pp;
+  });
+  if(status)status.textContent=`正在儲存「${name}」…`;
+  const {error}=await client.from("menu_catalog").update({
+    item_name:name,base_price:price,option_prices:opts,updated_at:new Date().toISOString()
+  }).eq("item_name",row.__original_name);
+  if(error){if(status)status.textContent="儲存失敗："+error.message;return;}
+  if(status)status.textContent=`「${name}」已儲存`;
+  await loadMenuEditor();
+}
 
 let closedCalendarCursor=new Date();
 let historyCalendarCursor=new Date();
