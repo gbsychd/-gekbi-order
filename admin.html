@@ -44,7 +44,6 @@ button{cursor:pointer}
 .order-time{font-size:13px;color:#777;margin-top:3px}
 .status{font-size:12px;font-weight:800;padding:5px 8px;border-radius:7px;white-space:nowrap}
 .status-new{background:#ffe7e7;color:#c00}
-.status-accepted{background:#e8eefc;color:#3159a6}
 .status-making{background:#fff1d6;color:#a05a00}
 .status-done{background:#e5f7e8;color:#18752a}
 .status-cancel{background:#eee;color:#666}
@@ -708,10 +707,6 @@ button{cursor:pointer}
         <div class="stat-label">待接單</div>
       </div>
       <div class="stat">
-        <div id="acceptedCount" class="stat-num">0</div>
-        <div class="stat-label">已接收</div>
-      </div>
-      <div class="stat">
         <div id="makingCount" class="stat-num">0</div>
         <div class="stat-label">製作中</div>
       </div>
@@ -723,7 +718,6 @@ button{cursor:pointer}
 
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
-      <button class="tab" data-status="accepted" onclick="setTab('accepted',this)">已接收</button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
@@ -847,6 +841,7 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 let currentTab = "new";
 let realtimeChannel = null;
+const acceptedTimers = new Map();
 
 /* login-enter-v16 */
 
@@ -1249,29 +1244,44 @@ async function loadOrders(){
     return;
   }
 
+  const now=Date.now();
   const effectiveOrders=(orders||[]).map(order=>{
     const raw=String(order.status||'').trim().toLowerCase();
     if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at){
       const acceptedAt=Date.parse(order.accepted_at);
-      if(Number.isFinite(acceptedAt) && Date.now()-acceptedAt>=3*60*1000){
-        return {...order,status:'making'};
+      if(Number.isFinite(acceptedAt)){
+        const remaining=3*60*1000-(now-acceptedAt);
+        if(remaining<=0){
+          client.from("orders").update({status:"making"}).eq("id",order.id).then(({error})=>{
+            if(error) console.warn("自動轉製作中失敗：",error.message);
+          });
+          return {...order,status:"making"};
+        }
+        if(!acceptedTimers.has(order.id)){
+          const timer=setTimeout(async()=>{
+            acceptedTimers.delete(order.id);
+            const {error}=await client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted");
+            if(error) console.warn("自動轉製作中失敗：",error.message);
+            loadOrders();
+          },remaining);
+          acceptedTimers.set(order.id,timer);
+        }
       }
+      return order;
     }
     return order;
   });
 
-  let newCount=0,acceptedCount=0,makingCount=0,doneCount=0,cancelledCount=0;
+  let newCount=0,makingCount=0,doneCount=0,cancelledCount=0;
   effectiveOrders.forEach(order=>{
     const status=normalizeStatus(order.status);
     if(status==="new")newCount++;
-    if(status==="accepted")acceptedCount++;
     if(status==="making")makingCount++;
     if(status==="done")doneCount++;
     if(status==="cancelled")cancelledCount++;
   });
 
   document.getElementById("newCount").textContent=newCount;
-  document.getElementById("acceptedCount").textContent=acceptedCount;
   document.getElementById("makingCount").textContent=makingCount;
   document.getElementById("doneCount").textContent=doneCount;
 
@@ -2254,7 +2264,6 @@ function statusText(status){
 function statusClass(status){
 
   if(status === "new") return "status-new";
-  if(status === "accepted") return "status-accepted";
   if(status === "making") return "status-making";
   if(status === "done") return "status-done";
   if(status === "cancelled") return "status-cancel";
@@ -2265,7 +2274,6 @@ function statusClass(status){
 function tabName(status){
 
   if(status === "new") return "待接單";
-  if(status === "accepted") return "已接收";
   if(status === "making") return "製作中";
   if(status === "done") return "已完成";
   if(status === "cancelled") return "已取消";
