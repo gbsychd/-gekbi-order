@@ -110,17 +110,6 @@ h2{
   line-height:1.7
 }
 
-.back{
-  display:block;
-  text-decoration:none;
-  text-align:center;
-  background:#111;
-  color:#fff;
-  border-radius:10px;
-  padding:13px;
-  font-weight:800
-}
-
 .keep{
   text-align:center;
   color:#888;
@@ -190,18 +179,15 @@ h2{
     <h2>訂單內容</h2>
 
     <div id="items">
+
       <div class="empty">
         訂單內容載入中…
       </div>
+
     </div>
 
   </div>
 
-
-  <!-- 已修正：返回真正的前台 index.html -->
-  <a class="back" href="index.html">
-    返回點餐頁面
-  </a>
 
   <div class="keep">
     訂單資訊保留 1 小時，重新整理或關閉後仍可查看。
@@ -218,7 +204,7 @@ const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
 
 const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
 
-const supabaseClient=
+const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
@@ -227,9 +213,9 @@ const supabaseClient=
 
 function esc(v){
 
-  return String(v??'').replace(
+  return String(v ?? '').replace(
     /[&<>"]/g,
-    m=>({
+    m => ({
       '&':'&amp;',
       '<':'&lt;',
       '>':'&gt;',
@@ -244,29 +230,26 @@ function getActive(){
 
   try{
 
-    const o=
+    const o =
       JSON.parse(
         localStorage.getItem(
           'gekbi_customer_active_order_v1'
-        )||'null'
+        ) || 'null'
       );
 
     if(!o || !o.orderId){
       return null;
     }
 
-    const createdTime=
+    const createdTime =
       Number(
         o.createdAt ||
         o.savedAt ||
         0
       );
 
-    /*
-      訂單最多保留 1 小時
-    */
     if(
-      Date.now()-createdTime >
+      Date.now() - createdTime >
       3600000
     ){
 
@@ -290,17 +273,13 @@ function getActive(){
 
 function emptyPage(text){
 
-  document.getElementById('page').innerHTML=
+  document.getElementById('page').innerHTML =
 
-    '<div class="card">'+
+    '<div class="card">' +
 
-      '<div class="empty">'+
-        esc(text)+
-      '</div>'+
-
-      '<a class="back" href="index.html">'+
-        '回到點餐頁面'+
-      '</a>'+
+      '<div class="empty">' +
+        esc(text) +
+      '</div>' +
 
     '</div>';
 
@@ -309,7 +288,7 @@ function emptyPage(text){
 
 async function loadOrder(){
 
-  const active=getActive();
+  const active = getActive();
 
   if(!active){
 
@@ -324,7 +303,7 @@ async function loadOrder(){
   const {
     data,
     error
-  }=
+  } =
     await supabaseClient.rpc(
       'get_customer_order_status',
       {
@@ -343,20 +322,17 @@ async function loadOrder(){
   }
 
 
-  const o=
+  const o =
     Array.isArray(data)
       ? data[0]
       : data;
 
 
-  /*
-    訂單編號
-  */
   document.getElementById(
     'orderNo'
-  ).textContent=
+  ).textContent =
 
-    '#'+
+    '#' +
     esc(
       o.order_number ||
       o.order_no ||
@@ -364,12 +340,9 @@ async function loadOrder(){
     );
 
 
-  /*
-    預計取餐
-  */
   document.getElementById(
     'pickup'
-  ).textContent=
+  ).textContent =
 
     esc(
       o.pickup_time ||
@@ -378,14 +351,11 @@ async function loadOrder(){
     );
 
 
-  /*
-    訂單金額
-  */
   document.getElementById(
     'total'
-  ).textContent=
+  ).textContent =
 
-    '$'+
+    '$' +
     Number(
       o.total ??
       active.total ??
@@ -393,12 +363,9 @@ async function loadOrder(){
     ).toLocaleString();
 
 
-  /*
-    訂單狀態
-  */
   document.getElementById(
     'status'
-  ).textContent=
+  ).textContent =
 
     esc(
       o.status ||
@@ -406,25 +373,22 @@ async function loadOrder(){
     );
 
 
-  /*
-    訂單品項
-  */
-  let items=
+  let items =
     o.items ||
     o.order_items ||
     [];
 
 
-  if(typeof items==='string'){
+  if(typeof items === 'string'){
 
     try{
 
-      items=
+      items =
         JSON.parse(items);
 
     }catch(e){
 
-      items=[];
+      items = [];
 
     }
 
@@ -433,76 +397,93 @@ async function loadOrder(){
 
   document.getElementById(
     'items'
-  ).innerHTML=
+  ).innerHTML =
 
     (
       Array.isArray(items)
         ? items
         : []
     )
-    .map(i=>{
+    .map(i => {
 
-      const opts=
+      const opts =
+
         Array.isArray(i.options)
+
           ?
+
             i.options
               .map(
-                x=>
-                  esc(x.name)+
+                x =>
+
+                  esc(x.name) +
+
                   (
-                    Number(x.price)>0
+                    Number(x.price) > 0
+
                       ?
-                        ' +$'+
+
+                        ' +$' +
                         Number(x.price)
+
                       :
+
                         ''
                   )
+
               )
               .join('、')
+
           :
+
             '';
 
 
-      const sub=
+      const sub =
+
         Number(
           i.subtotal ??
           i.item_total ??
           (
-            Number(i.price||0)*
-            Number(i.qty||1)
+            Number(i.price || 0) *
+            Number(i.qty || 1)
           )
         );
 
 
       return (
 
-        '<div class="item">'+
+        '<div class="item">' +
 
-          '<div class="row">'+
+          '<div class="row">' +
 
-            '<span>'+
-              esc(i.name)+
-            '</span>'+
+            '<span>' +
+              esc(i.name) +
+            '</span>' +
 
-            '<span>'+
-              '×'+
-              Number(i.qty||1)+
-              '　$'+
-              sub.toLocaleString()+
-            '</span>'+
+            '<span>' +
+              '×' +
+              Number(i.qty || 1) +
+              '　$' +
+              sub.toLocaleString() +
+            '</span>' +
 
-          '</div>'+
+          '</div>' +
 
           (
             opts
+
               ?
-                '<div class="opt">'+
-                  '細項：'+
-                  opts+
+
+                '<div class="opt">' +
+                  '細項：' +
+                  opts +
                 '</div>'
+
               :
+
                 ''
-          )+
+          ) +
 
         '</div>'
 
@@ -513,22 +494,16 @@ async function loadOrder(){
 
     ||
 
-    '<div class="empty">'+
-      '目前沒有可顯示的品項。'+
+    '<div class="empty">' +
+      '目前沒有可顯示的品項。' +
     '</div>';
 
 }
 
 
-/*
-  第一次載入
-*/
 loadOrder();
 
 
-/*
-  每 5 秒更新一次訂單狀態
-*/
 setInterval(
   loadOrder,
   5000
