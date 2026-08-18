@@ -215,6 +215,9 @@ button{cursor:pointer}
 
 
 <style id="soldout-two-column-v5">
+.soldout-global-actions{display:flex;justify-content:flex-end;margin:10px 0 12px;}
+.soldout-global-restore{border:1px solid #d7d7d7;background:#fff;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;}
+.soldout-global-restore:active{transform:translateY(1px);}
 #soldoutCategories,
 .soldout-category-list{
   display:grid !important;
@@ -828,7 +831,10 @@ button{cursor:pointer}
 
     <section class="soldout-admin admin-feature-section" id="soldoutAdminSection">
       <h2>🚫 餐點完售管理</h2>
-      <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。原本單一品項完售狀態仍保留。</div>
+      <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。相同名稱的品項／細項會連貫處理；特殊連貫另依指定規則處理。</div>
+      <div class="soldout-global-actions">
+        <button class="soldout-global-restore" type="button" onclick="restoreAllSoldOut()">全品項恢復販售</button>
+      </div>
       <div id="soldoutCategories"></div>
       
       <div id="soldoutStatus" class="soldout-status"></div>
@@ -1047,12 +1053,11 @@ function expandSoldOutKeys(keys){
     out.add(key);
     const itemName=getItemNameFromKey(key);
     const detailName=getDetailNameFromKey(key);
-    if(itemName){
-      // 一般同名品項維持同層級連貫，不連帶其他細項。
-      getAllParentKeysByName(itemName).forEach(k=>out.add(k));
-    }else if(detailName){
-      // 一般同名細項維持同層級連貫，不跨到品項。
-      getAllDetailKeysByName(detailName).forEach(k=>out.add(k));
+    // 一般「相同名稱」連貫：不論來源是品項或細項，只要名稱完全相同，
+    // 品項與細項都一起納入；特殊連貫另由 getSpecialLinkedKeys() 控制。
+    const sameName=itemName || detailName;
+    if(sameName){
+      getAllSoldOutKeysByName(sameName).forEach(k=>out.add(k));
     }
     // 特殊名稱連貫僅限「隔壁奶酥」與「隱藏版菜單」。
     getSpecialLinkedKeys(key).forEach(k=>out.add(k));
@@ -1079,7 +1084,7 @@ function getAllDetailKeysByName(detailName){
   const keys=[];
   Object.keys(SOLDOUT_ITEM_DETAILS).forEach(parentKey=>{
     (SOLDOUT_ITEM_DETAILS[parentKey]||[]).forEach(name=>{
-      if(String(name)===String(detailName)) keys.push(soldOutDetailKey(parentKey,name));
+      if(String(name).trim()===String(detailName).trim()) keys.push(soldOutDetailKey(parentKey,name));
     });
   });
   return keys;
@@ -1092,6 +1097,23 @@ function getAllSoldOutKeysByName(name){
   getAllDetailKeysByName(target).forEach(k=>keys.add(k));
   return [...keys];
 }
+function getEffectiveSoldOut(key){
+  if(adminSoldOut[key])return true;
+  const itemName=getItemNameFromKey(key);
+  const detailName=getDetailNameFromKey(key);
+  const sameName=itemName||detailName;
+  if(sameName && getAllSoldOutKeysByName(sameName).some(k=>!!adminSoldOut[k]))return true;
+  // 特殊連貫與「任一奶酥厚片 → 單人獨享餐」的顯示狀態。
+  if(getSpecialLinkedKeys(key).some(k=>!!adminSoldOut[k]))return true;
+  if(key==='hidden-1'){
+    const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
+      ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
+    ).filter(Boolean);
+    if(milkToastKeys.some(k=>!!adminSoldOut[k]))return true;
+  }
+  return false;
+}
+
 function getSpecialLinkedKeys(key){
   const out=new Set();
   const text=String(key||'');
@@ -1189,18 +1211,18 @@ function renderSoldOutAdmin(){
   if(!root)return;
   root.innerHTML=SOLDOUT_MENU_GROUPS.map((group,gi)=>{
     const parentKeys=group[1].map((_,ii)=>soldOutKey(gi,ii));
-    const soldCount=parentKeys.filter(key=>adminSoldOut[key]).length;
+    const soldCount=parentKeys.filter(key=>getEffectiveSoldOut(key)).length;
     const groupDetailTotal=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).length,0);
-    const groupDetailSoldCount=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).filter(d=>adminSoldOut[soldOutDetailKey(key,d)]||adminSoldOut[key]||getAllDetailKeysByName(d).some(k=>!!adminSoldOut[k])).length,0);
+    const groupDetailSoldCount=parentKeys.reduce((sum,key)=>sum+getSoldOutDetails(key).filter(d=>getEffectiveSoldOut(soldOutDetailKey(key,d))).length,0);
 
     const rows=group[1].map((name,ii)=>{
-      const key=soldOutKey(gi,ii), sold=!!adminSoldOut[key], details=getSoldOutDetails(key);
-      const detailSoldCount=details.filter(d=>!!adminSoldOut[soldOutDetailKey(key,d)]).length;
+      const key=soldOutKey(gi,ii), sold=getEffectiveSoldOut(key), details=getSoldOutDetails(key);
+      const detailSoldCount=details.filter(d=>getEffectiveSoldOut(soldOutDetailKey(key,d))).length;
 
       const detailHtml=details.length?`<div class="soldout-detail-list" id="soldout-details-${key}">${details.map(d=>{
         const dKey=soldOutDetailKey(key,d);
         // 細項獨立記錄狀態，讓取消勾選後可單獨恢復供應。
-        const dSold=!!adminSoldOut[dKey];
+        const dSold=getEffectiveSoldOut(dKey);
         return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" data-initial-checked="${dSold?'1':'0'}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
       }).join('')}</div>`:'';
 
@@ -1357,6 +1379,32 @@ async function saveSoldOutCheckboxStates(states){
   }
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
+}
+
+async function restoreAllSoldOut(){
+  soldOutStatusText('正在恢復全部餐點供應…');
+  const {data,error}=await client.from('menu_item_status').select('item_key');
+  if(error){
+    soldOutStatusText('讀取完售狀態失敗：'+error.message);
+    alert('全品項恢復販售失敗：'+error.message);
+    return;
+  }
+  const keys=(data||[]).map(row=>row.item_key).filter(Boolean);
+  if(keys.length){
+    for(let i=0;i<keys.length;i+=500){
+      const batch=keys.slice(i,i+500);
+      const {error:deleteError}=await client.from('menu_item_status').delete().in('item_key',batch);
+      if(deleteError){
+        soldOutStatusText('恢復供應失敗：'+deleteError.message);
+        alert('全品項恢復販售失敗：'+deleteError.message);
+        await loadSoldOutAdmin();
+        return;
+      }
+    }
+  }
+  adminSoldOut={};
+  renderSoldOutAdmin();
+  soldOutStatusText(`已恢復全部餐點販售${keys.length?`（清除 ${keys.length} 筆完售狀態）`:''}`);
 }
 
 function startSoldOutRealtime(){
