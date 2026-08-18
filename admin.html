@@ -975,7 +975,7 @@ async function logout(){
 
 
 const SOLDOUT_MENU_GROUPS = [
-  ["隔壁奶酥", ["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],
+  ["隔壁奶酥", ["經典原味厚奶酥","日式抹茶厚奶酥","可可布朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],
   ["經典吐司", ["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],
   ["美味蛋餅", ["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],
   ["個人特餐-附紅茶", ["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],
@@ -992,6 +992,15 @@ SOLDOUT_MENU_GROUPS.forEach(([category,items])=>{
 
 let adminSoldOut = {};
 let soldOutRealtimeChannel = null;
+const SPECIAL_SOLDOUT_LINKS = {
+  "menu-0-0":"原味",
+  "menu-0-1":"抹茶",
+  "menu-0-2":"可可",
+  "menu-0-3":"花生",
+  "menu-0-4":"芝麻",
+  "menu-0-5":"香蒜"
+};
+
 const SOLDOUT_ITEM_DETAILS = {
   "menu-0-0":["起司","麻糬","酥皮"],
   "menu-0-1":["起司","麻糬","酥皮"],
@@ -1039,12 +1048,14 @@ function expandSoldOutKeys(keys){
     const itemName=getItemNameFromKey(key);
     const detailName=getDetailNameFromKey(key);
     if(itemName){
-      // 品項只同步同名品項本身，不連帶修改任何細項。
+      // 一般同名品項維持同層級連貫，不連帶其他細項。
       getAllParentKeysByName(itemName).forEach(k=>out.add(k));
     }else if(detailName){
-      // 細項只同步同名細項本身，不影響母品項。
+      // 一般同名細項維持同層級連貫，不跨到品項。
       getAllDetailKeysByName(detailName).forEach(k=>out.add(k));
     }
+    // 特殊名稱連貫僅限「隔壁奶酥」與「隱藏版菜單」。
+    getSpecialLinkedKeys(key).forEach(k=>out.add(k));
   });
   return [...out];
 }
@@ -1080,6 +1091,27 @@ function getAllSoldOutKeysByName(name){
   getAllParentKeysByName(target).forEach(k=>keys.add(k));
   getAllDetailKeysByName(target).forEach(k=>keys.add(k));
   return [...keys];
+}
+function getSpecialLinkedKeys(key){
+  const out=new Set();
+  const text=String(key||'');
+  const specialName=SPECIAL_SOLDOUT_LINKS[text];
+  if(specialName){
+    // 只有隔壁奶酥品項與隱藏版菜單中的特殊細項互相連貫。
+    Object.keys(SOLDOUT_ITEM_DETAILS).forEach(parentKey=>{
+      if(!parentKey.startsWith('hidden-'))return;
+      (SOLDOUT_ITEM_DETAILS[parentKey]||[]).forEach(name=>{
+        if(String(name)===specialName) out.add(soldOutDetailKey(parentKey,name));
+      });
+    });
+  }
+  const detailName=getDetailNameFromKey(text);
+  if(detailName){
+    Object.entries(SPECIAL_SOLDOUT_LINKS).forEach(([parentKey,name])=>{
+      if(String(name)===String(detailName)) out.add(parentKey);
+    });
+  }
+  return [...out];
 }
 function normalizeGlobalDetailSoldOut(){
   const names=new Set();
