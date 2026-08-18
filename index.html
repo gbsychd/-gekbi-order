@@ -593,7 +593,57 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 <script>
 const soldOut = {};
 let soldOutLoaded=false;
-function isSoldOut(key){return soldOut[key]===true}
+function getSoldOutNameByKey(key){
+  const k=String(key||'');
+  let m=k.match(/^menu-(\d+)-(\d+)$/);
+  if(m){
+    const gi=Number(m[1]),ii=Number(m[2]);
+    return menus[gi]?.[1]?.[ii]?.[0] ?? null;
+  }
+  m=k.match(/^hidden-(\d+)$/);
+  if(m){
+    return hiddenMenus[Number(m[1])]?.[0] ?? null;
+  }
+  return null;
+}
+function getSameNameSoldOutKeys(name){
+  const target=String(name||'').trim();
+  if(!target)return [];
+  const keys=[];
+  const addDetail=(parentKey,optionName)=>{
+    if(String(optionName||'').trim()===target)keys.push(`${parentKey}::detail::${encodeURIComponent(target)}`);
+  };
+  menus.forEach((menu,gi)=>{
+    (menu[1]||[]).forEach((item,ii)=>{
+      if(String(item?.[0]||'').trim()===target)keys.push(`menu-${gi}-${ii}`);
+    });
+    const parentOptions=menu[2];
+    if(parentOptions){
+      const parentKey=`menu-${gi}`;
+      (parentOptions.options||[]).forEach(o=>addDetail(parentKey+'-detail',o?.[0]));
+      // 前台的細項資料依品項展開，因此與後台的 parentKey::detail::name 格式對齊。
+      (menu[1]||[]).forEach((item,ii)=>{
+        const key=`menu-${gi}-${ii}`;
+        (parentOptions.options||[]).forEach(o=>addDetail(key,o?.[0]));
+        (parentOptions.extraOptions||[]).forEach(o=>addDetail(key,o?.[0]));
+      });
+    }
+  });
+  hiddenMenus.forEach((item,ii)=>{
+    const parentKey=`hidden-${ii}`;
+    if(String(item?.[0]||'').trim()===target)keys.push(parentKey);
+    (item?.[2]||[]).forEach(group=>{
+      (group?.options||[]).forEach(option=>addDetail(parentKey,option?.[0]));
+    });
+  });
+  return [...new Set(keys)];
+}
+function isSoldOut(key){
+  if(soldOut[key]===true)return true;
+  const name=getSoldOutNameByKey(key);
+  if(!name)return false;
+  return getSameNameSoldOutKeys(name).some(k=>soldOut[k]===true);
+}
 async function loadSoldOutStatus(){
   const {data,error}=await supabaseClient.from('menu_item_status').select('item_key,sold_out');
   if(error){console.error('讀取完售狀態失敗：',error);return}
@@ -844,7 +894,9 @@ function isSingleEnjoymentForcedSold(){
   return creamKeys.some(key=>soldOut[key]===true);
 }
 function optionButton(o,single,max,contextKey){
-  const sold=isSpecialCreamSoldOut(contextKey,o[0]);
+  const optionName=String(o[0]||'').trim();
+  const sameNameSold=getSameNameSoldOutKeys(optionName).some(k=>soldOut[k]===true);
+  const sold=isSpecialCreamSoldOut(contextKey,optionName) || sameNameSold;
   return `<button class="option-btn${sold?' sold-out-option':''}" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" ${sold?'disabled aria-disabled="true"':''} ${sold?'':`onclick="toggleOption(this)"`}>${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}${sold?'<span class="option-sold-label">售完</span>':''}</button>`}
 function collapseAllCategories(){
   document.querySelectorAll('.category-items.category-open').forEach(box=>{
