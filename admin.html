@@ -370,6 +370,10 @@ button{cursor:pointer}
 }
 </style>
 
+<style id="menu-editor-category-sync-v18">
+.menu-option-group-v16{background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;padding:8px 9px}
+.menu-option-group-title-v16{display:flex;align-items:center;justify-content:space-between;padding:2px 0 6px;font-size:12px;font-weight:900;color:#444}
+</style>
 
 <style id="menu-soldout-v12">
 .menu-category-badge,.menu-level-label{font-size:10px;font-weight:800;border-radius:5px;padding:3px 6px;background:#eee;color:#666;flex:0 0 auto}
@@ -1608,6 +1612,34 @@ function orderCard(order){
 
 let menuEditorRows=[];
 
+/*
+ * 菜單編輯器固定沿用前台的分類／品項順序。
+ * 不依資料庫的 item_name 排序，因此修改名稱或價格不會改變位置。
+ * 隱藏版菜單也放在前台實際顯示的位置：秘製鍋燒之後、點心炸物之前。
+ */
+const MENU_EDITOR_LAYOUT = [
+  ["隔壁奶酥", ["經典原味厚奶酥","日式抹茶厚奶酥","可可朗尼厚奶酥","香濃花生厚奶酥","經典芝麻厚奶酥","香蒜厚片"]],
+  ["經典吐司", ["起司蛋吐司","火腿蛋吐司","培根蛋吐司","鮪魚蛋吐司","薯餅蛋吐司","豬排蛋吐司","咔啦雞排蛋吐司","熱狗捲","果醬吐司"]],
+  ["美味蛋餅", ["原味蛋餅","起司蛋餅","火腿蛋餅","熱狗蛋餅","培根蛋餅","鮪魚蛋餅","薯餅蛋餅","豬排蛋餅","咔啦雞排蛋餅","可可脆脆蛋餅"]],
+  ["個人特餐-附紅茶", ["豬排黑胡椒麵","豬排蘑菇麵","豬排炒泡麵"]],
+  ["招牌麵食（乾）", ["古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","沙茶炒泡麵","招牌麻辣炒泡麵","香辣炒泡麵","豬排拌拌麵（大）"]],
+  ["秘製鍋燒(湯)", ["原味鍋燒","沙茶鍋燒","麻辣鍋燒","咖哩鍋燒","起司牛奶鍋燒","泰式冬陰鍋燒"]],
+  ["隱藏版菜單", ["豬排大套餐","單人獨享餐","日式炸豬排烏龍麵"]],
+  ["點心炸物", ["荷包蛋","單點豬排","熱狗","薯餅","小肉豆","甜不辣","炸湯圓","薯條","玉米布丁酥","小雞球","麥香雞塊","咔啦雞排（辣）","酥炸杏鮑菇","雙色地瓜QQ球","芋泥球","魷米花","土魠魚塊（炸）","炸元寶","日式炸豬排"]],
+  ["飲品", ["紅茶","麥茶","奶茶","冷泡茶"]]
+];
+const MENU_EDITOR_CATEGORY_BY_KEY = new Map();
+const MENU_EDITOR_ORDER_BY_KEY = new Map();
+MENU_EDITOR_LAYOUT.forEach(([category,items],categoryIndex)=>{
+  items.forEach((name,itemIndex)=>{
+    const key=category==="隱藏版菜單" ? `hidden-${itemIndex}` : `menu-${[
+      "隔壁奶酥","經典吐司","美味蛋餅","個人特餐-附紅茶","招牌麵食（乾）","秘製鍋燒(湯)","點心炸物","飲品"
+    ].indexOf(category)}-${itemIndex}`;
+    MENU_EDITOR_CATEGORY_BY_KEY.set(key,category);
+    MENU_EDITOR_ORDER_BY_KEY.set(key,categoryIndex*1000+itemIndex);
+  });
+});
+const MENU_EDITOR_CATEGORY_ORDER = new Map(MENU_EDITOR_LAYOUT.map((g,i)=>[g[0],i]));
 
 async function loadMenuEditor(){
   const status=document.getElementById("menuEditorStatus");
@@ -1615,12 +1647,11 @@ async function loadMenuEditor(){
 
   let result=await client.from("menu_catalog")
     .select("item_key,item_name,base_price,option_prices,updated_at,category_name,is_active,sort_order")
-    .order("item_name",{ascending:true});
+    .order("sort_order",{ascending:true});
 
-  if(result.error && /category_name|is_active/i.test(result.error.message||"")){
+  if(result.error){
     result=await client.from("menu_catalog")
-      .select("item_key,item_name,base_price,option_prices,updated_at,category_name,sort_order")
-      .order("item_name",{ascending:true});
+      .select("item_key,item_name,base_price,option_prices,updated_at");
   }
 
   if(result.error){
@@ -1628,39 +1659,37 @@ async function loadMenuEditor(){
     return;
   }
 
-  menuEditorRows=(result.data||[]).map(r=>{
+  const rows=(result.data||[]).map(r=>{
+    const key=String(r.item_key||"").trim() || null;
     const itemName=String(r.item_name||"").trim();
-    const knownCategory=MENU_EDITOR_CATEGORY_BY_ITEM[itemName];
-    const dbCategory=String(r.category_name||"").trim();
+    const fixedCategory=key && MENU_EDITOR_CATEGORY_BY_KEY.has(key)
+      ? MENU_EDITOR_CATEGORY_BY_KEY.get(key)
+      : String(r.category_name||"").trim() || "待整理";
 
     return {
-      item_key:String(r.item_key||"").trim() || null,
+      item_key:key,
       item_name:itemName,
       __original_name:itemName,
-      category_name:dbCategory || knownCategory || "待整理",
-      sort_order:Number.isFinite(Number(r.sort_order)) ? Number(r.sort_order) : 9999,
-      base_price:Number(r.base_price||0),
+      category_name:fixedCategory,
+      sort_order:MENU_EDITOR_ORDER_BY_KEY.has(key)
+        ? MENU_EDITOR_ORDER_BY_KEY.get(key)
+        : (Number.isFinite(Number(r.sort_order)) ? Number(r.sort_order) : 999999),
       option_prices:(r.option_prices&&typeof r.option_prices==="object")?r.option_prices:{},
       is_active:r.is_active===false?false:true,
       updated_at:r.updated_at||null
     };
   });
 
-  const categoryOrder=new Map(SOLDOUT_MENU_GROUPS.map((g,i)=>[g[0],i]));
-  menuEditorRows.sort((a,b)=>{
-    const ca=categoryOrder.has(a.category_name)?categoryOrder.get(a.category_name):999;
-    const cb=categoryOrder.has(b.category_name)?categoryOrder.get(b.category_name):999;
-    if(ca!==cb)return ca-cb;
-    const sa=Number.isFinite(Number(a.sort_order))?Number(a.sort_order):9999;
-    const sb=Number.isFinite(Number(b.sort_order))?Number(b.sort_order):9999;
-    if(sa!==sb)return sa-sb;
-    return 0;
+  rows.sort((a,b)=>{
+    const oa=MENU_EDITOR_ORDER_BY_KEY.has(a.item_key)?MENU_EDITOR_ORDER_BY_KEY.get(a.item_key):999999;
+    const ob=MENU_EDITOR_ORDER_BY_KEY.has(b.item_key)?MENU_EDITOR_ORDER_BY_KEY.get(b.item_key):999999;
+    return oa-ob || a.item_name.localeCompare(b.item_name,"zh-Hant");
   });
 
+  menuEditorRows=rows;
   renderMenuEditor();
   if(status)status.textContent=`已載入 ${menuEditorRows.length} 個品項`;
 }
-
 function visibleMenuEditorRows(){
   const q=String(document.getElementById("menuEditorSearch")?.value||"").trim().toLowerCase();
   return menuEditorRows.filter(r=>{
@@ -1677,14 +1706,12 @@ function menuEditorGrouped(){
     groups.get(cat).push({row,index});
   });
 
-  const order=new Map(SOLDOUT_MENU_GROUPS.map((g,i)=>[g[0],i]));
   return new Map([...groups.entries()].sort((a,b)=>{
-    const ia=order.has(a[0])?order.get(a[0]):999;
-    const ib=order.has(b[0])?order.get(b[0]):999;
+    const ia=MENU_EDITOR_CATEGORY_ORDER.has(a[0])?MENU_EDITOR_CATEGORY_ORDER.get(a[0]):999;
+    const ib=MENU_EDITOR_CATEGORY_ORDER.has(b[0])?MENU_EDITOR_CATEGORY_ORDER.get(b[0]):999;
     return ia-ib || a[0].localeCompare(b[0],"zh-Hant");
   }));
 }
-
 function renderMenuEditor(){
   const root=document.getElementById("menuEditorList");
   if(!root)return;
@@ -1774,44 +1801,57 @@ function menuEditorOptionGroupV16(name, category, itemName){
   const c=String(category||"");
   const i=String(itemName||"");
 
-  if(c.includes("鍋燒") || /鍋燒/.test(i)){
-    if(["意麵","雞絲","冬粉","泡麵","烏龍麵"].includes(n))return "麵體";
-    if(["加麵","起司","豆皮"].includes(n))return "加購";
+  if(c==="個人特餐-附紅茶"){
+    if(["奶茶","冷泡茶","紅茶"].includes(n))return "飲品";
+    if(["麻辣","香辣"].includes(n))return "辣度";
+    return "細項";
   }
-
-  return "";
+  if(c==="隔壁奶酥")return "加料";
+  if(c==="經典吐司" && i==="果醬吐司")return "果醬口味";
+  if(c==="美味蛋餅")return "細項";
+  if(c==="秘製鍋燒(湯)"){
+    if(["意麵","雞絲","冬粉","泡麵","烏龍麵"].includes(n))return "麵體";
+    if(["加麵","起司","豆皮"].includes(n))return "加料";
+    if(n==="麻辣")return "口味";
+  }
+  if(c==="飲品")return "飲品";
+  if(c==="隱藏版菜單"){
+    if(["紅茶","奶茶","冷泡茶"].includes(n))return "飲品";
+    if(["原味","可可","抹茶","花生","芝麻","香蒜"].includes(n))return "奶酥";
+    if(["豬排炒泡麵","豬排蘑菇麵","豬排黑胡椒麵","古早味紅蔥雞絲麵","古早味剝椒雞絲麵","招牌炒泡麵","小肉豆"].includes(n))return "主餐／搭配";
+    if(["甜不辣","美國脆薯","小雞球","芋泥球"].includes(n))return "炸物";
+    if(["白醬","蘑菇","黑胡椒"].includes(n))return "口味";
+  }
+  return "細項";
 }
-
 function renderMenuEditorItem(row,index){
   const options=Object.entries(row.option_prices||{});
   const active=row.is_active!==false;
-  const columns = options.length>6
-    ? [options.slice(0,Math.ceil(options.length/2)), options.slice(Math.ceil(options.length/2))]
-    : [options];
 
-  const renderOption=(entry,oi)=>{
-    const [n,p]=entry;
-    return `
-      <div class="menu-option-row-v16">
-        <input id="me-on-${index}-${oi}" value="${escapeHtml(n)}" placeholder="細項名稱">
-        <div class="menu-option-price"><span>NT$</span>
-          <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}" placeholder="加價">
-        </div>
-        <button type="button" class="menu-option-delete" onclick="removeMenuOption(${index},${oi})">刪除</button>
-      </div>`;
-  };
+  const groupsMap=new Map();
+  options.forEach((entry,oi)=>{
+    const group=menuEditorOptionGroupV16(entry[0],row.category_name,row.item_name);
+    if(!groupsMap.has(group))groupsMap.set(group,[]);
+    groupsMap.get(group).push({entry,oi});
+  });
 
-  const renderColumn=(column)=>{
-    let lastGroup=null;
-    return column.map(entry=>{
-      const oi=options.indexOf(entry);
-      const group=menuEditorOptionGroupV16(entry[0],row.category_name,row.item_name);
-      const heading=(group && group!==lastGroup)
-        ? `<div class="menu-option-group-title-v16">${escapeHtml(group)}</div>` : "";
-      lastGroup=group || lastGroup;
-      return heading+renderOption(entry,oi);
-    }).join("");
-  };
+  const blocks=[...groupsMap.entries()].map(([group,entries])=>`
+    <div class="menu-option-group-v16">
+      <div class="menu-option-group-title-v16">${escapeHtml(group)}</div>
+      ${entries.map(({entry,oi})=>{
+        const [n,p]=entry;
+        return `<div class="menu-option-row-v16">
+          <input id="me-on-${index}-${oi}" value="${escapeHtml(n)}" placeholder="細項名稱">
+          <div class="menu-option-price"><span>NT$</span>
+            <input id="me-op-${index}-${oi}" type="number" min="0" step="5" value="${Number(p)||0}" placeholder="加價">
+          </div>
+          <button type="button" class="menu-option-delete" onclick="removeMenuOption(${index},${oi})">刪除</button>
+        </div>`;
+      }).join("")}
+    </div>`);
+
+  const columns=[[],[]];
+  blocks.forEach((block,i)=>columns[i%2].push(block));
 
   return `<div class="menu-edit-card ${active?'':'menu-item-disabled'}">
     <div class="menu-edit-head menu-edit-head-v16-compact">
@@ -1819,7 +1859,6 @@ function renderMenuEditorItem(row,index){
         <span class="menu-item-status ${active?'active':'inactive'}">${active?'供應中':'停用'}</span>
         <span class="menu-level-label">品項</span>
         <input class="menu-top-name-v16" id="me-name-${index}" value="${escapeHtml(row.item_name)}" aria-label="品項名稱">
-        <input type="hidden" id="me-cat-${index}" value="${escapeHtml(row.category_name||'未分類')}">
       </div>
       <div class="menu-top-price-v16">
         <span>價格</span>
@@ -1841,13 +1880,13 @@ function renderMenuEditorItem(row,index){
     </div>
 
     <div class="menu-option-title">
-      <span><span class="menu-level-label">細項</span>／選項</span>
+      <span><span class="menu-level-label">細項／加料／飲品</span></span>
       <span class="menu-option-hint">${options.length} 個</span>
     </div>
 
     <div id="me-options-${index}" class="menu-options-editor-v16">
       ${options.length
-        ? columns.map(column=>`<div class="menu-option-column-v16">${renderColumn(column)}</div>`).join("")
+        ? columns.map(column=>`<div class="menu-option-column-v16">${column.join("")}</div>`).join("")
         : '<div class="menu-empty-option">目前沒有細項</div>'}
     </div>
 
@@ -1857,7 +1896,6 @@ function renderMenuEditorItem(row,index){
     </div>
   </div>`;
 }
-
 async function saveMenuEditorRow(index){
   const rows=visibleMenuEditorRows();
   const row=rows[index];
@@ -1896,37 +1934,18 @@ async function saveMenuEditorRow(index){
     updated_at:updatedAt,
     category_name:row.category_name,
     sort_order:Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : null,
-    item_key:row.item_key || null,
     is_active:!!active
   };
 
   let result;
   if(row.__new){
-    const insertPayload={...payload};
-    if(!insertPayload.item_key)delete insertPayload.item_key;
-    if(insertPayload.sort_order===null)delete insertPayload.sort_order;
-    result=await client.from("menu_catalog").insert(insertPayload);
+    if(row.item_key)payload.item_key=row.item_key;
+    if(payload.sort_order===null)delete payload.sort_order;
+    result=await client.from("menu_catalog").insert(payload);
   }else if(row.item_key){
     result=await client.from("menu_catalog").update(payload).eq("item_key",row.item_key);
   }else{
-    // 舊資料沒有 item_key 時才用原名稱定位一次；儲存後不再依名稱定位。
-    const fallback={
-      item_name:name,
-      base_price:price,
-      option_prices:opts,
-      updated_at:updatedAt,
-      category_name:row.category_name,
-      sort_order:Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : null,
-      is_active:!!active
-    };
-    result=await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
-  }
-
-  // 舊資料表欄位不存在時，保留基本儲存能力；目前資料庫已包含穩定 item_key。
-  if(result.error && /category_name|is_active|sort_order|item_key/i.test(result.error.message||"")){
-    const fallback={item_name:name,base_price:price,option_prices:opts,updated_at:updatedAt};
-    if(row.__new) result=await client.from("menu_catalog").insert(fallback);
-    else result=await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
+    result=await client.from("menu_catalog").update(payload).eq("item_name",row.__original_name);
   }
 
   if(result.error){
