@@ -1114,6 +1114,7 @@ function getSpecialLinkedKeys(key){
   return [...out];
 }
 function normalizeGlobalDetailSoldOut(){
+  // 一般同名品項／細項維持原本的同名連貫。
   const names=new Set();
   Object.keys(adminSoldOut).forEach(key=>{
     if(!adminSoldOut[key])return;
@@ -1124,6 +1125,13 @@ function normalizeGlobalDetailSoldOut(){
   });
   names.forEach(name=>{
     getAllSoldOutKeysByName(name).forEach(key=>adminSoldOut[key]=true);
+  });
+
+  // 特殊連貫：只有「隔壁奶酥」品項 ↔「隱藏版菜單」奶酥細項。
+  // 不把這套規則套到其他大項。
+  Object.keys(adminSoldOut).forEach(key=>{
+    if(!adminSoldOut[key])return;
+    getSpecialLinkedKeys(key).forEach(linkedKey=>adminSoldOut[linkedKey]=true);
   });
 }
 
@@ -1289,15 +1297,9 @@ async function saveSoldOutCheckboxStates(states){
   soldOutStatusText('正在更新完售狀態…');
   const expanded=new Map();
   (states instanceof Map ? states : new Map()).forEach((value,key)=>{
-    const itemName=getItemNameFromKey(key);
-    const detailName=getDetailNameFromKey(key);
-    const name=itemName || detailName;
-    if(name){
-      // 只處理「這次真的有變更」的名稱；同名品項／細項不限制層級，全部同步。
-      getAllSoldOutKeysByName(name).forEach(k=>expanded.set(k,!!value));
-    }else{
-      expanded.set(key,!!value);
-    }
+    // 依照「同名連貫 + 特殊連貫」展開這一次的實際變更。
+    // 特殊連貫只會在隔壁奶酥與隱藏版菜單之間發生。
+    expandSoldOutKeys([key]).forEach(k=>expanded.set(k,!!value));
   });
   const now=new Date().toISOString();
   const trueKeys=[...expanded.entries()].filter(([,value])=>!!value).map(([key])=>key);
