@@ -12,7 +12,11 @@
 
 <style>
 
-*{box-sizing:border-box}
+*{
+
+  box-sizing:border-box
+
+}
 
 body{
 
@@ -122,27 +126,29 @@ h1{
 
 }
 
+/* 餐點製作中：只顯示小動畫 */
+
 .making-animation{
 
   display:none;
 
-  margin-top:14px;
+  margin-top:8px;
 
-  padding:13px 14px;
+  padding:5px 7px;
 
-  border-radius:12px;
+  border-radius:8px;
 
   background:#fff7ed;
 
   color:#b45309;
 
-  font-size:15px;
-
-  font-weight:800;
-
   align-items:center;
 
-  gap:9px
+  justify-content:center;
+
+  gap:5px;
+
+  width:max-content
 
 }
 
@@ -154,7 +160,9 @@ h1{
 
 .making-pan{
 
-  font-size:27px;
+  font-size:20px;
+
+  line-height:1;
 
   display:inline-block;
 
@@ -170,15 +178,15 @@ h1{
 
   align-items:flex-end;
 
-  margin-left:2px
+  margin-left:1px
 
 }
 
 .making-dots i{
 
-  width:5px;
+  width:4px;
 
-  height:5px;
+  height:4px;
 
   background:#b45309;
 
@@ -470,11 +478,11 @@ h2{
 
         </div>
 
+        <!-- 製作中只顯示動畫，不顯示文字 -->
+
         <div id="makingAnimation" class="making-animation">
 
           <span class="making-pan">🍳</span>
-
-          <span>餐點製作中</span>
 
           <span class="making-dots">
 
@@ -884,9 +892,13 @@ function renderOrderItems(items){
 
         item?.options || [];
 
-      /* 如果 options 是文字 JSON */
+      /* options 如果是 JSON 文字 */
 
-      if(typeof options==='string'){
+      if(
+
+        typeof options==='string'
+
+      ){
 
         try{
 
@@ -918,15 +930,19 @@ function renderOrderItems(items){
 
             .map(opt=>{
 
-              /* 舊格式：直接是文字 */
+              /* 文字格式 */
 
-              if(typeof opt==='string'){
+              if(
+
+                typeof opt==='string'
+
+              ){
 
                 return esc(opt);
 
               }
 
-              /* 新格式：物件 */
+              /* 物件格式 */
 
               if(
 
