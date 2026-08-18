@@ -1650,18 +1650,13 @@ async function confirmAndSubmitOrder(){
       createdAt:Date.now()
     });
 
-    // 重要：不再顯示 V24 原本的前台 successMessage。
-    // 確認送出後只顯示獨立訂單狀態頁，原點餐頁保留在原分頁。
-    if(orderStatusWindow && !orderStatusWindow.closed){
-      orderStatusWindow.location.href='order-status-v24.html';
-      try{ orderStatusWindow.focus(); }catch(e){}
-    }
-    return true;
+  
+    window.location.href='order-status-v24.html';
+
+return true;
 
   }catch(error){
-    if(orderStatusWindow && !orderStatusWindow.closed){
-      try{ orderStatusWindow.close(); }catch(e){}
-    }
+
     console.error(error);
     alert(error.message||'訂單送出失敗，請稍後再試。');
     return false;
