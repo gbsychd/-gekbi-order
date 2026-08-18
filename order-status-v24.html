@@ -60,7 +60,7 @@ h2{font-size:17px;margin:0 0 9px}
     <div class="cutlery" id="cutlery"></div>
   </div>
 
-  <a class="back" href="index-v24-order-status-fixed.html">返回點餐頁面</a>
+  <a class="back" href="index1.html">返回點餐頁面</a>
   <div class="keep">本筆訂單資訊保留 1 小時。關閉網頁或重新整理後，只要仍在 1 小時內，訂單狀態仍可查看。</div>
 </div>
 
@@ -142,7 +142,7 @@ function stopTracking(){if(trackingTimer){clearInterval(trackingTimer);trackingT
 function startTracking(){stopTracking();refreshCustomerOrderStatus();trackingTimer=setInterval(refreshCustomerOrderStatus,5000);}
 function showEmpty(message){
   stopTracking();
-  document.getElementById('page').innerHTML='<div class="card"><div class="empty">'+esc(message)+'</div><a class="back" href="index-v24-order-status-fixed.html">回到點餐頁面</a></div>';
+  document.getElementById('page').innerHTML='<div class="card"><div class="empty">'+esc(message)+'</div><a class="back" href="index1.html">回到點餐頁面</a></div>';
 }
 function init(){
   const order=getSavedOrder();
