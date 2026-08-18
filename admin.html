@@ -1017,6 +1017,22 @@ function normalizeGlobalDetailSoldOut(){
   });
 }
 
+async function syncSoldOutMenuNamesFromCatalog(){
+  const {data,error}=await client.from('menu_catalog').select('item_key,item_name');
+  if(error || !Array.isArray(data))return;
+  const byKey=new Map(data.filter(r=>r.item_key).map(r=>[String(r.item_key),String(r.item_name||'').trim()]));
+  SOLDOUT_MENU_GROUPS.forEach((group,gi)=>{
+    group[1].forEach((oldName,ii)=>{
+      const key=soldOutKey(gi,ii);
+      const name=byKey.get(key);
+      if(name)group[1][ii]=name;
+    });
+  });
+  Object.keys(MENU_EDITOR_CATEGORY_BY_ITEM).forEach(k=>delete MENU_EDITOR_CATEGORY_BY_ITEM[k]);
+  SOLDOUT_MENU_GROUPS.forEach(([category,items])=>items.forEach(item=>{MENU_EDITOR_CATEGORY_BY_ITEM[String(item).trim()]=category;}));
+  if(document.getElementById('soldoutCategories'))renderSoldOutAdmin();
+}
+
 async function loadSoldOutAdmin(){
   const {data,error}=await client.from('menu_item_status').select('item_key,sold_out');
   if(error){soldOutStatusText('讀取完售狀態失敗：'+error.message);return}
@@ -1223,6 +1239,7 @@ function showApp(){
   loadOrders();
   startRealtime();
   startAutoRefresh();
+  syncSoldOutMenuNamesFromCatalog();
   loadSoldOutAdmin();
   startSoldOutRealtime();
 }
@@ -1597,12 +1614,12 @@ async function loadMenuEditor(){
   if(status)status.textContent="讀取菜單資料…";
 
   let result=await client.from("menu_catalog")
-    .select("item_name,base_price,option_prices,updated_at,category_name,is_active")
+    .select("item_key,item_name,base_price,option_prices,updated_at,category_name,is_active,sort_order")
     .order("item_name",{ascending:true});
 
   if(result.error && /category_name|is_active/i.test(result.error.message||"")){
     result=await client.from("menu_catalog")
-      .select("item_name,base_price,option_prices,updated_at")
+      .select("item_key,item_name,base_price,option_prices,updated_at,category_name,sort_order")
       .order("item_name",{ascending:true});
   }
 
@@ -1617,9 +1634,11 @@ async function loadMenuEditor(){
     const dbCategory=String(r.category_name||"").trim();
 
     return {
+      item_key:String(r.item_key||"").trim() || null,
       item_name:itemName,
       __original_name:itemName,
-      category_name:knownCategory || dbCategory || "待整理",
+      category_name:dbCategory || knownCategory || "待整理",
+      sort_order:Number.isFinite(Number(r.sort_order)) ? Number(r.sort_order) : 9999,
       base_price:Number(r.base_price||0),
       option_prices:(r.option_prices&&typeof r.option_prices==="object")?r.option_prices:{},
       is_active:r.is_active===false?false:true,
@@ -1632,11 +1651,10 @@ async function loadMenuEditor(){
     const ca=categoryOrder.has(a.category_name)?categoryOrder.get(a.category_name):999;
     const cb=categoryOrder.has(b.category_name)?categoryOrder.get(b.category_name):999;
     if(ca!==cb)return ca-cb;
-
-    const ia=ca<999 ? (SOLDOUT_MENU_GROUPS[ca]?.[1]?.indexOf(a.item_name) ?? -1) : -1;
-    const ib=cb<999 ? (SOLDOUT_MENU_GROUPS[cb]?.[1]?.indexOf(b.item_name) ?? -1) : -1;
-    if(ia!==-1 && ib!==-1)return ia-ib;
-    return a.item_name.localeCompare(b.item_name,"zh-Hant");
+    const sa=Number.isFinite(Number(a.sort_order))?Number(a.sort_order):9999;
+    const sb=Number.isFinite(Number(b.sort_order))?Number(b.sort_order):9999;
+    if(sa!==sb)return sa-sb;
+    return 0;
   });
 
   renderMenuEditor();
@@ -1765,8 +1783,6 @@ function menuEditorOptionGroupV16(name, category, itemName){
 }
 
 function renderMenuEditorItem(row,index){
-  menuEditorNormalizeOptionsV16(row);
-
   const options=Object.entries(row.option_prices||{});
   const active=row.is_active!==false;
   const columns = options.length>6
@@ -1848,7 +1864,6 @@ async function saveMenuEditorRow(index){
   const status=document.getElementById("menuEditorStatus");
   if(!row)return;
 
-  const category=String(document.getElementById(`me-cat-${index}`)?.value||row.category_name||"未分類").trim()||"未分類";
   const name=String(document.getElementById(`me-name-${index}`)?.value||"").trim();
   const price=Math.max(0,Math.round(Number(document.getElementById(`me-price-${index}`)?.value)||0));
   const active=document.getElementById(`me-active-${index}`)?.checked ?? row.is_active ?? true;
@@ -1859,8 +1874,7 @@ async function saveMenuEditorRow(index){
     return;
   }
 
-  // 直接讀取目前這張品項卡片裡的所有細項名稱與價格。
-  // 不重新 render 頁面，避免儲存後手機畫面跳走。
+  // 只讀取目前這張卡片的細項內容；不重新排序、不重新繪製整個菜單。
   const opts={};
   const optionRoot=document.getElementById(`me-options-${index}`);
   const optionRows=optionRoot ? [...optionRoot.querySelectorAll('.menu-option-row-v16')] : [];
@@ -1875,49 +1889,44 @@ async function saveMenuEditorRow(index){
   if(status)status.textContent=`正在儲存「${name}」…`;
 
   const updatedAt=new Date().toISOString();
-  const fullPayload={
-    item_name:name,
-    category_name:category,
-    base_price:price,
-    option_prices:opts,
-    is_active:!!active,
-    updated_at:updatedAt
-  };
-  const basicPayload={
+  const payload={
     item_name:name,
     base_price:price,
     option_prices:opts,
-    updated_at:updatedAt
+    updated_at:updatedAt,
+    category_name:row.category_name,
+    sort_order:Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : null,
+    item_key:row.item_key || null,
+    is_active:!!active
   };
 
   let result;
-
   if(row.__new){
-    result=await client.from("menu_catalog")
-      .insert(fullPayload)
-      .select("item_name,base_price,option_prices,updated_at")
-      .single();
-
-    if(result.error && /category_name|is_active/i.test(result.error.message||"")){
-      result=await client.from("menu_catalog")
-        .insert(basicPayload)
-        .select("item_name,base_price,option_prices,updated_at")
-        .single();
-    }
+    const insertPayload={...payload};
+    if(!insertPayload.item_key)delete insertPayload.item_key;
+    if(insertPayload.sort_order===null)delete insertPayload.sort_order;
+    result=await client.from("menu_catalog").insert(insertPayload);
+  }else if(row.item_key){
+    result=await client.from("menu_catalog").update(payload).eq("item_key",row.item_key);
   }else{
-    result=await client.from("menu_catalog")
-      .update(fullPayload)
-      .eq("item_name",row.__original_name)
-      .select("item_name,base_price,option_prices,updated_at")
-      .single();
+    // 舊資料沒有 item_key 時才用原名稱定位一次；儲存後不再依名稱定位。
+    const fallback={
+      item_name:name,
+      base_price:price,
+      option_prices:opts,
+      updated_at:updatedAt,
+      category_name:row.category_name,
+      sort_order:Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : null,
+      is_active:!!active
+    };
+    result=await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
+  }
 
-    if(result.error && /category_name|is_active/i.test(result.error.message||"")){
-      result=await client.from("menu_catalog")
-        .update(basicPayload)
-        .eq("item_name",row.__original_name)
-        .select("item_name,base_price,option_prices,updated_at")
-        .single();
-    }
+  // 舊資料表欄位不存在時，保留基本儲存能力；目前資料庫已包含穩定 item_key。
+  if(result.error && /category_name|is_active|sort_order|item_key/i.test(result.error.message||"")){
+    const fallback={item_name:name,base_price:price,option_prices:opts,updated_at:updatedAt};
+    if(row.__new) result=await client.from("menu_catalog").insert(fallback);
+    else result=await client.from("menu_catalog").update(fallback).eq("item_name",row.__original_name);
   }
 
   if(result.error){
@@ -1925,27 +1934,30 @@ async function saveMenuEditorRow(index){
     return;
   }
 
-  // 不重新載入整個菜單，直接更新目前記憶中的資料。
-  // 因此儲存後會留在原本正在編輯的位置，不會跳回頁面頂端。
+  // 只更新記憶中的這一筆，不重新 render 整個菜單，因此位置完全不變。
   row.item_name=name;
   row.__original_name=name;
   row.__new=false;
-  row.category_name=category;
   row.base_price=price;
   row.option_prices={...opts};
   row.is_active=!!active;
   row.updated_at=updatedAt;
 
   const card=optionRoot?.closest('.menu-edit-card');
-  const updatedEl=card?.querySelector('.menu-updated');
-  if(updatedEl)updatedEl.textContent=`最後更新：${formatDate(updatedAt)}`;
+  if(card){
+    const updatedEl=card.querySelector('.menu-updated');
+    if(updatedEl)updatedEl.textContent=`最後更新：${formatDate(updatedAt)}`;
+    const statusEl=card.querySelector('.menu-item-status');
+    if(statusEl){statusEl.textContent=active?'供應中':'停用';statusEl.className=`menu-item-status ${active?'active':'inactive'}`;}
+  }
 
-  const titleInput=document.getElementById(`me-name-${index}`);
-  if(titleInput)titleInput.value=name;
+  // 菜單名稱／價格變更後，同步目前後台的完售顯示名稱；不改變任何完售狀態。
+  if(typeof syncSoldOutMenuNamesFromCatalog === 'function'){
+    await syncSoldOutMenuNamesFromCatalog();
+  }
 
   if(status)status.textContent=`「${name}」已儲存`;
 }
-
 function addMenuOption(index){
   const row=visibleMenuEditorRows()[index];
   if(!row)return;
