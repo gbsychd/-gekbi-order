@@ -1190,10 +1190,22 @@ async function saveSoldOutCheckboxStates(states){
     }
   });
   const now=new Date().toISOString();
-  const rows=[...expanded.entries()].map(([key,value])=>({item_key:key,sold_out:!!value,updated_at:now}));
-  const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
-  if(error){soldOutStatusText('更新失敗：'+error.message);alert('完售狀態更新失敗：'+error.message);return}
+  const trueKeys=[...expanded.entries()].filter(([,value])=>!!value).map(([key])=>key);
+  const falseKeys=[...expanded.entries()].filter(([,value])=>!value).map(([key])=>key);
+
+  // 完售直接寫入；取消完售則刪除狀態紀錄，避免舊的 true 紀錄在重新載入時把細項又帶回完售。
+  if(trueKeys.length){
+    const rows=trueKeys.map(key=>({item_key:key,sold_out:true,updated_at:now}));
+    const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
+    if(error){soldOutStatusText('更新失敗：'+error.message);alert('完售狀態更新失敗：'+error.message);return}
+  }
+  if(falseKeys.length){
+    const {error}=await client.from('menu_item_status').delete().in('item_key',falseKeys);
+    if(error){soldOutStatusText('恢復供應失敗：'+error.message);alert('恢復供應失敗：'+error.message);return}
+  }
+
   expanded.forEach((value,key)=>adminSoldOut[key]=!!value);
+  falseKeys.forEach(key=>delete adminSoldOut[key]);
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
 }
