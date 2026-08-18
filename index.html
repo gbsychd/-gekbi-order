@@ -1621,17 +1621,45 @@ async function confirmAndSubmitOrder(){
       }))
     }));
 
-    const {data,error}=await supabaseClient.rpc('create_order_atomic',{
-      p_customer_name:name,
-      p_phone:phone,
-      p_pickup_time:pickup,
-      p_cutlery:cutlery,
-      p_items:items
-    });
+    let data=null;
 
-    if(error) throw new Error(error.message||'訂單送出失敗。');
+let error=null;
 
-    const orderId=Number(data?.id);
+try{
+
+  const result=await supabaseClient.rpc('create_order_atomic',{
+
+    p_customer_name:name,
+
+    p_phone:phone,
+
+    p_pickup_time:pickup,
+
+    p_cutlery:cutlery,
+
+    p_items:items
+
+  });
+
+  data=result.data;
+
+  error=result.error;
+
+}catch(fetchError){
+
+  // 網路層 Failed to fetch：
+
+  // 不重新建立訂單，先確認訂單是否其實已經成功建立。
+
+  console.error('訂單請求發生網路錯誤：',fetchError);
+
+  throw new Error('訂單送出後網路連線中斷，請確認訂單狀態。');
+
+}
+
+if(error) throw new Error(error.message||'訂單送出失敗。');
+
+const orderId=Number(data?.id);
     const serverTotal=Number(data?.total||0);
     if(!orderId) throw new Error('訂單建立成功，但沒有取得訂單編號。');
 
