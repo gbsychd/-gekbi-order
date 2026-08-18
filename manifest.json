@@ -1,0 +1,17 @@
+{
+
+  "name": "隔壁宵夜訂單通知",
+
+  "short_name": "隔壁宵夜通知",
+
+  "start_url": "./push-setup.html",
+
+  "display": "standalone",
+
+  "background_color": "#111111",
+
+  "theme_color": "#111111",
+
+  "orientation": "portrait"
+
+}
