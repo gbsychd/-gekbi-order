@@ -35,7 +35,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .browse-price{font-size:22px;color:#d35400;font-weight:800;margin:-5px 0 14px}.browse-description{padding:12px;background:#f7f7f7;border-radius:10px;color:#777;margin-bottom:14px}.quantity-direct{display:flex;align-items:center;justify-content:space-between;padding:10px 0 14px}.quantity-label{font-weight:800}.quantity-controls{display:flex;align-items:center;gap:14px}.quantity-controls button{width:38px;height:38px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:22px;font-weight:800;cursor:pointer}.quantity-controls span{min-width:24px;text-align:center;font-size:18px;font-weight:800}
 .inline-option-box{background:#fff;border-radius:15px;padding:17px;margin:-3px 0 14px;border:2px solid #eee;box-shadow:0 3px 12px rgba(0,0,0,.08)}
 .option-title{font-size:18px;font-weight:800;margin-bottom:14px}.option-group{margin-bottom:16px}.option-group-title{font-size:16px;font-weight:700;margin-bottom:9px}.option-list{display:flex;flex-wrap:wrap;gap:8px}
-.option-btn{border:1px solid #ddd;background:#fff;color:#222;border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer}.option-btn.selected{background:#111;color:#fff;border-color:#111}.option-price{color:#d35400;font-weight:700}.option-btn.selected .option-price{color:#fff}
+.option-btn{border:1px solid #ddd;background:#fff;color:#222;border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer}.option-btn.selected{background:#111;color:#fff;border-color:#111}.option-price{color:#d35400;font-weight:700}.option-btn.selected .option-price{color:#fff}.option-btn.sold-out-option{background:#f3f3f3;color:#888;border-color:#ddd;cursor:not-allowed;opacity:1}.option-btn.sold-out-option .option-sold-label{display:block;margin-top:3px;font-size:12px;font-weight:800;color:#fff;background:#777;border-radius:5px;padding:2px 5px}.option-btn.sold-out-option .option-price{color:#888}
 .confirm-option,.submit-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:5px}.cancel-option{width:100%;border:1px solid #ddd;background:#fff;color:#555;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
 .hidden-title{margin-top:42px;background:#111;color:#fff;padding:15px;border-radius:14px;font-size:23px;font-weight:800;text-align:center}.hidden-subtitle{text-align:center;color:#777;font-size:14px;margin:8px 0 15px}
 .cart{margin-top:35px}.cart h2{margin:0 0 15px;font-size:25px}.cart-row{padding:14px 0;border-bottom:1px solid #eee}.cart-main{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.cart-name{font-weight:700;font-size:16px;line-height:1.5}.cart-price{font-weight:700;white-space:nowrap}.cart-options{color:#777;font-size:13px;margin-top:5px;line-height:1.6}.cart-controls{margin-top:9px;display:flex;justify-content:flex-end;align-items:center;gap:7px}.cart-controls button{border:0;background:#eee;font-size:15px;padding:7px 10px;border-radius:7px}.total{text-align:right;font-size:23px;font-weight:800;margin:20px 0}
@@ -823,7 +823,29 @@ function clearCustomerCartStorage(){
 let activeMenuCategory='menu-0';
 function escapeQuotes(t){return t.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
 function escapeHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function optionButton(o,single,max){return `<button class="option-btn" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" onclick="toggleOption(this)">${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}</button>`}
+function isSpecialCreamSoldOut(itemKey,name){
+  const key=String(itemKey||'');
+  if(key!=='hidden-0'&&key!=='hidden-1')return false;
+  const specialMap={
+    '原味':'menu-0-0',
+    '抹茶':'menu-0-1',
+    '可可':'menu-0-2',
+    '花生':'menu-0-3',
+    '芝麻':'menu-0-4',
+    '香蒜':'menu-0-5'
+  };
+  const sourceKey=specialMap[String(name||'')];
+  return !!(sourceKey&&soldOut[sourceKey]===true);
+}
+function isSingleEnjoymentForcedSold(){
+  // 只要「隔壁奶酥」六種厚片中有任一品項完售，
+  // 隱藏版的「單人獨享餐」即代表無法提供，整個套餐直接顯示售完。
+  const creamKeys=['menu-0-0','menu-0-1','menu-0-2','menu-0-3','menu-0-4','menu-0-5'];
+  return creamKeys.some(key=>soldOut[key]===true);
+}
+function optionButton(o,single,max,contextKey){
+  const sold=isSpecialCreamSoldOut(contextKey,o[0]);
+  return `<button class="option-btn${sold?' sold-out-option':''}" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" ${sold?'disabled aria-disabled="true"':''} ${sold?'':`onclick="toggleOption(this)"`}>${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}${sold?'<span class="option-sold-label">售完</span>':''}</button>`}
 function collapseAllCategories(){
   document.querySelectorAll('.category-items.category-open').forEach(box=>{
     box.classList.remove('category-open');
@@ -882,7 +904,7 @@ function renderHiddenCategory(){
   hiddenMenus.forEach((it,i)=>{
     const id=`hidden-${i}`;
     if(!catalogIsActive(id))return;
-    const sold=isSoldOut(id);
+    const sold=isSoldOut(id) || (i===1 && isSingleEnjoymentForcedSold());
     const click=sold?"":`onclick="openHiddenOptions(${i},'${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHiddenOptions(${i},'${id}')}"`;
     html+=`<div class="item menu-card ${sold?'sold-out-item':''}" id="${id}" role="button" tabindex="${sold?-1:0}" ${click}>
       <div class="item-info"><div class="item-name">${it[0]}</div><div class="price">$${it[1]}</div></div>
@@ -1183,7 +1205,7 @@ function openHiddenOptions(index,itemId){
         const groupOptions=catalogOptionList(itemId,g.options||[]);
         html+=`<div class="option-group" data-group="${g.fried?'fried':g.cream?'cream':g.main?'main':g.drink?'drink':''}">
           <div class="option-group-title">${g.title}</div>
-          <div class="option-list">${groupOptions.map(o=>optionButton(o,!!g.single,g.max)).join('')}</div>
+          <div class="option-list">${groupOptions.map(o=>optionButton(o,!!g.single,g.max,g.cream?itemId:null)).join('')}</div>
         </div>`;
       });
     }
@@ -1206,7 +1228,7 @@ function openHiddenOptions(index,itemId){
     <div class="option-group" data-group="cream">
       <div class="option-group-title">奶酥(不吃請勿選擇)</div>
       <div class="option-list">
-        ${catalogOptionList(itemId,item[2][1].options).map(o=>optionButton(o,true)).join('')}
+        ${catalogOptionList(itemId,item[2][1].options).map(o=>optionButton(o,true,0,itemId)).join('')}
       </div>
     </div>
     <div class="option-group" data-group="fried">
