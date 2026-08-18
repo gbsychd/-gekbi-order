@@ -1590,10 +1590,6 @@ function closeOrderConfirm(){
 async function confirmAndSubmitOrder(){
   if(window.validateOrderCustomerFields && !window.validateOrderCustomerFields()) return false;
 
-  // 送出流程開始時先開啟獨立訂單狀態分頁，避免成功後被瀏覽器阻擋新分頁。
-  let orderStatusWindow=null;
-  try{ orderStatusWindow=window.open('about:blank','_blank'); }catch(e){}
-
   const submitBtn=document.querySelector('.order-confirm-submit');
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
@@ -1679,7 +1675,24 @@ const orderId=Number(data?.id);
     });
 
   
-    window.location.href='order-status-v24.html';
+    // 訂單成功後直接在目前頁面顯示訂單狀態，不再依賴外部 order-status-v24.html。
+    const success=document.getElementById('successMessage');
+    if(success){
+      const digits=String(phone).replace(/\D/g,'');
+      const idEl=document.getElementById('successOrderId');
+      const pickupEl=document.getElementById('successPickup');
+      const totalEl=document.getElementById('successTotal');
+      const customerEl=document.getElementById('successCustomer');
+      const statusEl=document.getElementById('successStatus');
+      if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+      if(pickupEl) pickupEl.textContent=pickup||'不指定';
+      if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
+      if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
+      if(statusEl) statusEl.textContent='🟡 等待店家接單';
+      success.style.display='block';
+      success.scrollIntoView({behavior:'smooth',block:'start'});
+      if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+    }
 
 return true;
 
@@ -1693,6 +1706,29 @@ return true;
   }
 }
 
+
+function showCustomerOrderSuccess(){
+  const success=document.getElementById('successMessage');
+  if(!success) return;
+
+  const saved=JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');
+  const digits=String(saved.phone||'').replace(/\\D/g,'');
+  const idEl=document.getElementById('successOrderId');
+  const pickupEl=document.getElementById('successPickup');
+  const totalEl=document.getElementById('successTotal');
+  const customerEl=document.getElementById('successCustomer');
+  const statusEl=document.getElementById('successStatus');
+
+  if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+  if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
+  if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
+  if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
+  if(statusEl) statusEl.textContent='🟡 等待店家接單';
+
+  success.style.display='block';
+  success.scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+}
 
 function submitOrder(){
   if(!isOrderingOpen())return;
@@ -1864,6 +1900,18 @@ document.addEventListener('input',function(e){
   });
 })();
 </script>
+
+<div id="successMessage" class="success" style="display:none">
+  <div class="success-title">✅ 訂單已成功送出</div>
+  <div class="success-grid">
+    <div><span>訂單編號</span><strong id="successOrderId">—</strong></div>
+    <div><span>目前狀態</span><strong id="successStatus">🟡 等待店家接單</strong></div>
+    <div><span>取餐時間</span><strong id="successPickup">不指定</strong></div>
+    <div><span>訂單金額</span><strong id="successTotal">$0</strong></div>
+  </div>
+  <div id="successCustomer" class="success-note"></div>
+  <div class="success-note">送出後請等待店家將訂單狀態更新為「餐點已完成」，即可前往取餐。取餐時請告知手機末三碼。</div>
+</div>
 
 <div id="orderConfirmModal" class="order-confirm-modal" style="display:none">
   <div class="order-confirm-dialog">
