@@ -1095,6 +1095,21 @@ function getAllSoldOutKeysByName(name){
 function getSpecialLinkedKeys(key){
   const out=new Set();
   const text=String(key||'');
+
+  // 奶酥特殊連貫：只要「隔壁奶酥」任一厚片完售，
+  // 隱藏版菜單的「單人獨享餐」就必須同步顯示售完。
+  // 這是單向連貫：厚片 → 單人獨享餐，不反向影響厚片。
+  const milkToastNames=new Set([
+    '經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥',
+    '香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'
+  ]);
+  const milkToastKeys=new Set(
+    (SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>milkToastNames.has(String(name).trim()) ? soldOutKey(0,ii) : null).filter(Boolean)
+  );
+  if(milkToastKeys.has(text)){
+    out.add('hidden-1');
+  }
+
   const specialName=SPECIAL_SOLDOUT_LINKS[text];
   if(specialName){
     // 只有隔壁奶酥品項與隱藏版菜單中的特殊細項互相連貫。
@@ -1133,6 +1148,13 @@ function normalizeGlobalDetailSoldOut(){
     if(!adminSoldOut[key])return;
     getSpecialLinkedKeys(key).forEach(linkedKey=>adminSoldOut[linkedKey]=true);
   });
+
+  // 「單人獨享餐」的售完狀態由奶酥厚片供應狀態決定。
+  // 只要六種厚片中任一種完售，就視為奶酥已無法提供完整獨享餐。
+  const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
+    ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
+  ).filter(Boolean);
+  if(milkToastKeys.some(k=>!!adminSoldOut[k])) adminSoldOut['hidden-1']=true;
 }
 
 async function syncSoldOutMenuNamesFromCatalog(){
@@ -1319,6 +1341,20 @@ async function saveSoldOutCheckboxStates(states){
     if(value) adminSoldOut[key]=true;
     else delete adminSoldOut[key];
   });
+
+  // 奶酥厚片全部恢復時，「單人獨享餐」也一併恢復；
+  // 只要仍有任一厚片完售，則維持售完。
+  const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
+    ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
+  ).filter(Boolean);
+  const hiddenMealKey='hidden-1';
+  if(milkToastKeys.some(k=>!!adminSoldOut[k])){
+    adminSoldOut[hiddenMealKey]=true;
+    await client.from('menu_item_status').upsert({item_key:hiddenMealKey,sold_out:true,updated_at:new Date().toISOString()},{onConflict:'item_key'});
+  }else{
+    delete adminSoldOut[hiddenMealKey];
+    await client.from('menu_item_status').delete().eq('item_key',hiddenMealKey);
+  }
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
 }
