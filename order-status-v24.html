@@ -1,159 +1,1369 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>訂單狀態｜隔壁宵夜彰化店</title>
+
 <style>
+
 *{box-sizing:border-box}
-body{margin:0;background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif}
-.wrap{max-width:620px;margin:0 auto;padding:16px 14px 34px}
-.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
-h1{font-size:21px;line-height:1.45;text-align:center;margin:0 0 18px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px 14px}
-.label{font-size:13px;color:#777;margin-bottom:4px}
-.value{font-size:18px;font-weight:800;line-height:1.4}
-.status{font-size:17px;font-weight:800;line-height:1.4}
-.dot{display:inline-block;width:17px;height:17px;border-radius:50%;background:#ffe500;border:1px solid #777;vertical-align:-2px;margin-right:6px}
-.making-animation{display:none;margin-top:14px;padding:13px 14px;border-radius:12px;background:#fff7ed;color:#b45309;font-size:15px;font-weight:800;align-items:center;gap:9px}
-.making-animation.show{display:flex}
-.making-pan{font-size:27px;display:inline-block;animation:panMove 1.2s ease-in-out infinite}
-.making-dots{display:inline-flex;gap:3px;align-items:flex-end;margin-left:2px}
-.making-dots i{width:5px;height:5px;background:#b45309;border-radius:50%;animation:dotBounce 1s infinite ease-in-out}
-.making-dots i:nth-child(2){animation-delay:.15s}
-.making-dots i:nth-child(3){animation-delay:.3s}
-@keyframes panMove{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-3px) rotate(5deg)}}
-@keyframes dotBounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-4px);opacity:1}}
-.notice{margin-top:18px;padding:12px 14px;border-radius:10px;background:#fff4e8;color:#c84f00;font-size:14px;font-weight:700;line-height:1.7}
-h2{font-size:17px;margin:0 0 9px}
-.item{padding:11px 0;border-bottom:1px solid #eee}
-.item:last-child{border-bottom:0}
-.item-main{display:flex;justify-content:space-between;gap:10px;line-height:1.5;font-weight:700}
-.item-options{font-size:13px;color:#777;line-height:1.6;margin-top:3px}
-.total{text-align:right;font-size:20px;font-weight:900;margin-top:12px}
-.cutlery{font-size:13px;color:#666;margin-top:10px}
-.back{display:block;text-align:center;text-decoration:none;background:#111;color:#fff;padding:14px;border-radius:11px;font-weight:800}
-.keep{text-align:center;color:#888;font-size:12px;line-height:1.6;margin-top:9px}
-.empty{text-align:center;color:#777;line-height:1.8;padding:20px 8px}
-.refresh{display:block;width:100%;margin-top:10px;padding:11px;border:0;border-radius:10px;background:#eee;font-weight:700;color:#333}
-@media(max-width:480px){.wrap{padding:12px 10px 28px}.card{padding:17px}.grid{gap:14px 10px}.value{font-size:17px}.status{font-size:16px}.item-main{font-size:14px}}
+
+body{
+
+  margin:0;
+
+  background:#f5f5f5;
+
+  color:#222;
+
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif
+
+}
+
+.wrap{
+
+  max-width:620px;
+
+  margin:0 auto;
+
+  padding:16px 14px 34px
+
+}
+
+.card{
+
+  background:#fff;
+
+  border-radius:16px;
+
+  padding:20px;
+
+  margin-bottom:14px;
+
+  box-shadow:0 2px 12px rgba(0,0,0,.07)
+
+}
+
+h1{
+
+  font-size:21px;
+
+  line-height:1.45;
+
+  text-align:center;
+
+  margin:0 0 18px
+
+}
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:17px 14px
+
+}
+
+.label{
+
+  font-size:13px;
+
+  color:#777;
+
+  margin-bottom:4px
+
+}
+
+.value{
+
+  font-size:18px;
+
+  font-weight:800;
+
+  line-height:1.4
+
+}
+
+.status{
+
+  font-size:17px;
+
+  font-weight:800;
+
+  line-height:1.4
+
+}
+
+.dot{
+
+  display:inline-block;
+
+  width:17px;
+
+  height:17px;
+
+  border-radius:50%;
+
+  background:#ffe500;
+
+  border:1px solid #777;
+
+  vertical-align:-2px;
+
+  margin-right:6px
+
+}
+
+.making-animation{
+
+  display:none;
+
+  margin-top:14px;
+
+  padding:13px 14px;
+
+  border-radius:12px;
+
+  background:#fff7ed;
+
+  color:#b45309;
+
+  font-size:15px;
+
+  font-weight:800;
+
+  align-items:center;
+
+  gap:9px
+
+}
+
+.making-animation.show{
+
+  display:flex
+
+}
+
+.making-pan{
+
+  font-size:27px;
+
+  display:inline-block;
+
+  animation:panMove 1.2s ease-in-out infinite
+
+}
+
+.making-dots{
+
+  display:inline-flex;
+
+  gap:3px;
+
+  align-items:flex-end;
+
+  margin-left:2px
+
+}
+
+.making-dots i{
+
+  width:5px;
+
+  height:5px;
+
+  background:#b45309;
+
+  border-radius:50%;
+
+  animation:dotBounce 1s infinite ease-in-out
+
+}
+
+.making-dots i:nth-child(2){
+
+  animation-delay:.15s
+
+}
+
+.making-dots i:nth-child(3){
+
+  animation-delay:.3s
+
+}
+
+@keyframes panMove{
+
+  0%,100%{
+
+    transform:translateY(0) rotate(-5deg)
+
+  }
+
+  50%{
+
+    transform:translateY(-3px) rotate(5deg)
+
+  }
+
+}
+
+@keyframes dotBounce{
+
+  0%,60%,100%{
+
+    transform:translateY(0);
+
+    opacity:.45
+
+  }
+
+  30%{
+
+    transform:translateY(-4px);
+
+    opacity:1
+
+  }
+
+}
+
+.notice{
+
+  margin-top:18px;
+
+  padding:12px 14px;
+
+  border-radius:10px;
+
+  background:#fff4e8;
+
+  color:#c84f00;
+
+  font-size:14px;
+
+  font-weight:700;
+
+  line-height:1.7
+
+}
+
+h2{
+
+  font-size:17px;
+
+  margin:0 0 9px
+
+}
+
+/* 訂單餐點 */
+
+.item{
+
+  padding:11px 0;
+
+  border-bottom:1px solid #eee
+
+}
+
+.item:last-child{
+
+  border-bottom:0
+
+}
+
+.item-main{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:10px;
+
+  line-height:1.5;
+
+  font-weight:700
+
+}
+
+.item-options{
+
+  font-size:13px;
+
+  color:#777;
+
+  line-height:1.6;
+
+  margin-top:3px
+
+}
+
+.back{
+
+  display:block;
+
+  text-align:center;
+
+  text-decoration:none;
+
+  background:#111;
+
+  color:#fff;
+
+  padding:14px;
+
+  border-radius:11px;
+
+  font-weight:800
+
+}
+
+.keep{
+
+  text-align:center;
+
+  color:#888;
+
+  font-size:12px;
+
+  line-height:1.6;
+
+  margin-top:9px
+
+}
+
+.empty{
+
+  text-align:center;
+
+  color:#777;
+
+  line-height:1.8;
+
+  padding:20px 8px
+
+}
+
+.refresh{
+
+  display:block;
+
+  width:100%;
+
+  margin-top:10px;
+
+  padding:11px;
+
+  border:0;
+
+  border-radius:10px;
+
+  background:#eee;
+
+  font-weight:700;
+
+  color:#333
+
+}
+
+@media(max-width:480px){
+
+  .wrap{
+
+    padding:12px 10px 28px
+
+  }
+
+  .card{
+
+    padding:17px
+
+  }
+
+  .grid{
+
+    gap:14px 10px
+
+  }
+
+  .value{
+
+    font-size:17px
+
+  }
+
+  .status{
+
+    font-size:16px
+
+  }
+
+  .item-main{
+
+    font-size:14px
+
+  }
+
+}
+
 </style>
+
 </head>
+
 <body>
+
 <div class="wrap" id="page">
+
   <div class="card">
-    <h1>隔壁宵夜彰化店<br>訂單狀態</h1>
+
+    <h1>
+
+      隔壁宵夜彰化店<br>
+
+      訂單狀態
+
+    </h1>
+
     <div class="grid">
-      <div><div class="label">訂單編號</div><div class="value" id="orderNo">#—</div></div>
-      <div><div class="label">預計取餐</div><div class="value" id="pickup">不指定</div></div>
-      <div><div class="label">訂單金額</div><div class="value" id="total">$0</div></div>
-      <div><div class="label">目前狀態</div><div class="status"><span class="dot"></span><span id="status">等待店家接單</span></div><div id="makingAnimation" class="making-animation"><span class="making-pan">🍳</span><span>餐點製作中</span><span class="making-dots"><i></i><i></i><i></i></span></div></div>
+
+      <div>
+
+        <div class="label">訂單編號</div>
+
+        <div class="value" id="orderNo">#—</div>
+
+      </div>
+
+      <div>
+
+        <div class="label">預計取餐</div>
+
+        <div class="value" id="pickup">不指定</div>
+
+      </div>
+
+      <div>
+
+        <div class="label">訂單金額</div>
+
+        <div class="value" id="total">$0</div>
+
+      </div>
+
+      <div>
+
+        <div class="label">目前狀態</div>
+
+        <div class="status">
+
+          <span class="dot"></span>
+
+          <span id="status">等待店家接單</span>
+
+        </div>
+
+        <div id="makingAnimation" class="making-animation">
+
+          <span class="making-pan">🍳</span>
+
+          <span>餐點製作中</span>
+
+          <span class="making-dots">
+
+            <i></i>
+
+            <i></i>
+
+            <i></i>
+
+          </span>
+
+        </div>
+
+      </div>
+
     </div>
-    <div class="notice">訂單送出後，請依訂單狀態等待店家處理；顯示「餐點已完成」即可取餐</div>
+
+    <div class="notice">
+
+      訂單送出後，請依訂單狀態等待店家處理；顯示「餐點已完成」即可取餐
+
+    </div>
+
   </div>
+
+  <!-- 訂單內容 -->
 
   <div class="card">
+
     <h2>訂單內容</h2>
-    <div id="customer"></div>
+
     <div id="items"></div>
-    <div class="total">合計：$<span id="sum">0</span></div>
-    <div class="cutlery" id="cutlery"></div>
+
   </div>
 
-  <a class="back" href="index1.html">返回點餐頁面</a>
-  <div class="keep">本筆訂單資訊保留 1 小時。關閉網頁或重新整理後，只要仍在 1 小時內，訂單狀態仍可查看。</div>
+  <a class="back" href="index1.html">
+
+    返回點餐頁面
+
+  </a>
+
+  <div class="keep">
+
+    本筆訂單資訊保留 1 小時。關閉網頁或重新整理後，只要仍在 1 小時內，訂單狀態仍可查看。
+
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+
 const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
+
 const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const supabaseClient=
+
+  window.supabase.createClient(
+
+    SUPABASE_URL,
+
+    SUPABASE_KEY
+
+  );
 
 const STORAGE_KEY='gekbi_customer_active_order_v1';
+
 const KEEP_MS=60*60*1000;
+
 let trackingTimer=null;
 
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+/* HTML 安全處理 */
+
+function esc(v){
+
+  return String(v??'').replace(
+
+    /[&<>"']/g,
+
+    m=>({
+
+      '&':'&amp;',
+
+      '<':'&lt;',
+
+      '>':'&gt;',
+
+      '"':'&quot;',
+
+      "'":'&#39;'
+
+    }[m])
+
+  );
+
+}
+
+/* 取得目前顧客訂單 */
+
 function getSavedOrder(){
+
   try{
-    const raw=localStorage.getItem(STORAGE_KEY);
+
+    const raw=
+
+      localStorage.getItem(STORAGE_KEY);
+
     if(!raw)return null;
-    const data=JSON.parse(raw);
-    if(!data?.orderId||!data?.phone||!data?.createdAt)return null;
-    if(Date.now()-Number(data.createdAt)>=KEEP_MS){localStorage.removeItem(STORAGE_KEY);return null;}
-    return data;
-  }catch(e){localStorage.removeItem(STORAGE_KEY);return null;}
-}
-function statusText(status){
-  const s=String(status||'').trim().toLowerCase();
-  if(['done','完成','已完成'].includes(s))return '餐點已完成';
-  if(['cancelled','canceled','取消','已取消'].includes(s))return '訂單已取消';
-  if(['making','製作中'].includes(s))return '餐點製作中';
-  if(['accepted','已接收','店家已接收'].includes(s))return '店家已接收訂單';
-  return '等待店家接單';
-}
-function setStatusVisual(text){
-  const el=document.getElementById('status');
-  if(el)el.textContent=text;
-  const dot=document.querySelector('.dot');
-  const animation=document.getElementById('makingAnimation');
-  if(dot){
-    const s=String(text||'');
-    dot.style.background=s.includes('完成')?'#48c774':s.includes('取消')?'#ff6b6b':s.includes('製作')?'#ff9d3f':s.includes('接收')?'#4f7cff':'#ffe500';
-  }
-  if(animation)animation.classList.toggle('show',String(text||'').includes('製作'));
-}
-function renderSavedOrder(order){
-  const digits=String(order.phone||'').replace(/\D/g,'');
-  document.getElementById('orderNo').textContent='#'+(digits.slice(-3)||'—');
-  document.getElementById('pickup').textContent=order.pickupTime||'不指定';
-  document.getElementById('total').textContent='$'+Number(order.total||0).toLocaleString();
-  document.getElementById('sum').textContent=Number(order.total||0).toLocaleString();
-  document.getElementById('customer').textContent=`${order.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
-  document.getElementById('cutlery').textContent=order.cutlery?`餐具：${order.cutlery}`:'';
-  setStatusVisual('等待店家接單');
-}
-async function refreshCustomerOrderStatus(){
-  const saved=getSavedOrder();
-  if(!saved){showEmpty('這筆訂單已超過 1 小時保存時間，或目前沒有可查看的訂單。');return false;}
-  try{
-    const {data,error}=await supabaseClient.rpc('get_customer_order_status',{
-      p_order_id:Number(saved.orderId),
-      p_phone:String(saved.phone)
-    });
-    if(error)throw error;
-    if(data?.found){
-      setStatusVisual(statusText(data.status));
-      const pickup=data.pickup_time||saved.pickupTime||'不指定';
-      const total=Number(data.total??saved.total??0);
-      document.getElementById('pickup').textContent=pickup;
-      document.getElementById('total').textContent='$'+total.toLocaleString();
-      document.getElementById('sum').textContent=total.toLocaleString();
-      if(['done','完成','已完成'].includes(String(data.status||'').trim().toLowerCase())||['cancelled','canceled','取消','已取消'].includes(String(data.status||'').trim().toLowerCase())) stopTracking();
+
+    const data=
+
+      JSON.parse(raw);
+
+    if(
+
+      !data?.orderId ||
+
+      !data?.phone ||
+
+      !data?.createdAt
+
+    ){
+
+      return null;
+
     }
-    return true;
+
+    if(
+
+      Date.now()-Number(data.createdAt)
+
+      >=KEEP_MS
+
+    ){
+
+      localStorage.removeItem(
+
+        STORAGE_KEY
+
+      );
+
+      return null;
+
+    }
+
+    return data;
+
   }catch(e){
-    console.warn('顧客訂單狀態更新失敗',e);
-    return false;
+
+    localStorage.removeItem(
+
+      STORAGE_KEY
+
+    );
+
+    return null;
+
   }
+
 }
-function stopTracking(){if(trackingTimer){clearInterval(trackingTimer);trackingTimer=null;}}
-function startTracking(){stopTracking();refreshCustomerOrderStatus();trackingTimer=setInterval(refreshCustomerOrderStatus,5000);}
-function showEmpty(message){
+
+/* 訂單狀態文字 */
+
+function statusText(status){
+
+  const s=
+
+    String(status||'')
+
+      .trim()
+
+      .toLowerCase();
+
+  if(
+
+    ['done','完成','已完成']
+
+      .includes(s)
+
+  ){
+
+    return '餐點已完成';
+
+  }
+
+  if(
+
+    ['cancelled','canceled','取消','已取消']
+
+      .includes(s)
+
+  ){
+
+    return '訂單已取消';
+
+  }
+
+  if(
+
+    ['making','製作中']
+
+      .includes(s)
+
+  ){
+
+    return '餐點製作中';
+
+  }
+
+  if(
+
+    ['accepted','已接收','店家已接收']
+
+      .includes(s)
+
+  ){
+
+    return '店家已接收訂單';
+
+  }
+
+  return '等待店家接單';
+
+}
+
+/* 狀態顏色與製作動畫 */
+
+function setStatusVisual(text){
+
+  const el=
+
+    document.getElementById('status');
+
+  if(el){
+
+    el.textContent=text;
+
+  }
+
+  const dot=
+
+    document.querySelector('.dot');
+
+  const animation=
+
+    document.getElementById(
+
+      'makingAnimation'
+
+    );
+
+  if(dot){
+
+    const s=
+
+      String(text||'');
+
+    dot.style.background=
+
+      s.includes('完成')
+
+        ? '#48c774'
+
+        : s.includes('取消')
+
+        ? '#ff6b6b'
+
+        : s.includes('製作')
+
+        ? '#ff9d3f'
+
+        : s.includes('接收')
+
+        ? '#4f7cff'
+
+        : '#ffe500';
+
+  }
+
+  if(animation){
+
+    animation.classList.toggle(
+
+      'show',
+
+      String(text||'').includes('製作')
+
+    );
+
+  }
+
+}
+
+/* 初始訂單資訊 */
+
+function renderSavedOrder(order){
+
+  const digits=
+
+    String(order.phone||'')
+
+      .replace(/\D/g,'');
+
+  document.getElementById(
+
+    'orderNo'
+
+  ).textContent=
+
+    '#'+(digits.slice(-3)||'—');
+
+  document.getElementById(
+
+    'pickup'
+
+  ).textContent=
+
+    order.pickupTime||'不指定';
+
+  document.getElementById(
+
+    'total'
+
+  ).textContent=
+
+    '$'+Number(
+
+      order.total||0
+
+    ).toLocaleString();
+
+  setStatusVisual(
+
+    '等待店家接單'
+
+  );
+
+}
+
+/* 顯示訂單餐點 */
+
+function renderOrderItems(items){
+
+  const box=
+
+    document.getElementById('items');
+
+  if(!box)return;
+
+  if(
+
+    !Array.isArray(items) ||
+
+    items.length===0
+
+  ){
+
+    box.innerHTML=
+
+      '<div class="empty">目前沒有餐點明細</div>';
+
+    return;
+
+  }
+
+  box.innerHTML=
+
+    items.map(item=>{
+
+      const name=
+
+        esc(
+
+          item?.name ||
+
+          item?.item_name ||
+
+          '未命名餐點'
+
+        );
+
+      const qty=
+
+        Number(
+
+          item?.qty ??
+
+          item?.quantity ??
+
+          0
+
+        );
+
+      const price=
+
+        Number(
+
+          item?.price ??
+
+          0
+
+        );
+
+      let options=
+
+        item?.options || [];
+
+      /* 如果 options 是文字 JSON */
+
+      if(typeof options==='string'){
+
+        try{
+
+          options=
+
+            JSON.parse(options);
+
+        }catch(e){
+
+          options=[];
+
+        }
+
+      }
+
+      let optionText='';
+
+      if(
+
+        Array.isArray(options) &&
+
+        options.length
+
+      ){
+
+        const list=
+
+          options
+
+            .map(opt=>{
+
+              /* 舊格式：直接是文字 */
+
+              if(typeof opt==='string'){
+
+                return esc(opt);
+
+              }
+
+              /* 新格式：物件 */
+
+              if(
+
+                opt &&
+
+                typeof opt==='object'
+
+              ){
+
+                const optionName=
+
+                  opt.name ||
+
+                  opt.label ||
+
+                  opt.title ||
+
+                  opt.option_name ||
+
+                  '';
+
+                const optionPrice=
+
+                  Number(
+
+                    opt.price ??
+
+                    opt.extra ??
+
+                    opt.extraPrice ??
+
+                    0
+
+                  );
+
+                if(
+
+                  optionName &&
+
+                  optionPrice>0
+
+                ){
+
+                  return(
+
+                    `${esc(optionName)} +$${optionPrice.toLocaleString()}`
+
+                  );
+
+                }
+
+                if(optionName){
+
+                  return esc(
+
+                    optionName
+
+                  );
+
+                }
+
+              }
+
+              return '';
+
+            })
+
+            .filter(Boolean);
+
+        if(list.length){
+
+          optionText=
+
+            `<div class="item-options">${list.join('、')}</div>`;
+
+        }
+
+      }
+
+      return `
+
+        <div class="item">
+
+          <div class="item-main">
+
+            <span>
+
+              ${name} × ${qty}
+
+            </span>
+
+            <span>
+
+              $${price.toLocaleString()}
+
+            </span>
+
+          </div>
+
+          ${optionText}
+
+        </div>
+
+      `;
+
+    }).join('');
+
+}
+
+/* 更新顧客訂單狀態 */
+
+async function refreshCustomerOrderStatus(){
+
+  const saved=
+
+    getSavedOrder();
+
+  if(!saved){
+
+    showEmpty(
+
+      '這筆訂單已超過 1 小時保存時間，或目前沒有可查看的訂單。'
+
+    );
+
+    return false;
+
+  }
+
+  try{
+
+    const {
+
+      data,
+
+      error
+
+    }=
+
+      await supabaseClient.rpc(
+
+        'get_customer_order_status',
+
+        {
+
+          p_order_id:Number(
+
+            saved.orderId
+
+          ),
+
+          p_phone:String(
+
+            saved.phone
+
+          )
+
+        }
+
+      );
+
+    if(error)throw error;
+
+    if(data?.found){
+
+      /* 更新狀態 */
+
+      setStatusVisual(
+
+        statusText(data.status)
+
+      );
+
+      /* 更新預計取餐 */
+
+      const pickup=
+
+        data.pickup_time ||
+
+        saved.pickupTime ||
+
+        '不指定';
+
+      document.getElementById(
+
+        'pickup'
+
+      ).textContent=
+
+        pickup;
+
+      /* 更新訂單金額 */
+
+      const total=
+
+        Number(
+
+          data.total ??
+
+          saved.total ??
+
+          0
+
+        );
+
+      document.getElementById(
+
+        'total'
+
+      ).textContent=
+
+        '$'+total.toLocaleString();
+
+      /* 更新餐點內容 */
+
+      renderOrderItems(
+
+        data.items
+
+      );
+
+      /* 完成或取消後停止輪詢 */
+
+      if(
+
+        [
+
+          'done',
+
+          '完成',
+
+          '已完成'
+
+        ].includes(
+
+          String(
+
+            data.status||''
+
+          )
+
+          .trim()
+
+          .toLowerCase()
+
+        )
+
+        ||
+
+        [
+
+          'cancelled',
+
+          'canceled',
+
+          '取消',
+
+          '已取消'
+
+        ].includes(
+
+          String(
+
+            data.status||''
+
+          )
+
+          .trim()
+
+          .toLowerCase()
+
+        )
+
+      ){
+
+        stopTracking();
+
+      }
+
+    }
+
+    return true;
+
+  }catch(e){
+
+    console.warn(
+
+      '顧客訂單狀態更新失敗',
+
+      e
+
+    );
+
+    return false;
+
+  }
+
+}
+
+/* 停止狀態輪詢 */
+
+function stopTracking(){
+
+  if(trackingTimer){
+
+    clearInterval(
+
+      trackingTimer
+
+    );
+
+    trackingTimer=null;
+
+  }
+
+}
+
+/* 開始狀態輪詢 */
+
+function startTracking(){
+
   stopTracking();
-  document.getElementById('page').innerHTML='<div class="card"><div class="empty">'+esc(message)+'</div><a class="back" href="index1.html">回到點餐頁面</a></div>';
+
+  refreshCustomerOrderStatus();
+
+  trackingTimer=
+
+    setInterval(
+
+      refreshCustomerOrderStatus,
+
+      5000
+
+    );
+
 }
+
+/* 沒有訂單 */
+
+function showEmpty(message){
+
+  stopTracking();
+
+  document.getElementById(
+
+    'page'
+
+  ).innerHTML=
+
+    '<div class="card">'+
+
+      '<div class="empty">'+
+
+        esc(message)+
+
+      '</div>'+
+
+      '<a class="back" href="index1.html">'+
+
+        '回到點餐頁面'+
+
+      '</a>'+
+
+    '</div>';
+
+}
+
+/* 初始化 */
+
 function init(){
-  const order=getSavedOrder();
-  if(!order){showEmpty('目前沒有可查看的訂單，或訂單已超過 1 小時保存時間。');return;}
+
+  const order=
+
+    getSavedOrder();
+
+  if(!order){
+
+    showEmpty(
+
+      '目前沒有可查看的訂單，或訂單已超過 1 小時保存時間。'
+
+    );
+
+    return;
+
+  }
+
   renderSavedOrder(order);
+
   startTracking();
+
 }
-window.addEventListener('focus',refreshCustomerOrderStatus);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshCustomerOrderStatus();});
-window.addEventListener('beforeunload',stopTracking);
+
+/* 回到頁面時重新抓取 */
+
+window.addEventListener(
+
+  'focus',
+
+  refreshCustomerOrderStatus
+
+);
+
+/* 切回頁面時重新抓取 */
+
+document.addEventListener(
+
+  'visibilitychange',
+
+  ()=>{
+
+    if(!document.hidden){
+
+      refreshCustomerOrderStatus();
+
+    }
+
+  }
+
+);
+
+/* 離開頁面停止輪詢 */
+
+window.addEventListener(
+
+  'beforeunload',
+
+  stopTracking
+
+);
+
+/* 啟動 */
+
 init();
+
 </script>
+
 </body>
+
 </html>
