@@ -630,6 +630,30 @@ const hiddenMenus=[
 ["日式炸豬排烏龍麵",135,[{title:"口味",single:true,options:[["白醬",0],["蘑菇",0],["黑胡椒",0]]}]]
 ];
 const MENU_IMAGE_BUCKET='menu-images';
+async function applyMenuCatalogOverrides(){
+  try{
+    const {data,error}=await supabaseClient.from('menu_catalog').select('item_key,item_name,base_price');
+    if(error || !Array.isArray(data))return;
+    const byKey=new Map(data.filter(r=>r.item_key).map(r=>[String(r.item_key),r]));
+    menus.forEach((m,mi)=>{
+      m[1].forEach((it,ii)=>{
+        const row=byKey.get(`menu-${mi}-${ii}`);
+        if(!row)return;
+        if(row.item_name)it[0]=String(row.item_name);
+        if(Number.isFinite(Number(row.base_price)))it[1]=Number(row.base_price);
+      });
+    });
+    hiddenMenus.forEach((it,i)=>{
+      const row=byKey.get(`hidden-${i}`);
+      if(!row)return;
+      if(row.item_name)it[0]=String(row.item_name);
+      if(Number.isFinite(Number(row.base_price)))it[1]=Number(row.base_price);
+    });
+  }catch(e){
+    console.warn('讀取後台菜單名稱／價格失敗',e);
+  }
+}
+
 const ADMIN_EMAIL='smile510352@gmail.com';
 // 以下為本店 Foodpanda 平台公開使用的品項照片；店家上傳後會自動覆蓋。
 const platformImageUrls={
@@ -1628,7 +1652,7 @@ async function applyOrderingHours(){
   }
 }
 
-restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();setInterval(()=>{loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
+restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();applyMenuCatalogOverrides().then(()=>renderMenu());setInterval(()=>{loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
 supabaseClient.channel('menu-item-status-public').on('postgres_changes',{event:'*',schema:'public',table:'menu_item_status'},()=>loadSoldOutStatus()).subscribe();
 </script>
 
