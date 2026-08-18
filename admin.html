@@ -768,7 +768,7 @@ button{cursor:pointer}
       <div class="brand">隔壁宵夜彰化店｜店家後台</div>
       <div class="header-tools">
         <button class="header-tool" type="button" onclick="openAdminFeature('soldout')">完售管理</button>
-        <button class="header-tool" type="button" onclick="openAdminFeature('menu')">菜單編輯</button>
+        <button class="header-tool" type="button" style="display:none" aria-hidden="true" tabindex="-1">菜單編輯</button>
         <button class="header-tool" type="button" onclick="openAdminFeature('images')">圖片管理</button>
         <button class="header-tool" type="button" onclick="openClosedDates()">店休</button>
         <button class="header-tool" type="button" onclick="openHistoryCalendar()">歷史訂單</button>
@@ -807,7 +807,7 @@ button{cursor:pointer}
 
 
     
-    <section class="menu-editor admin-feature-section" id="menuEditorSection">
+    <section class="menu-editor admin-feature-section" id="menuEditorSection" style="display:none!important" aria-hidden="true">
       <div class="menu-editor-titlebar">
         <div>
           <h2>📝 菜單編輯</h2>
@@ -1139,12 +1139,12 @@ function renderSoldOutAdmin(){
         const dKey=soldOutDetailKey(key,d);
         // 細項獨立記錄狀態，讓取消勾選後可單獨恢復供應。
         const dSold=!!adminSoldOut[dKey];
-        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
+        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" data-initial-checked="${dSold?'1':'0'}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
       }).join('')}</div>`:'';
 
       return `<div class="soldout-item-wrap">
         <div class="soldout-item-row">
-          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}" ${sold?'checked':''}>
+          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}" data-initial-checked="${sold?'1':'0'}" ${sold?'checked':''}>
           <span class="soldout-item-name">${escapeHtml(name)}</span>
           ${details.length?`<button class="soldout-detail-toggle" type="button" onclick="toggleSoldOutDetails('${key}');event.stopPropagation()">細項 ${detailSoldCount}/${details.length}　▼</button>`:''}
           <span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span>
@@ -1218,13 +1218,16 @@ function getSoldOutGroupCheckboxes(gi){
 function getSelectedSoldOutKeys(){
   return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
 }
-function getSoldOutCheckboxStates(){
-  const states=new Map();
+function getSoldOutCheckboxChanges(){
+  const changes=new Map();
   document.querySelectorAll('.soldout-check').forEach(cb=>{
     const key=cb.dataset.key;
-    if(key) states.set(key,!!cb.checked);
+    if(!key)return;
+    const current=!!cb.checked;
+    const initial=cb.dataset.initialChecked==='1';
+    if(current!==initial) changes.set(key,current);
   });
-  return states;
+  return changes;
 }
 function setSelectedSoldOut(value){
   const selected=getSelectedSoldOutKeys();
@@ -1241,10 +1244,10 @@ function setSelectedSoldOut(value){
   }
 }
 async function confirmSoldOutChanges(skipConfirm=false){
-  const states=getSoldOutCheckboxStates();
-  if(!states.size){alert('目前沒有可確認的完售項目。');return}
+  const changes=getSoldOutCheckboxChanges();
+  if(!changes.size){soldOutStatusText('沒有新的完售／恢復供應變更。');return}
   if(!skipConfirm && !confirm('確定要儲存目前勾選的完售狀態嗎？'))return;
-  await saveSoldOutCheckboxStates(states);
+  await saveSoldOutCheckboxStates(changes);
 }
 async function saveSoldOutKeys(keys,value){
   const states=new Map((keys||[]).map(key=>[key,!!value]));
@@ -1258,7 +1261,7 @@ async function saveSoldOutCheckboxStates(states){
     const detailName=getDetailNameFromKey(key);
     const name=itemName || detailName;
     if(name){
-      // 不限制層級：品項或細項只要名稱相同，就全部同步；但品項不會連帶其他不同名稱細項。
+      // 只處理「這次真的有變更」的名稱；同名品項／細項不限制層級，全部同步。
       getAllSoldOutKeysByName(name).forEach(k=>expanded.set(k,!!value));
     }else{
       expanded.set(key,!!value);
@@ -1268,7 +1271,6 @@ async function saveSoldOutCheckboxStates(states){
   const trueKeys=[...expanded.entries()].filter(([,value])=>!!value).map(([key])=>key);
   const falseKeys=[...expanded.entries()].filter(([,value])=>!value).map(([key])=>key);
 
-  // 完售直接寫入；取消完售則刪除狀態紀錄，避免舊的 true 紀錄在重新載入時把細項又帶回完售。
   if(trueKeys.length){
     const rows=trueKeys.map(key=>({item_key:key,sold_out:true,updated_at:now}));
     const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
@@ -1279,8 +1281,10 @@ async function saveSoldOutCheckboxStates(states){
     if(error){soldOutStatusText('恢復供應失敗：'+error.message);alert('恢復供應失敗：'+error.message);return}
   }
 
-  expanded.forEach((value,key)=>adminSoldOut[key]=!!value);
-  falseKeys.forEach(key=>delete adminSoldOut[key]);
+  expanded.forEach((value,key)=>{
+    if(value) adminSoldOut[key]=true;
+    else delete adminSoldOut[key];
+  });
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
 }
@@ -1354,6 +1358,8 @@ function openAdminFeature(feature){
   });
 
   if(orders) orders.style.display="none";
+
+  if(feature==="menu")return;
 
   const target =
     feature==="menu" ? document.getElementById("menuEditorSection") :
