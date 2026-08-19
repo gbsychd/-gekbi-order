@@ -840,6 +840,7 @@ button{cursor:pointer}
 
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
+      <button class="tab" type="button" data-status="accepted" onclick="setOrderTab('accepted')">已接單</button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
