@@ -781,6 +781,20 @@ button{cursor:pointer}
   .menu-v20-save{margin-left:0;flex-basis:100%}
 }
 </style>
+
+<style id="ordering-hours-admin-style">
+.ordering-hours-card{max-width:620px}
+.ordering-hours-list{display:grid;gap:10px;margin-top:14px}
+.ordering-hours-row{display:grid;grid-template-columns:72px 76px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
+.ordering-hours-row .day{font-weight:900}
+.ordering-hours-row input[type="time"]{width:100%;box-sizing:border-box;min-height:40px;padding:6px 8px;border:1px solid #d1d5db;border-radius:8px;background:#fff}
+.ordering-hours-row .closed-label{font-size:13px;color:#777}
+@media(max-width:560px){
+  .ordering-hours-row{grid-template-columns:64px 70px 1fr 1fr;gap:7px;padding:8px}
+  .ordering-hours-row input[type="time"]{font-size:14px}
+}
+</style>
+
 </head>
 
 <body>
@@ -814,6 +828,7 @@ button{cursor:pointer}
         <button class="header-tool" type="button" onclick="openAdminFeature('soldout')">完售管理</button>
         <button class="header-tool" type="button" style="display:none" aria-hidden="true" tabindex="-1">菜單編輯</button>
         <button class="header-tool" type="button" onclick="openAdminFeature('images')">圖片管理</button>
+        <button class="header-tool" type="button" onclick="openOrderingHours()">點餐時間</button>
         <button class="header-tool" type="button" onclick="openClosedDates()">店休</button>
         <button class="header-tool" type="button" onclick="openHistoryCalendar()">歷史訂單</button>
         <button class="logout" onclick="logout()">登出</button>
@@ -840,7 +855,6 @@ button{cursor:pointer}
 
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
-      <button class="tab" data-status="accepted" onclick="setTab('accepted',this)">已接單</button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
@@ -922,6 +936,23 @@ button{cursor:pointer}
         <div class="modal-actions">
           <button type="button" class="secondary" onclick="closeAdminModal('closedDatesModal')">取消</button>
           <button type="button" class="primary" onclick="saveClosedDates()">儲存店休</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="orderingHoursModal" class="admin-modal hidden" aria-hidden="true">
+      <div class="admin-modal-card ordering-hours-card">
+        <div class="admin-modal-head">
+          <h2>🕐 點餐時間</h2>
+          <button class="modal-close" type="button" onclick="closeAdminModal('orderingHoursModal')">×</button>
+        </div>
+        <div class="modal-note">以星期為單位設定線上點餐時間。關閉某一天後，前台該日將不接受線上點餐；時間跨日（例如 18:00 ～ 01:10）會自動視為隔日結束。</div>
+        <div id="orderingHoursList" class="ordering-hours-list"></div>
+        <div id="orderingHoursStatus" class="modal-status"></div>
+        <div class="modal-actions">
+          <button type="button" class="secondary" onclick="closeAdminModal('orderingHoursModal')">取消</button>
+          <button type="button" class="primary" onclick="saveOrderingHours()">儲存點餐時間</button>
         </div>
       </div>
     </div>
@@ -2478,6 +2509,72 @@ async function saveClosedDates(){
   status.textContent=`✓ 店休已完成儲存，共 ${closedDatesDraft.size} 天；已選日期不會自動移除。`;
 }
 
+
+const ORDERING_WEEKDAYS = ["週一","週二","週三","週四","週五","週六","週日"];
+let orderingHoursDraft = [];
+
+async function openOrderingHours(){
+  openModal("orderingHoursModal");
+  const box=document.getElementById("orderingHoursList");
+  const status=document.getElementById("orderingHoursStatus");
+  box.innerHTML='<div class="empty">讀取中…</div>';
+  status.textContent="";
+  const {data,error}=await client.from("ordering_hours").select("day_of_week,enabled,start_time,end_time").order("day_of_week");
+  if(error){
+    box.innerHTML='<div class="empty">讀取失敗<br><small>'+escapeHtml(error.message)+'</small></div>';
+    return;
+  }
+  const map=new Map((data||[]).map(r=>[Number(r.day_of_week),r]));
+  orderingHoursDraft=ORDERING_WEEKDAYS.map((name,i)=>{
+    const r=map.get(i+1)||{day_of_week:i+1,enabled:true,start_time:"18:00:00",end_time:"01:10:00"};
+    return {
+      day_of_week:i+1,
+      enabled:Boolean(r.enabled),
+      start_time:String(r.start_time||"18:00:00").slice(0,5),
+      end_time:String(r.end_time||"01:10:00").slice(0,5)
+    };
+  });
+  renderOrderingHours();
+}
+
+function renderOrderingHours(){
+  const box=document.getElementById("orderingHoursList");
+  if(!box)return;
+  box.innerHTML=orderingHoursDraft.map((r,i)=>`
+    <div class="ordering-hours-row">
+      <div class="day">${ORDERING_WEEKDAYS[i]}</div>
+      <label><input type="checkbox" ${r.enabled?'checked':''} onchange="orderingHoursDraft[${i}].enabled=this.checked"> 開放</label>
+      <input type="time" value="${r.start_time}" onchange="orderingHoursDraft[${i}].start_time=this.value">
+      <input type="time" value="${r.end_time}" onchange="orderingHoursDraft[${i}].end_time=this.value">
+    </div>
+  `).join("");
+}
+
+async function saveOrderingHours(){
+  const status=document.getElementById("orderingHoursStatus");
+  for(const r of orderingHoursDraft){
+    if(!/^\d{2}:\d{2}$/.test(r.start_time)||!/^\d{2}:\d{2}$/.test(r.end_time)){
+      status.textContent="請確認所有時間格式。";
+      return;
+    }
+  }
+  status.textContent="儲存中…";
+  const rows=orderingHoursDraft.map(r=>({
+    day_of_week:r.day_of_week,
+    enabled:r.enabled,
+    start_time:r.start_time+":00",
+    end_time:r.end_time+":00",
+    updated_at:new Date().toISOString()
+  }));
+  const {error}=await client.from("ordering_hours").upsert(rows,{onConflict:"day_of_week"});
+  if(error){
+    status.textContent="儲存失敗："+error.message;
+    return;
+  }
+  status.classList.add("closed-date-status-ok");
+  status.textContent="✓ 點餐時間已儲存，前台會自動套用。";
+}
+
 function getTaipeiDateKey(date){
   const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);
   const map={};parts.forEach(p=>map[p.type]=p.value);
@@ -2640,7 +2737,6 @@ function statusText(status){
 function statusClass(status){
 
   if(status === "new") return "status-new";
-  if(status === "accepted") return "status-accepted";
   if(status === "making") return "status-making";
   if(status === "done") return "status-done";
   if(status === "cancelled") return "status-cancel";
@@ -2651,7 +2747,6 @@ function statusClass(status){
 function tabName(status){
 
   if(status === "new") return "待接單";
-  if(status === "accepted") return "已接單";
   if(status === "making") return "製作中";
   if(status === "done") return "已完成";
   if(status === "cancelled") return "已取消";
