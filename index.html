@@ -1655,8 +1655,9 @@ try{
 
 if(error) throw new Error(error.message||'訂單送出失敗。');
 
-const orderId=Number(data?.id);
-    const serverTotal=Number(data?.total||0);
+const orderRow=Array.isArray(data)?data[0]:data;
+const orderId=Number(orderRow?.id);
+    const serverTotal=Number(orderRow?.total||0);
     if(!orderId) throw new Error('訂單建立成功，但沒有取得訂單編號。');
 
     closeOrderConfirm();
@@ -1684,7 +1685,7 @@ const orderId=Number(data?.id);
       const totalEl=document.getElementById('successTotal');
       const customerEl=document.getElementById('successCustomer');
       const statusEl=document.getElementById('successStatus');
-      if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+      if(idEl) idEl.textContent=`#${orderId}`;
       if(pickupEl) pickupEl.textContent=pickup||'不指定';
       if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
       if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
@@ -1719,7 +1720,7 @@ function showCustomerOrderSuccess(){
   const customerEl=document.getElementById('successCustomer');
   const statusEl=document.getElementById('successStatus');
 
-  if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+  if(idEl) idEl.textContent=`#${saved.orderId}`;
   if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
   if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
   if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
@@ -2121,7 +2122,7 @@ document.addEventListener('input',function(e){
     if(!success) return;
 
     const digits=String(saved.phone).replace(/\D/g,'');
-    if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+    if(idEl) idEl.textContent=`#${saved.orderId}`;
     if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
     if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
     if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
