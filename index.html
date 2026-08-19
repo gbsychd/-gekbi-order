@@ -717,6 +717,39 @@ body.customer-order-status-mode #successMessage .success-title{
   line-height:1.4 !important;
 }
 
+
+/* ===== 訂單狀態頁 2.0：高質感進度版面（僅顯示層） ===== */
+body.customer-order-status-mode #successMessage{max-width:680px!important;padding:26px 18px 22px!important}
+body.customer-order-status-mode .order-status-hero{display:block;position:relative;z-index:2;text-align:center;margin-bottom:22px}
+body.customer-order-status-mode .order-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 18px;border:1px solid rgba(255,177,59,.38);border-radius:999px;background:rgba(255,160,24,.08);color:#ffb23e;font-size:18px;font-weight:900;box-shadow:0 0 24px rgba(255,160,24,.08)}
+body.customer-order-status-mode .order-status-subtitle{margin-top:9px;color:#aeb4b7;font-size:15px;line-height:1.6}
+body.customer-order-status-mode .order-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:start;margin:8px 0 18px;padding:0 3px}
+body.customer-order-status-mode .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
+body.customer-order-status-mode .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
+body.customer-order-status-mode .status-step.done:not(:last-child)::after{background:linear-gradient(90deg,#ffb23e,#ff9c18)}
+body.customer-order-status-mode .status-step.active{color:#ffb23e}
+body.customer-order-status-mode .status-step.done{color:#d9dde0}
+body.customer-order-status-mode .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
+body.customer-order-status-mode .status-step.done .status-icon{background:#ffad2f;border-color:#ffbf5d;color:#16191a;box-shadow:0 0 22px rgba(255,169,42,.28)}
+body.customer-order-status-mode .status-step.active .status-icon{background:#ffad2f;border-color:#ffd18a;color:#17191a;box-shadow:0 0 30px rgba(255,169,42,.48);animation:statusActivePulse 1.8s infinite ease-in-out}
+@keyframes statusActivePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+body.customer-order-status-mode .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
+body.customer-order-status-mode .status-step.active small{color:#ffb23e}
+body.customer-order-status-mode .status-countdown{position:relative;z-index:2;margin:0 0 14px;padding:14px 14px;border:1px solid rgba(255,255,255,.055);border-radius:15px;background:linear-gradient(145deg,#1b2023,#15191b);text-align:center;color:#b7bdc0;font-size:13px;line-height:1.55}
+body.customer-order-status-mode .status-countdown strong{display:block;margin-top:2px;color:#ffb23e;font-size:25px;letter-spacing:.04em}
+body.customer-order-status-mode .status-countdown.reserved{border-color:rgba(255,177,59,.25);background:linear-gradient(145deg,rgba(255,160,24,.08),#15191b)}
+body.customer-order-status-mode .status-countdown.reserved strong{font-size:21px}
+body.customer-order-status-mode .order-status-details{position:relative;z-index:2;margin-top:10px;padding:16px;border-radius:15px;border:1px solid rgba(255,255,255,.045);background:linear-gradient(145deg,#1a1f22,#14181a)}
+body.customer-order-status-mode .order-status-detail-row{display:flex;justify-content:space-between;gap:15px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:14px}
+body.customer-order-status-mode .order-status-detail-row:last-child{border-bottom:0}
+body.customer-order-status-mode .order-status-detail-row span{color:#8e969b}.order-status-detail-row strong{color:#f3f5f6;text-align:right}
+body.customer-order-status-mode .order-items-card{position:relative;z-index:2;margin-top:14px;padding:16px;border-radius:15px;border:1px solid rgba(255,255,255,.055);background:linear-gradient(145deg,#191e21,#131719)}
+body.customer-order-status-mode .order-items-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;color:#f4f5f5;font-size:17px;font-weight:900}
+body.customer-order-status-mode .order-item-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+body.customer-order-status-mode .order-item-row:last-child{border-bottom:0;padding-bottom:2px}
+body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;font-weight:800;line-height:1.45}.order-item-options{margin-top:3px;color:#8f979b;font-size:12px;line-height:1.5}.order-item-qty{color:#b8bec1;font-size:13px}.order-item-price{color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
+@media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
+
 </style>
 
 <style id="store-holiday-v21">
@@ -1932,17 +1965,20 @@ const orderId=Number(data?.id);
     renderCart();
 
     // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
+    const createdAt=Date.now();
     saveCustomerActiveOrder({
       orderId,
       phone,
       customerName:name,
       pickupTime:pickup,
       total:serverTotal,
-      createdAt:Date.now()
+      items,
+      createdAt,
+      expiresAt:window.getOrderExpiryAt(pickup,createdAt)
     });
 
   
-    // 訂單成功後直接在目前頁面顯示訂單狀態，不再依賴外部 order-status-v24.html。
+    // 訂單成功後直接在目前頁面顯示訂單狀態。
     const success=document.getElementById('successMessage');
     if(success){
       const digits=String(phone).replace(/\D/g,'');
@@ -1956,6 +1992,9 @@ const orderId=Number(data?.id);
       if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
       if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
       if(statusEl) statusEl.textContent='🟡 等待店家接單';
+      const sentTime=document.getElementById('statusSentTime');
+      if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
+      renderOrderItems(items);
       enterCustomerOrderStatusMode();
       if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
     }
@@ -2184,7 +2223,17 @@ document.addEventListener('input',function(e){
 </script>
 
 <div id="successMessage" class="success" style="display:none">
-  <div class="success-title">✅ 訂單已成功送出</div>
+  <div class="order-status-hero">
+    <div class="success-title">✅ 訂單已成功送出</div>
+    <div id="orderStatusBadge" class="order-status-badge">🟡 等待店家接單</div>
+    <div class="order-status-subtitle">訂單狀態會自動更新，請放心等待。</div>
+  </div>
+  <div id="orderStatusTimeline" class="order-status-timeline" aria-label="訂單進度">
+    <div class="status-step active" data-step="sent"><div class="status-icon">📄</div><div>訂單送出</div><small id="statusSentTime">—</small></div>
+    <div class="status-step" data-step="accepted"><div class="status-icon">🏪</div><div>店家已接單</div><small id="statusAcceptedTime">等待中</small></div>
+    <div class="status-step" data-step="making"><div class="status-icon">🍳</div><div>餐點製作中</div><small>約 3 分鐘後</small></div>
+  </div>
+  <div id="statusCountdown" class="status-countdown" style="display:none"></div>
   <div class="success-grid">
     <div><span>訂單編號</span><strong id="successOrderId">—</strong></div>
     <div><span>目前狀態</span><strong id="successStatus">🟡 等待店家接單</strong></div>
@@ -2197,6 +2246,10 @@ document.addEventListener('input',function(e){
     <strong>餐點製作中</strong>
   </div>
   <div id="customerStatusNote" class="success-note">送出後請等待店家接單。取餐時請告知手機末三碼。</div>
+  <div id="orderItemsCard" class="order-items-card" style="display:none">
+    <div class="order-items-title">▣ 訂單內容</div>
+    <div id="orderItemsList"></div>
+  </div>
 </div>
 
 <div id="orderConfirmModal" class="order-confirm-modal" style="display:none">
@@ -2301,7 +2354,8 @@ document.addEventListener('input',function(e){
 </script>
 
 <script>
-/* 顧客端訂單資訊保留 1 小時；重新整理／重新進入網站可找回目前訂單。 */
+/* 顧客端訂單保存：不指定時間 1 小時；指定取餐時間保存至「取餐時間＋1 小時」。 */
+
 (function(){
   const STORAGE_KEY='gekbi_customer_active_order_v1';
   const KEEP_MS=60*60*1000;
@@ -2313,7 +2367,9 @@ document.addEventListener('input',function(e){
       if(!raw) return null;
       const data=JSON.parse(raw);
       if(!data?.orderId || !data?.phone || !data?.createdAt) return null;
-      if(Date.now()-Number(data.createdAt)>=KEEP_MS){
+      const expiresAt=Number(data.expiresAt||0);
+      const expireTime=expiresAt || (Number(data.createdAt)+KEEP_MS);
+      if(Date.now()>=expireTime){
         localStorage.removeItem(STORAGE_KEY);
         return null;
       }
@@ -2331,6 +2387,66 @@ document.addEventListener('input',function(e){
       console.warn('無法保存顧客端訂單資訊',e);
     }
   };
+
+  function getPickupAtMs(pickupTime){
+    if(!pickupTime) return null;
+    const now=getTaipeiNow();
+    const parts=String(pickupTime).split(':').map(Number);
+    if(parts.length<2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return null;
+    let day=String(now.day).padStart(2,'0');
+    let month=String(now.month).padStart(2,'0');
+    let year=String(now.year);
+    const currentMinutes=now.hour*60+now.minute;
+    const pickupMinutes=parts[0]*60+parts[1];
+    if(pickupMinutes<currentMinutes){
+      const d=new Date(Date.UTC(now.year,now.month-1,now.day)+86400000);
+      year=d.getUTCFullYear(); month=String(d.getUTCMonth()+1).padStart(2,'0'); day=String(d.getUTCDate()).padStart(2,'0');
+    }
+    return Date.parse(`${year}-${month}-${day}T${String(parts[0]).padStart(2,'0')}:${String(parts[1]).padStart(2,'0')}:00+08:00`);
+  }
+
+  window.getOrderExpiryAt=function(pickupTime,createdAt){
+    const pickupAt=getPickupAtMs(pickupTime);
+    return pickupAt ? pickupAt+KEEP_MS : Number(createdAt)+KEEP_MS;
+  }
+
+  function renderOrderItems(items){
+    const card=document.getElementById('orderItemsCard');
+    const list=document.getElementById('orderItemsList');
+    if(!card||!list) return;
+    if(!Array.isArray(items)||!items.length){card.style.display='none';list.innerHTML='';return;}
+    list.innerHTML=items.map(item=>{
+      const opts=Array.isArray(item.options)?item.options:[];
+      const optText=opts.map(o=>`${o.name}${Number(o.price||0)>0?' +$'+Number(o.price).toLocaleString():''}`).join('、');
+      return `<div class="order-item-row"><div><div class="order-item-name">${item.name||''}</div>${optText?`<div class="order-item-options">${optText}</div>`:''}</div><div class="order-item-qty">×${Number(item.qty||1)}</div><div class="order-item-price">$${Number(item.price||0).toLocaleString()}</div></div>`;
+    }).join('');
+    card.style.display='block';
+  }
+
+  function updateOrderStatusVisual(status){
+    const s=String(status||'').trim().toLowerCase();
+    const badge=document.getElementById('orderStatusBadge');
+    const title=document.querySelector('#successMessage .success-title');
+    const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
+    const sent=steps.find(x=>x.dataset.step==='sent'), accepted=steps.find(x=>x.dataset.step==='accepted'), making=steps.find(x=>x.dataset.step==='making');
+    steps.forEach(x=>x.classList.remove('active','done'));
+    if(s==='done'||s==='完成'||s==='已完成'){
+      if(badge) badge.textContent='🟢 餐點已完成'; if(title) title.textContent='🟢 餐點已完成';
+      [sent,accepted,making].forEach(x=>x&&x.classList.add('done'));
+    }else if(s==='making'||s==='製作中'){
+      if(badge) badge.textContent='🍳 餐點製作中'; if(title) title.textContent='🍳 餐點製作中';
+      [sent,accepted].forEach(x=>x&&x.classList.add('done')); if(making) making.classList.add('active');
+    }else if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
+      if(badge) badge.textContent='🟢 店家已接單'; if(title) title.textContent='🟢 店家已接單';
+      if(sent) sent.classList.add('done'); if(accepted) accepted.classList.add('active');
+    }else if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
+      if(badge) badge.textContent='🔴 訂單已取消'; if(title) title.textContent='🔴 訂單已取消';
+      if(sent) sent.classList.add('done');
+    }else{
+      if(badge) badge.textContent='🟡 等待店家接單'; if(title) title.textContent='🟡 等待店家接單';
+      if(sent) sent.classList.add('active');
+    }
+  }
 
   let customerAcceptedAt=Number(localStorage.getItem('customerAcceptedAt')||0);
   let customerMakingTimer=null;
@@ -2400,6 +2516,15 @@ document.addEventListener('input',function(e){
 
       if(pickupEl) pickupEl.textContent=data.pickup_time||'不指定';
       if(totalEl) totalEl.textContent=`$${Number(data.total||saved.total||0).toLocaleString()}`;
+      updateOrderStatusVisual(status);
+      const countdown=document.getElementById('statusCountdown');
+      if(countdown){
+        if(data.pickup_time){
+          countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${data.pickup_time}</strong>`;
+        }else{
+          countdown.style.display='none'; countdown.classList.remove('reserved'); countdown.innerHTML='';
+        }
+      }
 
       if(['done','完成','已完成'].includes(status)){
         if(statusEl){
@@ -2505,6 +2630,11 @@ document.addEventListener('input',function(e){
     if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
     if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
     if(statusEl) statusEl.textContent='🟡 等待店家接單';
+    const sentTime=document.getElementById('statusSentTime');
+    if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
+    renderOrderItems(saved.items||[]);
+    const countdown=document.getElementById('statusCountdown');
+    if(countdown && saved.pickupTime){ countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${saved.pickupTime}</strong>`; }
 
     enterCustomerOrderStatusMode();
     startCustomerOrderTracking();
