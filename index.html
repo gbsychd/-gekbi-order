@@ -818,8 +818,8 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
   <div class="order-closed-card">
     <h2>目前非線上點餐時間</h2>
     <p>線上點餐系統開放時間</p>
-    <div class="order-closed-time">每日 18:00 ～ 隔日 01:10</div>
-    <p>菜單仍可瀏覽，開放時間：18:00 ～ 隔日 01:10。</p>
+    <div class="order-closed-time">每日 00:00 ～ 24:00</div>
+    <p>菜單仍可瀏覽，開放時間：24 小時。</p>
     <button class="closed-confirm-btn" onclick="closeOrderingNotice()">確定</button>
   </div>
 </div>
@@ -832,7 +832,7 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
 <div id="orderingClosedBanner" class="ordering-closed-banner" style="display:none" aria-hidden="true">
   <div class="ordering-closed-content">
     <strong>🌙 目前尚未開放線上點餐</strong>
-    <span>今日 18:00 開放下單｜菜單仍可瀏覽</span>
+    <span>全天 24 小時開放下單｜菜單仍可瀏覽</span>
   </div>
   <button type="button" class="non-ordering-close" aria-label="關閉提示" onclick="closeOrderingBanner(); return false;">×</button>
 </div>
@@ -1841,7 +1841,7 @@ function initPickupTimes(){
 
   const now=getTaipeiNow();
   let nowMinutes=now.hour*60+now.minute;
-  const businessStart=18*60, businessEnd=60+10; // 01:10
+  const businessStart=0, businessEnd=24*60; // 24 小時
   if(nowMinutes<businessEnd) nowMinutes+=24*60;
   const earliest=Math.ceil((nowMinutes+20)/10)*10;
   const end=businessEnd+24*60;
@@ -1894,7 +1894,7 @@ async function confirmAndSubmitOrder(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
   try{
-    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，請於 18:00 ～ 隔日 01:10 再下單。');
+    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，目前線上點餐 24 小時開放。');
 
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
@@ -2076,7 +2076,7 @@ function isOrderingOpen(){
   if(isStoreClosedToday()) return false;
   const now=getTaipeiNow();
   const minutes=now.hour*60+now.minute;
-  return minutes>=1080 || minutes<70;
+  return true;
 }
 async function loadShopClosedDates(){
   try{
