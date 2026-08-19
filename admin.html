@@ -122,7 +122,16 @@ button{cursor:pointer}
 .soldout-item-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f2f2f2}
 .soldout-item-row:last-child{border-bottom:0}
 .soldout-item-wrap{border-bottom:1px solid #f2f2f2}.soldout-item-wrap:last-child{border-bottom:0}.soldout-detail-toggle{border:1px solid #ddd;background:#fff;border-radius:7px;padding:4px 7px;font-size:11px;font-weight:800;white-space:nowrap}.soldout-detail-list{display:none;margin:0 0 7px 28px;padding-left:10px;border-left:2px solid #eee}.soldout-detail-list.open{display:block}.soldout-detail-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px dashed #eee;font-size:13px}.soldout-detail-row:last-child{border-bottom:0}.soldout-detail-row input{width:16px;height:16px;margin:0}.soldout-detail-row span:nth-child(2){flex:1}.soldout-item-wrap>.soldout-item-row{border-bottom:0}.soldout-item-row{border-bottom:0!important}
-.soldout-item-row input{width:18px;height:18px;margin:0;flex:0 0 auto}
+/* 完售管理：一般模式使用左右滑動開關；複選模式才顯示勾選框 */
+.soldout-select{display:none!important;width:18px;height:18px;margin:0;flex:0 0 auto}
+.soldout-multiselect .soldout-select{display:block!important}
+.soldout-item-row .soldout-toggle,.soldout-detail-row .soldout-toggle{appearance:none;-webkit-appearance:none;position:relative;width:48px!important;height:28px!important;flex:0 0 48px!important;margin:0!important;border:0!important;border-radius:999px;background:#777;cursor:pointer;padding:0;transition:background .18s ease;display:block!important}
+.soldout-item-row .soldout-toggle::after,.soldout-detail-row .soldout-toggle::after{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .18s ease}
+.soldout-item-row .soldout-toggle:checked,.soldout-detail-row .soldout-toggle:checked{background:#25a244}
+.soldout-item-row .soldout-toggle:checked::after,.soldout-detail-row .soldout-toggle:checked::after{transform:translateX(20px)}
+.soldout-toggle:focus-visible{outline:2px solid #2684ff;outline-offset:2px}
+.soldout-multiselect .soldout-toggle{display:none!important}
+.soldout-multi-mode{background:#eef5ff!important;color:#1769aa!important;border-color:#b9d8f5!important}
 .soldout-item-name{flex:1;font-size:14px;font-weight:700;min-width:0}
 .soldout-badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:6px;background:#777;color:#fff;white-space:nowrap}
 .soldout-badge.available{background:#eaf8ed;color:#18752a}
@@ -831,7 +840,7 @@ button{cursor:pointer}
 
     <section class="soldout-admin admin-feature-section" id="soldoutAdminSection">
       <h2>🚫 餐點完售管理</h2>
-      <div class="soldout-note">以大項分類管理。點選大項展開後，可複選多個品項，再一次設定「完售」或「恢復供應」。相同名稱的品項／細項會連貫處理；特殊連貫另依指定規則處理。</div>
+      <div class="soldout-note">平常直接點右側開關即可切換供應／完售並立即生效；需要一次處理多個品項時，點「複選」才會顯示勾選框，再用「全選」或勾選後按「完售／供應」立即執行。相同名稱的品項／細項會同步處理；特殊連貫另依指定規則處理。</div>
       <div class="soldout-global-actions">
         <button class="soldout-global-restore" type="button" onclick="restoreAllSoldOut()">全品項恢復販售</button>
       </div>
@@ -1223,12 +1232,13 @@ function renderSoldOutAdmin(){
         const dKey=soldOutDetailKey(key,d);
         // 細項獨立記錄狀態，讓取消勾選後可單獨恢復供應。
         const dSold=getEffectiveSoldOut(dKey);
-        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-check" data-key="${dKey}" data-parent-key="${key}" data-initial-checked="${dSold?'1':'0'}" ${dSold?'checked':''}><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
+        return `<label class="soldout-detail-row"><input type="checkbox" class="soldout-select" data-key="${dKey}" data-parent-key="${key}"><input type="checkbox" class="soldout-toggle" aria-label="${dSold?'恢復供應':'設為完售'}" ${dSold?'checked':''} onchange="toggleSoldOutItem('${dKey}',this.checked)" onclick="event.stopPropagation()"><span>${escapeHtml(d)}</span><span class="soldout-badge ${dSold?'':'available'}">${dSold?'完售':'供應中'}</span></label>`;
       }).join('')}</div>`:'';
 
       return `<div class="soldout-item-wrap">
         <div class="soldout-item-row">
-          <input type="checkbox" class="soldout-check" data-key="${key}" data-parent-key="${key}" data-initial-checked="${sold?'1':'0'}" ${sold?'checked':''}>
+          <input type="checkbox" class="soldout-select" data-key="${key}" data-parent-key="${key}">
+          <input type="checkbox" class="soldout-toggle" aria-label="${sold?'恢復供應':'設為完售'}" ${sold?'checked':''} onchange="toggleSoldOutItem('${key}',this.checked)" onclick="event.stopPropagation()">
           <span class="soldout-item-name">${escapeHtml(name)}</span>
           ${details.length?`<button class="soldout-detail-toggle" type="button" onclick="toggleSoldOutDetails('${key}');event.stopPropagation()">細項 ${detailSoldCount}/${details.length}　▼</button>`:''}
           <span class="soldout-badge ${sold?'':'available'}">${sold?'完售':'供應中'}</span>
@@ -1238,7 +1248,7 @@ function renderSoldOutAdmin(){
 
     const isOpen=soldOutOpenGroups.has(gi);
 
-    return `<div class="soldout-category${isOpen?' open':''}" id="soldout-group-${gi}">
+    return `<div class="soldout-category${isOpen?' open':''}${soldOutMultiSelectMode?' soldout-multiselect':''}" id="soldout-group-${gi}">
       <div class="soldout-category-head">
         <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})">
           <span>${escapeHtml(group[0])}</span>
@@ -1249,8 +1259,8 @@ function renderSoldOutAdmin(){
       <div class="soldout-items">
         <div class="soldout-options-inline" onclick="event.stopPropagation()">
           <button class="soldout-mini" type="button" onclick="selectSoldOutGroup(${gi},true);event.stopPropagation()">全選</button>
-          <button class="soldout-mini danger" type="button" onclick="setSelectedSoldOut(true);event.stopPropagation()">完售</button>
-          <button class="soldout-mini selected" type="button" onclick="confirmSoldOutChanges();event.stopPropagation()">確認</button>
+          <button class="soldout-mini selected" type="button" onclick="applySelectedSoldOut();event.stopPropagation()">完售／供應</button>
+          <button class="soldout-mini" type="button" onclick="toggleSoldOutMultiSelect();event.stopPropagation()">複選</button>
         </div>
         ${rows}
       </div>
@@ -1277,61 +1287,83 @@ function toggleSoldOutGroup(gi){
     soldOutOpenGroups.add(gi);
   }
 }
+let soldOutMultiSelectMode=false;
 function updateSoldOutSelectedCount(){
   const el=document.getElementById('soldoutSelectedCount');
   if(!el)return;
-  const n=document.querySelectorAll('.soldout-check:checked').length;
-  el.textContent=n ? `已選取 ${n} 個品項，可直接設定完售／恢復供應` : '尚未選取品項';
+  const n=document.querySelectorAll('.soldout-select:checked').length;
+  el.textContent=soldOutMultiSelectMode
+    ? (n ? `已選取 ${n} 個品項` : '複選模式：請勾選品項')
+    : '點擊右側開關即可直接切換供應／完售';
+}
+function refreshSoldOutMultiSelectUI(){
+  document.querySelectorAll('.soldout-category').forEach(el=>el.classList.toggle('soldout-multiselect',soldOutMultiSelectMode));
+  document.querySelectorAll('.soldout-mini').forEach(btn=>{
+    if(btn.textContent.trim()==='複選' || btn.textContent.trim()==='取消複選'){
+      btn.textContent=soldOutMultiSelectMode?'取消複選':'複選';
+      btn.classList.toggle('soldout-multi-mode',soldOutMultiSelectMode);
+    }
+  });
+}
+function toggleSoldOutMultiSelect(){
+  soldOutMultiSelectMode=!soldOutMultiSelectMode;
+  refreshSoldOutMultiSelectUI();
+  if(!soldOutMultiSelectMode){
+    document.querySelectorAll('.soldout-select').forEach(cb=>cb.checked=false);
+  }
+  updateSoldOutSelectedCount();
 }
 function selectSoldOutGroup(gi,checked){
   const group=document.getElementById(`soldout-group-${gi}`);
   if(!group)return;
   group.classList.add('open');
-  group.querySelectorAll('.soldout-check').forEach(cb=>cb.checked=checked);
+  if(!soldOutMultiSelectMode) soldOutMultiSelectMode=true;
+  refreshSoldOutMultiSelectUI();
+  group.querySelectorAll('.soldout-select').forEach(cb=>cb.checked=checked);
   updateSoldOutSelectedCount();
 }
 document.addEventListener('change',function(e){
-  if(e.target && e.target.classList && e.target.classList.contains('soldout-check')){
+  if(e.target && e.target.classList && e.target.classList.contains('soldout-select')){
     updateSoldOutSelectedCount();
   }
 });
 function getSoldOutGroupCheckboxes(gi){
   const group=document.getElementById(`soldout-group-${gi}`);
-  return group ? Array.from(group.querySelectorAll('.soldout-check')) : [];
+  return group ? Array.from(group.querySelectorAll('.soldout-select')) : [];
 }
 function getSelectedSoldOutKeys(){
-  return Array.from(document.querySelectorAll('.soldout-check:checked')).map(cb=>cb.dataset.key).filter(Boolean);
+  return Array.from(document.querySelectorAll('.soldout-select:checked')).map(cb=>cb.dataset.key).filter(Boolean);
 }
-function getSoldOutCheckboxChanges(){
-  const changes=new Map();
-  document.querySelectorAll('.soldout-check').forEach(cb=>{
-    const key=cb.dataset.key;
-    if(!key)return;
-    const current=!!cb.checked;
-    const initial=cb.dataset.initialChecked==='1';
-    if(current!==initial) changes.set(key,current);
+function syncSoldOutCheckboxesByName(key,value){
+  const itemName=getItemNameFromKey(key);
+  const detailName=getDetailNameFromKey(key);
+  const sameName=String(itemName||detailName||'').trim();
+  if(!sameName)return;
+  getAllSoldOutKeysByName(sameName).forEach(k=>{
+    const cb=document.querySelector(`.soldout-select[data-key="${CSS.escape(k)}"]`);
+    if(cb && soldOutMultiSelectMode) cb.checked=!!value;
   });
-  return changes;
 }
-function setSelectedSoldOut(value){
-  const selected=getSelectedSoldOutKeys();
-  if(!selected.length){alert('請先勾選要設為完售的品項。');return}
-  selected.forEach(key=>{
-    const cb=document.querySelector(`.soldout-check[data-key="${CSS.escape(key)}"]`);
-    if(cb)cb.checked=!!value;
-  });
-  updateSoldOutSelectedCount();
-  if(value){
-    confirmSoldOutChanges(true);
-  }else{
-    soldOutStatusText('已取消勾選項目，請按「確認」儲存。');
+async function toggleSoldOutItem(key,value){
+  // 一般模式：點擊左右開關即執行，不需要確認。
+  await saveSoldOutCheckboxStates(new Map([[key,!!value]]));
+}
+async function applySelectedSoldOut(){
+  if(!soldOutMultiSelectMode){
+    soldOutStatusText('請先點「複選」，再勾選要批次處理的品項。');
+    return;
   }
+  const selected=getSelectedSoldOutKeys();
+  if(!selected.length){soldOutStatusText('請先勾選要處理的品項。');return}
+  const states=new Map();
+  // 只要選取項目中有任何一個目前仍供應，就全部設為完售；全部已完售才全部恢復供應。
+  const makeSold=selected.some(key=>!getEffectiveSoldOut(key));
+  selected.forEach(key=>states.set(key,makeSold));
+  await saveSoldOutCheckboxStates(states);
 }
-async function confirmSoldOutChanges(skipConfirm=false){
-  const changes=getSoldOutCheckboxChanges();
-  if(!changes.size){soldOutStatusText('沒有新的完售／恢復供應變更。');return}
-  if(!skipConfirm && !confirm('確定要儲存目前勾選的完售狀態嗎？'))return;
-  await saveSoldOutCheckboxStates(changes);
+async function confirmSoldOutChanges(){
+  // 相容舊呼叫：現在「確認」已移除，若其他程式仍呼叫則直接執行，不跳確認。
+  await applySelectedSoldOut();
 }
 async function saveSoldOutKeys(keys,value){
   const states=new Map((keys||[]).map(key=>[key,!!value]));
