@@ -815,6 +815,21 @@ body{
 }
 </style>
 
+
+<style id="admin-no-flicker-final">
+/* 後台防閃爍：資料更新時保留版面高度與 DOM，不讓整頁跳動。 */
+#orders{
+  min-height:120px;
+  overflow-anchor:none;
+}
+#orders .order{
+  contain:layout paint;
+}
+#orders .items{
+  min-height:36px;
+  overflow-anchor:none;
+}
+</style>
 </head>
 
 <body>
@@ -1634,79 +1649,134 @@ function setTab(status,button){
   document.querySelectorAll(".admin-feature-section").forEach(x=>x.classList.remove("feature-active"));
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   if(button) button.classList.add("active");
-  loadOrders();
+  adminOrdersRenderKey="";
+  queueAdminOrdersRefresh(0);
 }
 
 async function archiveOldBusinessOrders(){
   const {error}=await client.rpc("archive_gekbi_orders");
   if(error)console.warn("自動歸檔檢查失敗：",error.message);
 }
+let adminOrdersRenderKey = "";
+let adminOrdersLoading = false;
+let adminOrdersRefreshQueued = false;
+let adminOrdersRefreshTimer = null;
+
+function queueAdminOrdersRefresh(delay=120){
+  if(adminOrdersRefreshTimer) clearTimeout(adminOrdersRefreshTimer);
+  adminOrdersRefreshTimer = setTimeout(()=>{
+    adminOrdersRefreshTimer = null;
+    loadOrders();
+  }, delay);
+}
+
+function buildAdminOrdersRenderKey(orders){
+  return (orders||[]).map(o=>[
+    o.id,o.status,o.accepted_at,o.created_at,o.customer_name,o.phone,
+    o.pickup_time,o.cutlery,o.total,o.updated_at
+  ].map(v=>String(v??"")).join("\u001f")).join("\u001e");
+}
+
 async function loadOrders(){
-  await archiveOldBusinessOrders();
-  const businessDate = getBusinessDate(new Date());
-
-  const {data:orders,error} = await client
-    .from("orders")
-    .select("*")
-    .eq("business_date",businessDate)
-    .eq("is_archived",false)
-    .order("created_at",{ascending:false})
-    .limit(100);
-
-  if(error){
-    document.getElementById("orders").innerHTML =
-      '<div class="empty">讀取訂單失敗<br><small>'+escapeHtml(error.message)+'</small></div>';
+  // 避免 realtime + 30 秒輪詢同時觸發多次，造成後台反覆重繪與閃爍。
+  if(adminOrdersLoading){
+    adminOrdersRefreshQueued=true;
     return;
   }
+  adminOrdersLoading=true;
 
-  const now=Date.now();
-  const effectiveOrders=(orders||[]).map(order=>{
-    const raw=String(order.status||'').trim().toLowerCase();
-    if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at){
-      const acceptedAt=Date.parse(order.accepted_at);
-      if(Number.isFinite(acceptedAt)){
-        const remaining=3*60*1000-(now-acceptedAt);
-        if(remaining<=0){
-          client.from("orders").update({status:"making"}).eq("id",order.id).then(({error})=>{
-            if(error) console.warn("自動轉製作中失敗：",error.message);
-          });
-          return {...order,status:"making"};
-        }
-        if(!acceptedTimers.has(order.id)){
-          const timer=setTimeout(async()=>{
-            acceptedTimers.delete(order.id);
-            const {error}=await client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted");
-            if(error) console.warn("自動轉製作中失敗：",error.message);
-            loadOrders();
-          },remaining);
-          acceptedTimers.set(order.id,timer);
+  try{
+    await archiveOldBusinessOrders();
+    const businessDate = getBusinessDate(new Date());
+
+    const {data:orders,error} = await client
+      .from("orders")
+      .select("*")
+      .eq("business_date",businessDate)
+      .eq("is_archived",false)
+      .order("created_at",{ascending:false})
+      .limit(100);
+
+    if(error){
+      const box=document.getElementById("orders");
+      if(box && box.dataset.renderState!=="error"){
+        box.innerHTML='<div class="empty">讀取訂單失敗<br><small>'+escapeHtml(error.message)+'</small></div>';
+        box.dataset.renderState="error";
+      }
+      return;
+    }
+
+    const now=Date.now();
+    const effectiveOrders=(orders||[]).map(order=>{
+      const raw=String(order.status||'').trim().toLowerCase();
+      if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at){
+        const acceptedAt=Date.parse(order.accepted_at);
+        if(Number.isFinite(acceptedAt)){
+          const remaining=3*60*1000-(now-acceptedAt);
+          if(remaining<=0){
+            client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted").then(({error})=>{
+              if(error) console.warn("自動轉製作中失敗：",error.message);
+              queueAdminOrdersRefresh(50);
+            });
+            return {...order,status:"making"};
+          }
+          if(!acceptedTimers.has(order.id)){
+            const timer=setTimeout(async()=>{
+              acceptedTimers.delete(order.id);
+              const {error}=await client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted");
+              if(error) console.warn("自動轉製作中失敗：",error.message);
+              queueAdminOrdersRefresh(50);
+            },remaining);
+            acceptedTimers.set(order.id,timer);
+          }
         }
       }
       return order;
+    });
+
+    let newCount=0,makingCount=0,doneCount=0,cancelledCount=0;
+    effectiveOrders.forEach(order=>{
+      const status=normalizeStatus(order.status);
+      if(status==="new")newCount++;
+      if(status==="making")makingCount++;
+      if(status==="done")doneCount++;
+      if(status==="cancelled")cancelledCount++;
+    });
+
+    const newCountEl=document.getElementById("newCount");
+    const makingCountEl=document.getElementById("makingCount");
+    const doneCountEl=document.getElementById("doneCount");
+    if(newCountEl && newCountEl.textContent!==String(newCount)) newCountEl.textContent=newCount;
+    if(makingCountEl && makingCountEl.textContent!==String(makingCount)) makingCountEl.textContent=makingCount;
+    if(doneCountEl && doneCountEl.textContent!==String(doneCount)) doneCountEl.textContent=doneCount;
+
+    const filtered=effectiveOrders.filter(order=>normalizeStatus(order.status)===currentTab);
+    const renderKey=currentTab+"|"+buildAdminOrdersRenderKey(filtered);
+    const box=document.getElementById("orders");
+    if(!box)return;
+
+    // 資料完全沒有變化時，絕對不重建 DOM；這是消除閃爍的核心。
+    if(renderKey===adminOrdersRenderKey && box.dataset.renderState==="ready") return;
+
+    adminOrdersRenderKey=renderKey;
+    if(!filtered.length){
+      box.innerHTML='<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
+      box.dataset.renderState="ready";
+      return;
     }
-    return order;
-  });
 
-  let newCount=0,makingCount=0,doneCount=0,cancelledCount=0;
-  effectiveOrders.forEach(order=>{
-    const status=normalizeStatus(order.status);
-    if(status==="new")newCount++;
-    if(status==="making")makingCount++;
-    if(status==="done")doneCount++;
-    if(status==="cancelled")cancelledCount++;
-  });
+    box.innerHTML=filtered.map(orderCard).join("");
+    box.dataset.renderState="ready";
 
-  document.getElementById("newCount").textContent=newCount;
-  document.getElementById("makingCount").textContent=makingCount;
-  document.getElementById("doneCount").textContent=doneCount;
-
-  const filtered=effectiveOrders.filter(order=>normalizeStatus(order.status)===currentTab);
-  if(!filtered.length){
-    document.getElementById("orders").innerHTML='<div class="empty">目前沒有'+tabName(currentTab)+'訂單</div>';
-    return;
+    // 只有訂單真的新增／狀態改變／資料改變時才重新讀取餐點內容。
+    await Promise.all(filtered.map(order=>loadItems(order.id)));
+  }finally{
+    adminOrdersLoading=false;
+    if(adminOrdersRefreshQueued){
+      adminOrdersRefreshQueued=false;
+      queueAdminOrdersRefresh(80);
+    }
   }
-  document.getElementById("orders").innerHTML=filtered.map(orderCard).join("");
-  for(const order of filtered)loadItems(order.id);
 }
 
 function getBusinessDate(date){
@@ -2676,9 +2746,9 @@ async function changeStatus(id,status){
 }
 
 function startAutoRefresh(){
-  // 測試期間：每 30 秒自動重新整理訂單
+  // 保留原本 30 秒檢查，但只在資料有變化時重繪畫面。
   setInterval(() => {
-    loadOrders();
+    queueAdminOrdersRefresh(0);
   }, 30000);
 }
 
