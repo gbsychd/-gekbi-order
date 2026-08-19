@@ -1061,15 +1061,22 @@ function expandSoldOutKeys(keys){
   const out=new Set();
   (keys||[]).forEach(key=>{
     out.add(key);
+
+    // 相同「主品項名稱」只同步其他大項中的相同主品項，
+    // 不把主品項狀態擴散到任何細項。
     const itemName=getItemNameFromKey(key);
-    const detailName=getDetailNameFromKey(key);
-    // 一般「相同名稱」連貫：不論來源是品項或細項，只要名稱完全相同，
-    // 品項與細項都一起納入；特殊連貫另由 getSpecialLinkedKeys() 控制。
-    const sameName=itemName || detailName;
-    if(sameName){
-      getAllSoldOutKeysByName(sameName).forEach(k=>out.add(k));
+    if(itemName){
+      getAllParentKeysByName(itemName).forEach(k=>out.add(k));
     }
-    // 特殊名稱連貫僅限「隔壁奶酥」與「隱藏版菜單」。
+
+    // 相同「細項名稱」只同步其他品項中的相同細項，
+    // 不把細項狀態反向擴散到主品項。
+    const detailName=getDetailNameFromKey(key);
+    if(detailName){
+      getAllDetailKeysByName(detailName).forEach(k=>out.add(k));
+    }
+
+    // 特殊連貫另行處理，例如奶酥 → 單人獨享餐。
     getSpecialLinkedKeys(key).forEach(k=>out.add(k));
   });
   return [...out];
@@ -1338,18 +1345,24 @@ async function saveSoldOutCheckboxStates(states){
     else delete adminSoldOut[key];
   });
 
-  // 奶酥厚片全部恢復時，「單人獨享餐」也一併恢復；
-  // 只要仍有任一厚片完售，則維持售完。
-  const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
-    ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
-  ).filter(Boolean);
-  const hiddenMealKey='hidden-1';
-  if(milkToastKeys.some(k=>!!adminSoldOut[k])){
-    adminSoldOut[hiddenMealKey]=true;
-    await client.from('menu_item_status').upsert({item_key:hiddenMealKey,sold_out:true,updated_at:new Date().toISOString()},{onConflict:'item_key'});
-  }else{
-    delete adminSoldOut[hiddenMealKey];
-    await client.from('menu_item_status').delete().eq('item_key',hiddenMealKey);
+  // 奶酥特殊連貫：只有這次實際操作到「隔壁奶酥」品項時，
+  // 才同步「單人獨享餐」；不再因為其他品項的操作而重算整個奶酥區。
+  const changedMilkToast=([...states.keys()]).some(k=>{
+    const name=getItemNameFromKey(k);
+    return name && ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim());
+  });
+  if(changedMilkToast){
+    const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
+      ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
+    ).filter(Boolean);
+    const hiddenMealKey='hidden-1';
+    if(milkToastKeys.some(k=>!!adminSoldOut[k])){
+      adminSoldOut[hiddenMealKey]=true;
+      await client.from('menu_item_status').upsert({item_key:hiddenMealKey,sold_out:true,updated_at:new Date().toISOString()},{onConflict:'item_key'});
+    }else{
+      delete adminSoldOut[hiddenMealKey];
+      await client.from('menu_item_status').delete().eq('item_key',hiddenMealKey);
+    }
   }
   renderSoldOutAdmin();
   soldOutStatusText(`已確認 ${expanded.size} 個相關項目的完售狀態。`);
