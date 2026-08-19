@@ -818,8 +818,8 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
   <div class="order-closed-card">
     <h2>目前非線上點餐時間</h2>
     <p>線上點餐系統開放時間</p>
-    <div class="order-closed-time">每日 00:00 ～ 24:00</div>
-    <p>菜單仍可瀏覽，開放時間：24 小時。</p>
+    <div class="order-closed-time">載入中…</div>
+    <p>菜單仍可瀏覽，開放時間依店家每週設定。</p>
     <button class="closed-confirm-btn" onclick="closeOrderingNotice()">確定</button>
   </div>
 </div>
@@ -832,7 +832,7 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
 <div id="orderingClosedBanner" class="ordering-closed-banner" style="display:none" aria-hidden="true">
   <div class="ordering-closed-content">
     <strong>🌙 目前尚未開放線上點餐</strong>
-    <span>全天 24 小時開放下單｜菜單仍可瀏覽</span>
+    <span>今日點餐時間依店家設定｜菜單仍可瀏覽</span>
   </div>
   <button type="button" class="non-ordering-close" aria-label="關閉提示" onclick="closeOrderingBanner(); return false;">×</button>
 </div>
@@ -1830,6 +1830,89 @@ function getTaipeiNow(){
   const get=k=>Number(parts.find(p=>p.type===k)?.value||0);
   return {year:get('year'),month:get('month'),day:get('day'),hour:get('hour'),minute:get('minute'),second:get('second')};
 }
+let orderingHoursSchedule = {
+  1:{enabled:true,start:"18:00",end:"01:10"},
+  2:{enabled:true,start:"18:00",end:"01:10"},
+  3:{enabled:true,start:"18:00",end:"01:10"},
+  4:{enabled:true,start:"18:00",end:"01:10"},
+  5:{enabled:true,start:"18:00",end:"01:10"},
+  6:{enabled:true,start:"18:00",end:"01:10"},
+  7:{enabled:true,start:"18:00",end:"01:10"}
+};
+let orderingHoursLoaded=false;
+
+function getTaipeiWeekday(){
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(new Date());
+  return ({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7})[parts]||1;
+}
+function hmToMinutes(hm){
+  const p=String(hm||'00:00').split(':').map(Number);
+  return (p[0]||0)*60+(p[1]||0);
+}
+function getOrderingWindowForNow(){
+  const now=getTaipeiNow();
+  const minutes=now.hour*60+now.minute;
+  const today=getTaipeiWeekday();
+  const todayRow=orderingHoursSchedule[today];
+  if(todayRow?.enabled){
+    const s=hmToMinutes(todayRow.start), e=hmToMinutes(todayRow.end);
+    if(s===e) return {open:true,row:todayRow,day:today};
+    if(s<e && minutes>=s && minutes<e) return {open:true,row:todayRow,day:today};
+    if(s>e && minutes>=s) return {open:true,row:todayRow,day:today};
+  }
+  const prev=today===1?7:today-1;
+  const prevRow=orderingHoursSchedule[prev];
+  if(prevRow?.enabled){
+    const s=hmToMinutes(prevRow.start), e=hmToMinutes(prevRow.end);
+    if(s>e && minutes<e) return {open:true,row:prevRow,day:prev};
+  }
+  return {open:false,row:todayRow||null,day:today};
+}
+function isOrderingOpenBySchedule(){
+  return getOrderingWindowForNow().open;
+}
+function formatOrderingRange(row){
+  if(!row)return '暫停線上點餐';
+  if(hmToMinutes(row.start)===hmToMinutes(row.end))return '00:00 ～ 24:00';
+  const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
+  return s>e ? `${row.start} ～ 隔日 ${row.end}` : `${row.start} ～ ${row.end}`;
+}
+function updateOrderingHoursDisplay(){
+  const el=document.querySelector('.hours-time');
+  if(!el)return;
+  const active=getOrderingWindowForNow();
+  if(active.open){
+    el.textContent=formatOrderingRange(active.row);
+  }else{
+    const today=orderingHoursSchedule[getTaipeiWeekday()];
+    el.textContent=today?.enabled ? formatOrderingRange(today) : '今日暫停線上點餐';
+  }
+  const note=document.querySelector('.hours-note');
+  if(note)note.textContent='自取專用｜點餐時間依店家後台每週設定自動更新';
+}
+async function loadOrderingHours(){
+  try{
+    const {data,error}=await supabaseClient.from('ordering_hours').select('day_of_week,enabled,start_time,end_time').order('day_of_week');
+    if(error){console.error('讀取點餐時間失敗：',error);return false;}
+    (data||[]).forEach(r=>{
+      const d=Number(r.day_of_week);
+      if(d>=1&&d<=7) orderingHoursSchedule[d]={
+        enabled:Boolean(r.enabled),
+        start:String(r.start_time||'18:00:00').slice(0,5),
+        end:String(r.end_time||'01:10:00').slice(0,5)
+      };
+    });
+    orderingHoursLoaded=true;
+    updateOrderingHoursDisplay();
+    applyOrderingHours();
+    initPickupTimes();
+    return true;
+  }catch(e){
+    console.error('讀取點餐時間失敗：',e);
+    return false;
+  }
+}
+
 function initPickupTimes(){
   const select=document.getElementById('pickupTime');
   if(!select)return;
@@ -1840,18 +1923,33 @@ function initPickupTimes(){
   select.appendChild(first);
 
   const now=getTaipeiNow();
-  let nowMinutes=now.hour*60+now.minute;
-  const businessStart=0, businessEnd=24*60; // 24小時
-  if(false) nowMinutes+=24*60;
-  const earliest=Math.ceil((nowMinutes+20)/10)*10;
-  const end=businessEnd+24*60;
+  const nowDate=new Date(Date.UTC(now.year,now.month-1,now.day,now.hour,now.minute,0));
+  const minPickup=nowDate.getTime()+20*60*1000;
+  const seen=new Set();
 
-  if(earliest>end)return;
-
-  for(let m=earliest;m<=end;m+=10){
-    const display=m%(24*60);
-    const h=Math.floor(display/60), min=display%60;
-    const value=`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+  for(let offset=0;offset<=24*60;offset+=10){
+    const d=new Date(minPickup+offset*60*1000);
+    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
+    const h=d.getUTCHours(), m=d.getUTCMinutes();
+    const jsDay=new Date(Date.UTC(y,mo-1,day)).getUTCDay();
+    const dow=jsDay===0?7:jsDay;
+    const prev=dow===1?7:dow-1;
+    const row=orderingHoursSchedule[dow], prevRow=orderingHoursSchedule[prev];
+    const mins=h*60+m;
+    let open=false;
+    if(row?.enabled){
+      const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
+      if(s===e) open=true;
+      else if(s<e) open=mins>=s&&mins<e;
+      else open=mins>=s;
+    }
+    if(!open && prevRow?.enabled && hmToMinutes(prevRow.start)>hmToMinutes(prevRow.end)){
+      open=mins<hmToMinutes(prevRow.end);
+    }
+    if(!open)continue;
+    const value=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    if(seen.has(value))continue;
+    seen.add(value);
     const option=document.createElement('option');
     option.value=value;
     option.textContent=value;
@@ -1894,7 +1992,7 @@ async function confirmAndSubmitOrder(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
   try{
-    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，目前線上點餐 24 小時開放。');
+    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，目前非線上點餐時間，請依頁面顯示時間再下單。');
 
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
@@ -2074,9 +2172,7 @@ function isStoreClosedToday(){
 }
 function isOrderingOpen(){
   if(isStoreClosedToday()) return false;
-  const now=getTaipeiNow();
-  const minutes=now.hour*60+now.minute;
-  return true;
+  return isOrderingOpenBySchedule();
 }
 async function loadShopClosedDates(){
   try{
@@ -2165,6 +2261,7 @@ async function applyOrderingHours(){
   }
 
   const open=isOrderingOpen();
+  updateOrderingHoursDisplay();
   if(closedModal){
     closedModal.style.display='none';
     closedModal.setAttribute('aria-hidden','true');
@@ -2192,7 +2289,7 @@ async function applyOrderingHours(){
   }
 }
 
-restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();applyMenuCatalogOverrides();startMenuCatalogRealtime();setInterval(()=>{loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
+restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadOrderingHours();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();applyMenuCatalogOverrides();startMenuCatalogRealtime();setInterval(()=>{loadOrderingHours();loadShopClosedDates();applyOrderingHours();initPickupTimes()},60000);
 supabaseClient.channel('menu-item-status-public').on('postgres_changes',{event:'*',schema:'public',table:'menu_item_status'},()=>loadSoldOutStatus()).subscribe();
 </script>
 
