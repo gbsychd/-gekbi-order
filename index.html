@@ -137,6 +137,216 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .ordering-closed-banner button{border:0;background:#111;color:#fff;width:32px;height:32px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;flex:0 0 auto}
 .bottom-cart-info{display:flex;align-items:center;gap:14px}.bottom-cart-info strong{font-size:17px}
 .success-title{font-size:22px;font-weight:900;margin-bottom:14px}
+
+/* ===== 訂單狀態頁：質感版面（僅視覺，不改既有內容/邏輯） ===== */
+body.customer-order-status-mode{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,158,27,.10), transparent 34%),
+    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
+  color:#f5f5f5;
+}
+body.customer-order-status-mode .container{
+  max-width:780px !important;
+  min-height:calc(100vh - 88px) !important;
+  padding:24px 14px 44px !important;
+}
+body.customer-order-status-mode .container > *:not(#successMessage){
+  display:none!important;
+}
+body.customer-order-status-mode #successMessage{
+  position:relative;
+  overflow:hidden;
+  display:block!important;
+  margin:0 auto!important;
+  padding:30px 20px 24px!important;
+  border:1px solid rgba(255,169,47,.52)!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,160,24,.11),transparent 30%),
+    linear-gradient(145deg,#15191b,#0e1113)!important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.035)!important;
+  color:#f5f5f5!important;
+}
+body.customer-order-status-mode #successMessage::before{
+  content:"";
+  position:absolute;
+  left:18%;
+  right:18%;
+  top:-1px;
+  height:2px;
+  background:linear-gradient(90deg,transparent,#ffad32,transparent);
+  box-shadow:0 0 22px rgba(255,167,35,.7);
+}
+body.customer-order-status-mode #successMessage::after{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  left:50%;
+  top:42px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,158,27,.10),transparent 68%);
+  pointer-events:none;
+}
+body.customer-order-status-mode #successMessage .success-title{
+  position:relative;
+  z-index:1;
+  margin:0 0 24px!important;
+  padding:4px 0 8px;
+  text-align:center!important;
+  font-size:30px!important;
+  line-height:1.25;
+  font-weight:900!important;
+  color:#ffb23e!important;
+  letter-spacing:.02em;
+  text-shadow:0 0 20px rgba(255,168,39,.18);
+}
+body.customer-order-status-mode .success-grid{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin:0!important;
+  padding:0!important;
+}
+body.customer-order-status-mode .success-grid>div{
+  min-height:82px;
+  box-sizing:border-box;
+  padding:16px 15px!important;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:15px!important;
+  background:linear-gradient(145deg,#1a1f22,#14181a)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+body.customer-order-status-mode .success-grid span{
+  margin-bottom:7px!important;
+  color:#8e969b!important;
+  font-size:14px!important;
+  letter-spacing:.03em;
+}
+body.customer-order-status-mode .success-grid strong{
+  display:block;
+  color:#fff!important;
+  font-size:22px!important;
+  line-height:1.25;
+  font-weight:900!important;
+}
+body.customer-order-status-mode #successStatus{
+  color:#ffb23e!important;
+}
+body.customer-order-status-mode #successCustomer{
+  position:relative;
+  z-index:1;
+  margin-top:10px!important;
+  padding:16px 17px!important;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:15px!important;
+  background:#151a1d!important;
+  color:#f0f0f0!important;
+  font-size:17px;
+  line-height:1.55;
+  font-weight:700;
+}
+body.customer-order-status-mode #customerStatusNote{
+  position:relative;
+  z-index:1;
+  margin-top:14px!important;
+  padding:17px!important;
+  border-radius:15px!important;
+  border:1px solid rgba(255,170,45,.16);
+  background:rgba(255,160,24,.055)!important;
+  color:#ffb23e!important;
+  font-size:16px;
+  line-height:1.65;
+  text-align:center;
+}
+body.customer-order-status-mode .customer-making-animation{
+  position:relative;
+  z-index:2;
+  margin:14px 0 0;
+  padding:28px 12px 24px!important;
+  border-radius:17px;
+  border:1px solid rgba(255,169,47,.24);
+  background:
+    radial-gradient(circle at 50% 35%,rgba(255,159,24,.14),transparent 45%),
+    #14191b;
+  gap:16px!important;
+}
+body.customer-order-status-mode .customer-making-animation strong{
+  color:#ffb23e;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+body.customer-order-status-mode .customer-making-dots{
+  position:relative;
+  width:96px;
+  height:48px;
+  gap:0!important;
+}
+body.customer-order-status-mode .customer-making-dots::before{
+  content:"";
+  position:absolute;
+  inset:2px 20px;
+  border:2px solid rgba(255,177,59,.28);
+  border-top-color:#ffae2e;
+  border-radius:50%;
+  animation:customerCookingRing 1.7s linear infinite;
+}
+body.customer-order-status-mode .customer-making-dots span{
+  position:absolute;
+  width:10px!important;
+  height:10px!important;
+  top:19px;
+  background:#ffae2e!important;
+  box-shadow:0 0 14px rgba(255,168,39,.8);
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(1){
+  left:24px;
+  animation:customerCookingPulse 1.2s infinite ease-in-out;
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(2){
+  left:43px;
+  animation:customerCookingPulse 1.2s .18s infinite ease-in-out;
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(3){
+  left:62px;
+  animation:customerCookingPulse 1.2s .36s infinite ease-in-out;
+}
+@keyframes customerCookingRing{
+  to{transform:rotate(360deg)}
+}
+@keyframes customerCookingPulse{
+  0%,100%{transform:translateY(7px) scale(.55);opacity:.35}
+  50%{transform:translateY(-7px) scale(1);opacity:1}
+}
+@media(max-width:480px){
+  body.customer-order-status-mode .container{
+    padding:18px 12px 32px!important;
+  }
+  body.customer-order-status-mode #successMessage{
+    padding:26px 14px 20px!important;
+    border-radius:22px!important;
+  }
+  body.customer-order-status-mode #successMessage .success-title{
+    font-size:27px!important;
+  }
+  body.customer-order-status-mode .success-grid{
+    gap:8px!important;
+  }
+  body.customer-order-status-mode .success-grid>div{
+    min-height:78px;
+    padding:14px 12px!important;
+  }
+  body.customer-order-status-mode .success-grid strong{
+    font-size:20px!important;
+  }
+}
+
 /* 送出訂單後，同一個點餐頁切換成訂單狀態頁，不開新分頁 */
 body.customer-order-status-mode .ordering-hours-card,
 body.customer-order-status-mode #orderingClosedBanner,
