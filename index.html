@@ -1974,6 +1974,11 @@ return true;
 
 
 function enterCustomerOrderStatusMode(){
+  // 同一個 index.html 進入訂單狀態模式；用 hash 記住目前是狀態頁。
+  // 這樣直接開啟乾淨網址時，仍會進入全新的點餐系統。
+  if(window.location.hash!=='#order-status'){
+    history.replaceState(null,'',window.location.pathname+window.location.search+'#order-status');
+  }
   document.body.classList.add('customer-order-status-mode');
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
@@ -2506,7 +2511,11 @@ document.addEventListener('input',function(e){
   }
 
   window.addEventListener('load',function(){
-    setTimeout(restoreCustomerOrder,50);
+    // 只有網址帶 #order-status 才恢復訂單狀態頁。
+    // 直接開啟網站根網址則維持正常點餐系統，不受上一筆訂單影響。
+    if(window.location.hash==='#order-status'){
+      setTimeout(restoreCustomerOrder,50);
+    }
   });
 })();
 </script>
