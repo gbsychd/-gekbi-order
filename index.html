@@ -136,7 +136,64 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .ordering-closed-banner>div{display:flex;flex-direction:column;gap:2px}.ordering-closed-banner strong{font-size:16px}.ordering-closed-banner span{font-size:12px;color:#8a6b55}
 .ordering-closed-banner button{border:0;background:#111;color:#fff;width:32px;height:32px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;flex:0 0 auto}
 .bottom-cart-info{display:flex;align-items:center;gap:14px}.bottom-cart-info strong{font-size:17px}
-.success-title{font-size:22px;font-weight:900;margin-bottom:14px}.success-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.success-grid>div{background:#fff;border-radius:10px;padding:10px}.success-grid span{display:block;font-size:12px;color:#777;margin-bottom:3px}.success-grid strong{font-size:17px}.success-note{margin-top:12px;padding:10px;border-radius:10px;background:#fff;color:#217a35;font-weight:700}
+.success-title{font-size:22px;font-weight:900;margin-bottom:14px}
+/* 送出訂單後，同一個點餐頁切換成訂單狀態頁，不開新分頁 */
+body.customer-order-status-mode .ordering-hours-card,
+body.customer-order-status-mode #orderingClosedBanner,
+body.customer-order-status-mode .bottom-cart{
+  display:none!important;
+}
+body.customer-order-status-mode .container{
+  max-width:760px;
+  min-height:calc(100vh - 88px);
+  padding:28px 16px 40px;
+}
+body.customer-order-status-mode .container > *:not(#successMessage){
+  display:none!important;
+}
+body.customer-order-status-mode #successMessage{
+  display:block!important;
+  margin:0;
+  padding:28px 22px;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 2px 14px rgba(0,0,0,.08);
+}
+body.customer-order-status-mode #successMessage .success-title{
+  font-size:30px;
+  text-align:center;
+  margin-bottom:22px;
+}
+.customer-making-animation{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:34px 10px 20px;
+  text-align:center;
+}
+.customer-making-animation.active{display:flex!important}
+.customer-making-dots{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+}
+.customer-making-dots span{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#999;
+  animation:customerMakingDot 1.2s infinite ease-in-out;
+}
+.customer-making-dots span:nth-child(2){animation-delay:.15s}
+.customer-making-dots span:nth-child(3){animation-delay:.3s}
+@keyframes customerMakingDot{
+  0%,80%,100%{transform:scale(.55);opacity:.35}
+  40%{transform:scale(1);opacity:1}
+}
+.success-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.success-grid>div{background:#fff;border-radius:10px;padding:10px}.success-grid span{display:block;font-size:12px;color:#777;margin-bottom:3px}.success-grid strong{font-size:17px}.success-note{margin-top:12px;padding:10px;border-radius:10px;background:#fff;color:#217a35;font-weight:700}
 @media(max-width:480px){.bottom-cart-info{gap:8px}.bottom-cart-info strong{font-size:15px}.success-grid{grid-template-columns:1fr}}
 .address a{color:inherit;text-decoration:none}.address a:hover{text-decoration:underline}.address{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .shop-contact-link,
@@ -1655,9 +1712,8 @@ try{
 
 if(error) throw new Error(error.message||'訂單送出失敗。');
 
-const orderRow=Array.isArray(data)?data[0]:data;
-const orderId=Number(orderRow?.id);
-    const serverTotal=Number(orderRow?.total||0);
+const orderId=Number(data?.id);
+    const serverTotal=Number(data?.total||0);
     if(!orderId) throw new Error('訂單建立成功，但沒有取得訂單編號。');
 
     closeOrderConfirm();
@@ -1685,13 +1741,12 @@ const orderId=Number(orderRow?.id);
       const totalEl=document.getElementById('successTotal');
       const customerEl=document.getElementById('successCustomer');
       const statusEl=document.getElementById('successStatus');
-      if(idEl) idEl.textContent=`#${orderId}`;
+      if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
       if(pickupEl) pickupEl.textContent=pickup||'不指定';
       if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
       if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
       if(statusEl) statusEl.textContent='🟡 等待店家接單';
-      success.style.display='block';
-      success.scrollIntoView({behavior:'smooth',block:'start'});
+      enterCustomerOrderStatusMode();
       if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
     }
 
@@ -1708,6 +1763,17 @@ return true;
 }
 
 
+function enterCustomerOrderStatusMode(){
+  document.body.classList.add('customer-order-status-mode');
+  const success=document.getElementById('successMessage');
+  const container=document.querySelector('.container');
+  if(success && container && success.parentElement!==container){
+    container.appendChild(success);
+  }
+  if(success) success.style.display='block';
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
 function showCustomerOrderSuccess(){
   const success=document.getElementById('successMessage');
   if(!success) return;
@@ -1720,7 +1786,7 @@ function showCustomerOrderSuccess(){
   const customerEl=document.getElementById('successCustomer');
   const statusEl=document.getElementById('successStatus');
 
-  if(idEl) idEl.textContent=`#${saved.orderId}`;
+  if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
   if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
   if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
   if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
@@ -1911,7 +1977,11 @@ document.addEventListener('input',function(e){
     <div><span>訂單金額</span><strong id="successTotal">$0</strong></div>
   </div>
   <div id="successCustomer" class="success-note"></div>
-  <div class="success-note">送出後請等待店家將訂單狀態更新為「餐點已完成」，即可前往取餐。取餐時請告知手機末三碼。</div>
+  <div id="customerMakingAnimation" class="customer-making-animation" aria-live="polite">
+    <div class="customer-making-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    <strong>餐點製作中</strong>
+  </div>
+  <div id="customerStatusNote" class="success-note">送出後請等待店家接單。取餐時請告知手機末三碼。</div>
 </div>
 
 <div id="orderConfirmModal" class="order-confirm-modal" style="display:none">
@@ -2047,10 +2117,51 @@ document.addEventListener('input',function(e){
     }
   };
 
+  let customerAcceptedAt=Number(localStorage.getItem('customerAcceptedAt')||0);
+  let customerMakingTimer=null;
+
+  function showCustomerMakingAnimation(){
+    const anim=document.getElementById('customerMakingAnimation');
+    const statusEl=document.getElementById('successStatus');
+    const note=document.getElementById('customerStatusNote');
+    if(anim) anim.classList.add('active');
+    if(statusEl) statusEl.style.display='none';
+    if(note) note.style.display='none';
+  }
+
+  function showCustomerAccepted(){
+    const anim=document.getElementById('customerMakingAnimation');
+    const statusEl=document.getElementById('successStatus');
+    const note=document.getElementById('customerStatusNote');
+    if(anim) anim.classList.remove('active');
+    if(statusEl){
+      statusEl.style.display='';
+      statusEl.textContent='🟢 店家已接單';
+    }
+    if(note){
+      note.style.display='';
+      note.textContent='店家已接單，請稍候。取餐時請告知手機末三碼。';
+    }
+  }
+
+  function scheduleCustomerMaking(){
+    if(!customerAcceptedAt) return;
+    const remaining=Math.max(0,180000-(Date.now()-customerAcceptedAt));
+    if(customerMakingTimer) clearTimeout(customerMakingTimer);
+    if(remaining===0){
+      showCustomerMakingAnimation();
+      return;
+    }
+    customerMakingTimer=setTimeout(function(){
+      showCustomerMakingAnimation();
+    },remaining);
+  }
+
   function statusText(status){
     const s=String(status||'').trim().toLowerCase();
     if(['done','完成','已完成'].includes(s)) return '🟢 餐點已完成';
     if(['cancelled','canceled','取消','已取消'].includes(s)) return '🔴 訂單已取消';
+    if(['accepted','accept','已接單','接單'].includes(s)) return '🟢 店家已接單';
     if(['making','製作中'].includes(s)) return '🟠 餐點製作中';
     return '🟡 等待店家接單';
   }
@@ -2066,23 +2177,75 @@ document.addEventListener('input',function(e){
       if(error) throw error;
       if(!data?.found) return true;
 
+      const status=String(data.status||'').trim().toLowerCase();
       const statusEl=document.getElementById('successStatus');
-      if(statusEl) statusEl.textContent=statusText(data.status);
-
       const pickupEl=document.getElementById('successPickup');
-      if(pickupEl) pickupEl.textContent=data.pickup_time||'不指定';
-
       const totalEl=document.getElementById('successTotal');
+      const note=document.getElementById('customerStatusNote');
+
+      if(pickupEl) pickupEl.textContent=data.pickup_time||'不指定';
       if(totalEl) totalEl.textContent=`$${Number(data.total||saved.total||0).toLocaleString()}`;
 
-      if(['done','完成','已完成'].includes(String(data.status||'').trim().toLowerCase())){
-        const note=document.querySelector('#successMessage .success-note');
-        if(note) note.textContent='🟢 餐點已完成，可以前往取餐。取餐時請告知手機末三碼。';
+      if(['done','完成','已完成'].includes(status)){
+        if(statusEl){
+          statusEl.style.display='';
+          statusEl.textContent='🟢 餐點已完成';
+        }
+        const anim=document.getElementById('customerMakingAnimation');
+        if(anim) anim.classList.remove('active');
+        if(note){
+          note.style.display='';
+          note.textContent='🟢 餐點已完成，可以前往取餐。取餐時請告知手機末三碼。';
+        }
+        if(customerMakingTimer) clearTimeout(customerMakingTimer);
         stopCustomerOrderTracking();
-      }else if(['cancelled','canceled','取消','已取消'].includes(String(data.status||'').trim().toLowerCase())){
-        stopCustomerOrderTracking();
+        return true;
       }
+
+      if(['cancelled','canceled','取消','已取消'].includes(status)){
+        if(statusEl){
+          statusEl.style.display='';
+          statusEl.textContent='🔴 訂單已取消';
+        }
+        const anim=document.getElementById('customerMakingAnimation');
+        if(anim) anim.classList.remove('active');
+        if(note){
+          note.style.display='';
+          note.textContent='訂單已取消，如有疑問請聯絡店家。';
+        }
+        if(customerMakingTimer) clearTimeout(customerMakingTimer);
+        stopCustomerOrderTracking();
+        return true;
+      }
+
+      if(['accepted','accept','已接單','接單'].includes(status)){
+        if(!customerAcceptedAt){
+          customerAcceptedAt=Date.now();
+          localStorage.setItem('customerAcceptedAt',String(customerAcceptedAt));
+        }
+        scheduleCustomerMaking();
+        if(Date.now()-customerAcceptedAt>=180000){
+          showCustomerMakingAnimation();
+        }else{
+          showCustomerAccepted();
+        }
+        return true;
+      }
+
+      // 未接單
+      if(statusEl){
+        statusEl.style.display='';
+        statusEl.textContent='🟡 等待店家接單';
+      }
+      const anim=document.getElementById('customerMakingAnimation');
+      if(anim) anim.classList.remove('active');
+      if(note){
+        note.style.display='';
+        note.textContent='送出後請等待店家接單。取餐時請告知手機末三碼。';
+      }
+      if(customerMakingTimer) clearTimeout(customerMakingTimer);
       return true;
+
     }catch(e){
       console.warn('顧客訂單狀態更新失敗',e);
       return false;
@@ -2122,12 +2285,13 @@ document.addEventListener('input',function(e){
     if(!success) return;
 
     const digits=String(saved.phone).replace(/\D/g,'');
-    if(idEl) idEl.textContent=`#${saved.orderId}`;
+    if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
     if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
     if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
     if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
     if(statusEl) statusEl.textContent='🟡 等待店家接單';
-    success.style.display='block';
+
+    enterCustomerOrderStatusMode();
     startCustomerOrderTracking();
   }
 
