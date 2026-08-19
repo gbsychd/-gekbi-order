@@ -1106,12 +1106,24 @@ function expandSoldOutKeys(keys){
     ]);
     const isMilkToastParent=groupIndex===0 && itemName && milkToastNames.has(String(itemName).trim());
     if(isMilkToastParent){
+      // 隔壁奶酥：任一品項操作＝整個奶酥系列主品項、主品項細項，
+      // 以及前台兩個套餐中的六種奶酥口味全部同步。
       (SOLDOUT_MENU_GROUPS[0]?.[1]||[]).forEach((name,ii)=>{
         if(milkToastNames.has(String(name).trim())){
           const parentKey=soldOutKey(0,ii);
           out.add(parentKey);
           getSoldOutDetails(parentKey).forEach(detail=>out.add(soldOutDetailKey(parentKey,detail)));
         }
+      });
+
+      // 前台「豬排大套餐」與「單人獨享餐」的奶酥六選一細項全部同步。
+      ['hidden-0','hidden-1'].forEach(hiddenKey=>{
+        out.add(hiddenKey);
+        (SOLDOUT_ITEM_DETAILS[hiddenKey]||[]).forEach(detail=>{
+          if(['原味','可可','抹茶','花生','芝麻','香蒜'].includes(String(detail).trim())){
+            out.add(soldOutDetailKey(hiddenKey,detail));
+          }
+        });
       });
     }else if(itemName){
       // 其他大項維持原本的完全相同名稱同步。
@@ -1374,6 +1386,31 @@ async function saveSoldOutCheckboxStates(states){
     const rows=trueKeys.map(key=>({item_key:key,sold_out:true,updated_at:now}));
     const {error}=await client.from('menu_item_status').upsert(rows,{onConflict:'item_key'});
     if(error){soldOutStatusText('更新失敗：'+error.message);alert('完售狀態更新失敗：'+error.message);return}
+
+    // 確認批次寫入真的落到資料庫；若部分資料因權限／網路等原因沒有寫入，
+    // 再逐筆補寫，避免後台畫面暫時顯示全完售、前台實際只讀到部分狀態。
+    const {data:verifyRows,error:verifyError}=await client
+      .from('menu_item_status')
+      .select('item_key,sold_out')
+      .in('item_key',trueKeys);
+    if(verifyError){
+      soldOutStatusText('完售狀態驗證失敗：'+verifyError.message);
+      alert('完售狀態驗證失敗：'+verifyError.message);
+      return;
+    }
+    const verified=new Set((verifyRows||[]).filter(r=>r.sold_out===true).map(r=>String(r.item_key)));
+    const missing=trueKeys.filter(key=>!verified.has(key));
+    if(missing.length){
+      for(const key of missing){
+        const {error:singleError}=await client.from('menu_item_status')
+          .upsert({item_key:key,sold_out:true,updated_at:now},{onConflict:'item_key'});
+        if(singleError){
+          soldOutStatusText('完售狀態更新失敗：'+singleError.message);
+          alert('完售狀態更新失敗：'+singleError.message);
+          return;
+        }
+      }
+    }
   }
   if(falseKeys.length){
     const {error}=await client.from('menu_item_status').delete().in('item_key',falseKeys);
