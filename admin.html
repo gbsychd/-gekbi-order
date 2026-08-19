@@ -1115,18 +1115,10 @@ function getAllSoldOutKeysByName(name){
   return [...keys];
 }
 function getEffectiveSoldOut(key){
-  if(adminSoldOut[key])return true;
-  // 一般同名品項的狀態以各自資料庫紀錄為準。
-  // 同名同步只在「實際切換」時雙向寫入，避免 A 區取消供應時被 B 區舊紀錄卡住。
-  // 特殊連貫與「任一奶酥厚片 → 單人獨享餐」的顯示狀態。
-  if(getSpecialLinkedKeys(key).some(k=>!!adminSoldOut[k]))return true;
-  if(key==='hidden-1'){
-    const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
-      ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim()) ? soldOutKey(0,ii) : null
-    ).filter(Boolean);
-    if(milkToastKeys.some(k=>!!adminSoldOut[k]))return true;
-  }
-  return false;
+  // 完售管理畫面只讀取「這個 item_key 自己」的資料庫狀態。
+  // 不再從其他品項推導顯示狀態，避免隔壁奶酥任一品項被判定完售時，
+  // 造成其他不同品項也一起顯示完售。
+  return !!adminSoldOut[key];
 }
 
 function getSpecialLinkedKeys(key){
