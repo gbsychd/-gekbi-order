@@ -1065,7 +1065,11 @@ function expandSoldOutKeys(keys){
     // 相同「主品項名稱」只同步其他大項中的相同主品項，
     // 不把主品項狀態擴散到任何細項。
     const itemName=getItemNameFromKey(key);
-    if(itemName){
+    // 「隔壁奶酥」區塊的每個品項完全獨立：點一個只改一個。
+    // 其他大項才維持「完全相同名稱」跨區同步。
+    const keyMatch=String(key||'').match(/^menu-(\d+)-\d+$/);
+    const groupIndex=keyMatch ? Number(keyMatch[1]) : null;
+    if(itemName && groupIndex !== 0){
       getAllParentKeysByName(itemName).forEach(k=>out.add(k));
     }
 
@@ -1340,8 +1344,9 @@ async function saveSoldOutCheckboxStates(states){
   // 奶酥特殊連貫：只有這次實際操作到「隔壁奶酥」品項時，
   // 才同步「單人獨享餐」；不再因為其他品項的操作而重算整個奶酥區。
   const changedMilkToast=([...states.keys()]).some(k=>{
+    const m=String(k||'').match(/^menu-0-\d+$/);
     const name=getItemNameFromKey(k);
-    return name && ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim());
+    return !!m && !!name && ['經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥','香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'].includes(String(name).trim());
   });
   if(changedMilkToast){
     const milkToastKeys=(SOLDOUT_MENU_GROUPS[0]?.[1]||[]).map((name,ii)=>
