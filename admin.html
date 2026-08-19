@@ -643,13 +643,44 @@ button{cursor:pointer}
   .soldout-options-inline{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px 0}
   .soldout-options-inline .soldout-mini{width:100%;min-width:0;min-height:40px;padding:7px 3px;font-size:12px}
 
-  /* 品項改成「勾選／名稱／狀態」，細項按鈕放名稱下一行，避免任何文字直排 */
-  .soldout-item-row{display:grid!important;grid-template-columns:22px minmax(0,1fr) auto!important;grid-template-rows:auto auto;column-gap:9px;row-gap:4px;align-items:center;padding:12px 2px!important;min-width:0}
-  .soldout-item-row input{grid-column:1;grid-row:1 / span 2;width:20px;height:20px}
-  .soldout-item-name{grid-column:2;grid-row:1;min-width:0;font-size:15px;line-height:1.35;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
-  .soldout-detail-toggle{grid-column:2;grid-row:2;justify-self:start;max-width:100%;font-size:12px;padding:5px 8px}
-  .soldout-item-row>.soldout-badge{grid-column:3;grid-row:1 / span 2;align-self:center;font-size:12px;padding:5px 8px}
-  .soldout-detail-list{margin-left:31px;padding-left:9px}
+  /* 手機版：取消複選後，品項採「名稱／滑動開關」兩欄，避免開關、狀態文字互相重疊 */
+  .soldout-item-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto;
+    column-gap:10px;
+    row-gap:4px;
+    align-items:center;
+    padding:12px 2px!important;
+    min-width:0;
+  }
+  .soldout-item-row>.soldout-select{display:none!important}
+  .soldout-item-row>.soldout-toggle{
+    grid-column:2;
+    grid-row:1 / span 2;
+    align-self:center;
+  }
+  .soldout-item-name{
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+    font-size:15px;
+    line-height:1.35;
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
+    word-break:break-word;
+  }
+  .soldout-detail-toggle{
+    grid-column:1;
+    grid-row:2;
+    justify-self:start;
+    max-width:100%;
+    font-size:12px;
+    padding:5px 8px;
+  }
+  .soldout-item-row>.soldout-badge{display:none!important}
+  .soldout-detail-list{margin-left:9px;padding-left:9px}
   .soldout-detail-row{font-size:13px}
 
   /* 菜單編輯、圖片管理、歷史訂單彈窗在手機不超出畫面 */
@@ -1062,21 +1093,34 @@ function expandSoldOutKeys(keys){
   (keys||[]).forEach(key=>{
     out.add(key);
 
-    // 相同「主品項名稱」只同步其他大項中的相同主品項，
-    // 不把主品項狀態擴散到任何細項。
     const itemName=getItemNameFromKey(key);
-    // 「隔壁奶酥」區塊的每個品項完全獨立：點一個只改一個。
-    // 其他大項才維持「完全相同名稱」跨區同步。
     const keyMatch=String(key||'').match(/^menu-(\d+)-\d+$/);
     const groupIndex=keyMatch ? Number(keyMatch[1]) : null;
-    if(itemName && groupIndex !== 0){
+
+    // 「隔壁奶酥」採用指定的整組連動規則：
+    // 只要操作其中任一奶酥品項，就讓整個奶酥系列的主品項與細項同步。
+    // 這是目前店家指定的行為，其他大項不套用。
+    const milkToastNames=new Set([
+      '經典原味厚奶酥','日式抹茶厚奶酥','可可布朗尼厚奶酥',
+      '香濃花生厚奶酥','經典芝麻厚奶酥','香蒜厚片'
+    ]);
+    const isMilkToastParent=groupIndex===0 && itemName && milkToastNames.has(String(itemName).trim());
+    if(isMilkToastParent){
+      (SOLDOUT_MENU_GROUPS[0]?.[1]||[]).forEach((name,ii)=>{
+        if(milkToastNames.has(String(name).trim())){
+          const parentKey=soldOutKey(0,ii);
+          out.add(parentKey);
+          getSoldOutDetails(parentKey).forEach(detail=>out.add(soldOutDetailKey(parentKey,detail)));
+        }
+      });
+    }else if(itemName){
+      // 其他大項維持原本的完全相同名稱同步。
       getAllParentKeysByName(itemName).forEach(k=>out.add(k));
     }
 
-    // 相同「細項名稱」只同步其他品項中的相同細項，
-    // 不把細項狀態反向擴散到主品項。
+    // 細項仍維持原本的同名細項同步；奶酥整組細項已由上面的整組規則處理。
     const detailName=getDetailNameFromKey(key);
-    if(detailName){
+    if(detailName && !isMilkToastParent){
       getAllDetailKeysByName(detailName).forEach(k=>out.add(k));
     }
 
