@@ -192,6 +192,8 @@ button{cursor:pointer}
   .calendar-day{min-height:44px;font-size:13px}
 }
 
+
+#ordersList{overflow-anchor:none;}
 </style>
 
 <style id="soldout-two-column-layout">
@@ -795,6 +797,24 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="admin-layout-stability-fix">
+html{
+  scrollbar-gutter:stable;
+}
+html,body{
+  overflow-y:scroll;
+}
+body{
+  overflow-x:hidden;
+}
+#ordersList,
+.orders-list,
+.order-list{
+  scrollbar-gutter:stable;
+}
+</style>
+
 </head>
 
 <body>
@@ -855,6 +875,7 @@ button{cursor:pointer}
 
     <div class="tabs">
       <button class="tab active" data-status="new" onclick="setTab('new',this)">待接單</button>
+      <button class="tab" data-status="accepted" onclick="setTab('accepted',this)">已接單</button>
       <button class="tab" data-status="making" onclick="setTab('making',this)">製作中</button>
       <button class="tab" data-status="done" onclick="setTab('done',this)">已完成</button>
       <button class="tab" data-status="cancelled" onclick="setTab('cancelled',this)">已取消</button>
@@ -2737,6 +2758,7 @@ function statusText(status){
 function statusClass(status){
 
   if(status === "new") return "status-new";
+  if(status === "accepted") return "status-accepted";
   if(status === "making") return "status-making";
   if(status === "done") return "status-done";
   if(status === "cancelled") return "status-cancel";
@@ -2747,6 +2769,7 @@ function statusClass(status){
 function tabName(status){
 
   if(status === "new") return "待接單";
+  if(status === "accepted") return "已接單";
   if(status === "making") return "製作中";
   if(status === "done") return "已完成";
   if(status === "cancelled") return "已取消";
