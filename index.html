@@ -2422,6 +2422,8 @@ document.addEventListener('input',function(e){
     }).join('');
     card.style.display='block';
   }
+  window.renderOrderItems = renderOrderItems;
+
 
   function updateOrderStatusVisual(status){
     const s=String(status||'').trim().toLowerCase();
