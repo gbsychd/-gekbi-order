@@ -1,8 +1,3 @@
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -1252,7 +1247,7 @@ function renderSoldOutAdmin(){
 
     const isOpen=soldOutOpenGroups.has(gi);
 
-    return `<div class="soldout-category${isOpen?' open':''}${soldOutMultiSelectMode?' soldout-multiselect':''}" id="soldout-group-${gi}">
+    return `<div class="soldout-category${isOpen?' open':''}" id="soldout-group-${gi}">
       <div class="soldout-category-head">
         <button class="soldout-category-toggle" type="button" onclick="toggleSoldOutGroup(${gi})">
           <span>${escapeHtml(group[0])}</span>
