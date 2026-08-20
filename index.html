@@ -995,6 +995,50 @@ body.customer-order-status-mode .status-step small{
   white-space:nowrap;
 }
 
+/* ===== 指定取餐時間：整條狀態列改用紫色識別 ===== */
+body.customer-order-status-mode.reserved-order-mode{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(151,91,255,.11), transparent 34%),
+    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode #successStatus{
+  color:#c49aff !important;
+}
+
 /* active / completed */
 body.customer-order-status-mode .premium-status-timeline .status-step.active .status-icon{
   color:#fff!important;
@@ -1456,8 +1500,8 @@ body.customer-order-status-mode .premium-status-timeline .status-step.active[dat
 <h2>🛒 訂單</h2><div id="cartItems">尚未選擇餐點</div>
 <div class="total">合計：$<span id="total">0</span></div>
 <div class="order-form">
-<label>姓／先生or小姐</label><input id="customerName" type="text" placeholder="請輸入姓氏＋先生或小姐">
-<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" placeholder="請輸入手機號碼">
+<label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
+<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" autocomplete="off" inputmode="numeric" placeholder="請輸入手機號碼">
 <label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
 <select id="pickupTime"><option value="">不指定取餐時間</option></select>
 <label>是否需要餐具</label>
@@ -2761,6 +2805,10 @@ function enterCustomerOrderStatusMode(){
     history.replaceState(null,'',window.location.pathname+window.location.search+'#order-status');
   }
   document.body.classList.add('customer-order-status-mode');
+  const savedForTheme=(()=>{
+    try{return JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'null');}catch(e){return null;}
+  })();
+  document.body.classList.toggle('reserved-order-mode',!!String(savedForTheme?.pickupTime||'').trim());
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
   if(success && container && success.parentElement!==container){
@@ -3241,9 +3289,35 @@ document.addEventListener('input',function(e){
 
   window.restoreCustomerFormDraft=restoreDraft;
 
+  let userStartedNewEntry=false;
+
+  // 送出上一筆訂單後，瀏覽器可能自行觸發 input（例如自動填入）。
+  // 在顧客真正點擊/觸碰輸入框以前，不允許這種 input 解除10分鐘封鎖。
+  function beginNewEntry(e){
+    const el=e.target;
+    if(!el || (el.id!=='customerName' && el.id!=='phone'))return;
+    userStartedNewEntry=true;
+    try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+    el.value='';
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(err){}
+  }
+
+  document.addEventListener('pointerdown',beginNewEntry,true);
+  document.addEventListener('touchstart',beginNewEntry,true);
+  document.addEventListener('keydown',function(e){
+    if((e.target?.id==='customerName'||e.target?.id==='phone') && !e.isComposing){
+      if(!userStartedNewEntry){
+        userStartedNewEntry=true;
+        try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+        e.target.value='';
+      }
+      saveDraft();
+    }
+  },true);
+
   document.addEventListener('input',function(e){
     if(e.target && (e.target.id==='customerName'||e.target.id==='phone')){
-      try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+      if(!userStartedNewEntry)return;
       saveDraft();
     }
   });
@@ -3262,10 +3336,26 @@ document.addEventListener('input',function(e){
   window.addEventListener('beforeunload',saveDraft);
 
   // 姓名、手機可立即恢復；取餐時間若稍後才載入，稍後再嘗試一次。
+  function clearBlockedFormFields(){
+    if(!isDraftBlocked())return;
+    userStartedNewEntry=false;
+    const name=document.getElementById('customerName');
+    const phone=document.getElementById('phone');
+    if(name)name.value='';
+    if(phone)phone.value='';
+  }
+
   function restoreWhenReady(){
+    clearBlockedFormFields();
     restoreDraft();
-    setTimeout(restoreDraft,500);
-    setTimeout(restoreDraft,1500);
+    setTimeout(function(){
+      clearBlockedFormFields();
+      restoreDraft();
+    },500);
+    setTimeout(function(){
+      clearBlockedFormFields();
+      restoreDraft();
+    },1500);
   }
 
   if(document.readyState==='loading'){
@@ -3688,6 +3778,7 @@ document.addEventListener('input',function(e){
     const sentTime=document.getElementById('statusSentTime');
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
+    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
     const countdown=document.getElementById('statusCountdown');
     const pickupDisplay=document.getElementById('statusPickupTime');
     if(countdown && saved.pickupTime){
@@ -3698,6 +3789,7 @@ document.addEventListener('input',function(e){
       countdown.style.display='none';
     }
 
+    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
     enterCustomerOrderStatusMode();
     startCustomerOrderTracking();
   }
