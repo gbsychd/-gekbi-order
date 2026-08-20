@@ -1441,6 +1441,57 @@ body.customer-order-status-mode .premium-status-timeline .status-step.active[dat
 }
 </style>
 
+
+<style id="reserved-status-final-override">
+/* ===== 指定取餐時間訂單：狀態列最終紫色覆蓋層 ===== */
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  color:#fff !important;
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  color:#f7f3ff !important;
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-label{
+  color:#d8d0e6 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-icon{
+  background:radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%) !important;
+  border-color:rgba(154,126,190,.34) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-label{
+  color:#88838f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) small{
+  color:#77717f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(:last-child)::after{
+  background:linear-gradient(90deg,rgba(157,110,226,.70),rgba(93,78,116,.28)) !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -3664,7 +3715,25 @@ document.addEventListener('input',function(e){
       if(error) throw error;
       if(!data?.found) return true;
 
-      const status=String(data.status||'').trim().toLowerCase();
+      let status=String(data.status||'').trim().toLowerCase();
+
+      // ===== 指定取餐時間訂單：前端最後一道時間保護 =====
+      // 即使資料庫/舊版後台曾把 status 提前寫成 making，
+      // 在「指定取餐時間 - 20 分鐘」以前，顧客端一律維持「店家已接單」。
+      const reservedPickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+      if(
+        reservedPickupTime &&
+        ['making','製作中'].includes(status)
+      ){
+        const reservedMakingAt=getCustomerMakingAt(
+          {...saved,createdAt:saved.createdAt||data.created_at},
+          reservedPickupTime
+        );
+        if(reservedMakingAt && Date.now()<reservedMakingAt){
+          status='accepted';
+        }
+      }
+
       const statusEl=document.getElementById('successStatus');
       const pickupEl=document.getElementById('successPickup');
       const totalEl=document.getElementById('successTotal');
@@ -3676,7 +3745,7 @@ document.addEventListener('input',function(e){
       const countdown=document.getElementById('statusCountdown');
       const pickupDisplay=document.getElementById('statusPickupTime');
       if(countdown){
-        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+        const pickupTime=reservedPickupTime;
         if(pickupTime){
           countdown.style.display='block';
           if(pickupDisplay) pickupDisplay.textContent=pickupTime;
@@ -3819,15 +3888,17 @@ document.addEventListener('input',function(e){
       countdown.style.display='none';
     }
 
-    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
+    const isReservedOrder=!!String(saved.pickupTime||'').trim();
+    document.body.classList.toggle('reserved-order-mode',isReservedOrder);
+    if(isReservedOrder) document.body.classList.add('reserved-order-mode');
     enterCustomerOrderStatusMode(saved.orderId);
     startCustomerOrderTracking();
   }
 
   window.addEventListener('load',function(){
-    // 只有網址帶 #order-status 才恢復訂單狀態頁。
-    // 直接開啟網站根網址則維持正常點餐系統，不受上一筆訂單影響。
-    if(window.location.hash==='#order-status'){
+    // 狀態頁現在會綁定實際訂單編號，例如 #order-status=331。
+    // 重新整理後必須依網址中的訂單編號恢復同一筆訂單。
+    if(/^#order-status=\d+$/.test(window.location.hash)){
       setTimeout(restoreCustomerOrder,50);
     }
   });
