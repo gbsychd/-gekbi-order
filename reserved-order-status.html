@@ -1403,7 +1403,7 @@ body.reserved-order-mode .status-step.active:nth-child(4) .status-icon{
 <main class="container">
 <div id="successMessage" class="success" style="display:block">
   <div id="orderStatusTimeline" class="order-status-timeline premium-status-timeline" aria-label="訂單進度">
-    <div class="status-step active" data-step="sent">
+    <div class="status-step" data-step="sent">
       <div class="status-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" class="status-svg"><circle cx="24" cy="24" r="9"/><path d="M24 14v10l6 4"/><path d="M24 5v3M24 40v3M5 24h3M40 24h3"/></svg>
       </div>
@@ -1618,6 +1618,7 @@ function enterCustomerOrderStatusMode(orderId){
     const making=steps.find(x=>x.dataset.step==='making');
     const done=steps.find(x=>x.dataset.step==='done');
 
+    // 每次狀態更新先全部熄滅，再只點亮「目前正在進行的唯一一步」。
     steps.forEach(x=>x.classList.remove('active','done'));
 
     const setReminder = (key) => {
@@ -1637,33 +1638,32 @@ function enterCustomerOrderStatusMode(orderId){
       if(box) box.style.display='';
     };
 
+    let currentStep=null;
+
     if(s==='done'||s==='完成'||s==='已完成'){
-  if(done){
-    done.classList.add('active');
-  }
-  return;
-}
-
-    if(s==='making'||s==='製作中'){
-      if(making) making.classList.add('active');
+      currentStep=done;
+      setReminder('done');
+    }else if(s==='making'||s==='製作中'){
+      currentStep=making;
       setReminder('making');
-      return;
-    }
-
-    if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
-      if(accepted) accepted.classList.add('active');
+    }else if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
+      currentStep=accepted;
       setReminder('accepted');
-      return;
-    }
-
-    if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
-      if(accepted) accepted.classList.add('active');
+    }else if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
+      // 取消不屬於 1~4 的進行狀態，維持第 2 步作為最後已接單狀態。
+      currentStep=accepted;
       setReminder('accepted');
-      return;
+    }else{
+      currentStep=sent;
+      setReminder('sent');
     }
 
-    if(sent) sent.classList.add('active');
-    setReminder('sent');
+    if(currentStep) currentStep.classList.add('active');
+
+    // 最後再強制保險：任何時候 DOM 只允許一個 active。
+    steps.forEach(step=>{
+      if(step!==currentStep) step.classList.remove('active');
+    });
   }
 
   let customerAcceptedAt=0;
@@ -1994,17 +1994,6 @@ function enterCustomerOrderStatusMode(orderId){
   });
 })();
 </script>
-
-/* 指定單狀態列：任何時間只允許「目前步驟」亮起 */
-function enforceReservedSingleActiveStep(){
-  const timeline=document.querySelector('.premium-status-timeline');
-  if(!timeline) return;
-  const activeSteps=timeline.querySelectorAll('.status-step.active');
-  if(activeSteps.length<=1) return;
-  activeSteps.forEach((el,i)=>{
-    if(i>0) el.classList.remove('active');
-  });
-}
 
 </body>
 </html>
