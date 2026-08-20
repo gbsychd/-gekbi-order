@@ -3108,7 +3108,15 @@ document.addEventListener('input',function(e){
 
 
   function updateOrderStatusVisual(status){
-    const noteText = document.getElementById('customerStatusNoteText');
+    const reminderEl = document.getElementById('customerStatusNoteText');
+    const reminderBox = document.getElementById('customerStatusNote');
+    const rawStatus = String(arguments[0] ?? '').trim().toLowerCase();
+    const reminderKey =
+      /done|完成/.test(rawStatus) ? 'done' :
+      /making|製作|制作/.test(rawStatus) ? 'making' :
+      /accepted|accept|已接單|接單/.test(rawStatus) ? 'accepted' :
+      'sent';
+
     const reminderMap = {
       sent: '送出訂單後，請耐心等待店家接單。',
       accepted: '店家已接單，餐點將開始準備。',
@@ -3116,18 +3124,10 @@ document.addEventListener('input',function(e){
       done: '餐點已完成，可前往取餐。取餐時請告知手機末三碼'
     };
 
-    const s=String(status||'').trim().toLowerCase();
+    if (reminderEl) reminderEl.textContent = reminderMap[reminderKey];
+    if (reminderBox) reminderBox.style.display = '';
 
-    let reminderKey = 'sent';
-    if(['done','完成','已完成'].includes(s)) reminderKey='done';
-    else if(['making','製作中'].includes(s)) reminderKey='making';
-    else if(['accepted','accept','已接單','接單'].includes(s)) reminderKey='accepted';
-    if(noteText) {
-      noteText.textContent = reminderMap[reminderKey];
-      const note = document.getElementById('customerStatusNote');
-      if(note) note.style.display = '';
-    }
-    const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
+const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
     const sent=steps.find(x=>x.dataset.step==='sent');
     const accepted=steps.find(x=>x.dataset.step==='accepted');
     const making=steps.find(x=>x.dataset.step==='making');
