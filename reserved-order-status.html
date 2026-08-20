@@ -1638,10 +1638,11 @@ function enterCustomerOrderStatusMode(orderId){
     };
 
     if(s==='done'||s==='完成'||s==='已完成'){
-      if(done) done.classList.add('active');
-      setReminder('done');
-      return;
-    }
+  if(done){
+    done.classList.add('active');
+  }
+  return;
+}
 
     if(s==='making'||s==='製作中'){
       if(making) making.classList.add('active');
@@ -1993,5 +1994,17 @@ function enterCustomerOrderStatusMode(orderId){
   });
 })();
 </script>
+
+/* 指定單狀態列：任何時間只允許「目前步驟」亮起 */
+function enforceReservedSingleActiveStep(){
+  const timeline=document.querySelector('.premium-status-timeline');
+  if(!timeline) return;
+  const activeSteps=timeline.querySelectorAll('.status-step.active');
+  if(activeSteps.length<=1) return;
+  activeSteps.forEach((el,i)=>{
+    if(i>0) el.classList.remove('active');
+  });
+}
+
 </body>
 </html>
