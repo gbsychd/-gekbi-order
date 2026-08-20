@@ -2861,14 +2861,23 @@ function enterCustomerOrderStatusMode(orderId){
     }
   }
   document.body.classList.add('customer-order-status-mode');
+  // 狀態頁已經有「這一筆訂單」的保存資料時，直接以目前狀態頁資料判斷是否為指定單。
+  // 不再只依賴 orderId 重新拼 localStorage key，避免重新整理/切頁時把紫色模式誤清掉。
   const savedForTheme=(()=>{
     try{
-      const themeOrderId=Number(orderId||getOrderIdFromHash());
-      const raw=themeOrderId ? localStorage.getItem(getOrderStorageKey(themeOrderId)) : localStorage.getItem('gekbi_customer_active_order_v1');
-      return raw ? JSON.parse(raw) : null;
-    }catch(e){return null;}
+      if(typeof getSavedOrder==='function'){
+        const current=getSavedOrder();
+        if(current) return current;
+      }
+      if(window.__customerLastSubmittedOrder) return window.__customerLastSubmittedOrder;
+      return null;
+    }catch(e){
+      return window.__customerLastSubmittedOrder||null;
+    }
   })();
-  document.body.classList.toggle('reserved-order-mode',!!String(savedForTheme?.pickupTime||'').trim());
+  const isReservedForTheme=!!String(savedForTheme?.pickupTime||'').trim();
+  document.body.classList.toggle('reserved-order-mode',isReservedForTheme);
+  if(isReservedForTheme) document.body.classList.add('reserved-order-mode');
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
   if(success && container && success.parentElement!==container){
