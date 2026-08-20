@@ -1962,7 +1962,7 @@ function enterCustomerOrderStatusMode(orderId){
     const sentTime=document.getElementById('statusSentTime');
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
-    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
+    document.body.classList.toggle('reserved-order-mode', STATUS_PAGE_RESERVED || !!String(saved.pickupTime||'').trim());
     const countdown=document.getElementById('statusCountdown');
     const pickupDisplay=document.getElementById('statusPickupTime');
     if(countdown && saved.pickupTime){
@@ -1973,7 +1973,7 @@ function enterCustomerOrderStatusMode(orderId){
       countdown.style.display='none';
     }
 
-    const isReservedOrder=!!String(saved.pickupTime||'').trim();
+    const isReservedOrder=STATUS_PAGE_RESERVED || !!String(saved.pickupTime||'').trim();
     document.body.classList.toggle('reserved-order-mode',isReservedOrder);
     document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
     const timeline=document.getElementById('orderStatusTimeline');
