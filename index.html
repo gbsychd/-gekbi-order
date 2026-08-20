@@ -750,6 +750,18 @@ body.customer-order-status-mode .order-item-row:last-child{border-bottom:0;paddi
 body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;font-weight:800;line-height:1.45}.order-item-options{margin-top:3px;color:#8f979b;font-size:12px;line-height:1.5}.order-item-qty{color:#b8bec1;font-size:13px}.order-item-price{color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
 @media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
 
+
+/* 取餐時間：只恢復原本藍色視覺，不修改取餐時間邏輯。 */
+#pickupTime{
+  border:1px solid #2196f3!important;
+  color:#1565c0!important;
+  background:#fff!important;
+}
+#pickupTime:focus{
+  border-color:#1976d2!important;
+  outline:none!important;
+  box-shadow:0 0 0 2px rgba(33,150,243,.15)!important;
+}
 </style>
 
 <style id="store-holiday-v21">
@@ -1416,7 +1428,7 @@ body.customer-order-status-mode .premium-status-timeline .status-step.active[dat
 <div class="total">合計：$<span id="total">0</span></div>
 <div class="order-form">
 <label>姓／先生or小姐</label><input id="customerName" type="text" placeholder="請輸入姓氏＋先生或小姐">
-<label>手機號碼(取餐請報後3碼)</label><input id="phone" type="tel" placeholder="請輸入手機號碼">
+<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" placeholder="請輸入手機號碼">
 <label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
 <select id="pickupTime"><option value="">不指定取餐時間</option></select>
 <label>是否需要餐具</label>
@@ -2471,7 +2483,19 @@ function initPickupTimes(){
 
   const now=getTaipeiNow();
   const nowDate=new Date(Date.UTC(now.year,now.month-1,now.day,now.hour,now.minute,0));
-  const minPickup=nowDate.getTime()+20*60*1000;
+  // 最早取餐時間：先將目前時間進位到下一個 10 分鐘，再往後至少 30 分鐘。
+  // 例：10:02 → 10:10 → +30 分鐘 → 10:40
+  //     10:05 → 10:10 → +30 分鐘 → 10:40
+  //     10:10 → 10:20 → +30 分鐘 → 10:50
+  const nowRoundedUp10 = new Date(nowDate.getTime());
+  const currentMinutes = nowRoundedUp10.getUTCMinutes();
+  const roundedMinutes = Math.ceil(currentMinutes / 10) * 10;
+  if(roundedMinutes >= 60){
+    nowRoundedUp10.setUTCHours(nowRoundedUp10.getUTCHours()+1,0,0,0);
+  }else{
+    nowRoundedUp10.setUTCMinutes(roundedMinutes,0,0);
+  }
+  const minPickup=nowRoundedUp10.getTime()+30*60*1000;
   const seen=new Set();
 
   for(let offset=0;offset<=24*60;offset+=10){
@@ -2533,7 +2557,13 @@ function closeOrderConfirm(){
 }
 
 async function confirmAndSubmitOrder(){
-  if(window.validateOrderCustomerFields && !window.validateOrderCustomerFields()) return false;
+  if(window.validateOrderCustomerFields){
+    const customerFieldsValid=window.validateOrderCustomerFields();
+    if(!customerFieldsValid){
+      closeOrderConfirm();
+      return false;
+    }
+  }
 
   const submitBtn=document.querySelector('.order-confirm-submit');
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
