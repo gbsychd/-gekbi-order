@@ -751,6 +751,35 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
 @media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
 
 
+/* 指定取餐時間：只顯示顧客指定的時間，不顯示系統自動跳轉的製作時間。 */
+body.customer-order-status-mode #statusCountdown{
+  margin:14px 0 0;
+  padding:18px 16px;
+  border:1px solid rgba(255,177,59,.30);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(255,160,24,.085),rgba(20,24,27,.96));
+  text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 28px rgba(0,0,0,.16);
+}
+body.customer-order-status-mode #statusCountdown > div:first-child{
+  color:#ffbd55;
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+body.customer-order-status-mode #statusCountdown strong{
+  display:block;
+  margin:5px 0 3px;
+  color:#fff;
+  font-size:30px;
+  line-height:1.15;
+  letter-spacing:.06em;
+}
+body.customer-order-status-mode #statusCountdown > div:last-child{
+  color:#aeb5b8;
+  font-size:13px;
+}
+
 /* 取餐時間：只恢復原本藍色視覺，不修改取餐時間邏輯。 */
 #pickupTime{
   border:1px solid #2196f3!important;
@@ -2972,6 +3001,12 @@ document.addEventListener('input',function(e){
     <span id="customerStatusNoteText">送出訂單後，請耐心等待店家接單。</span>
   </div>
 
+  <div id="statusCountdown" class="status-countdown reserved" style="display:none" aria-live="polite">
+    <div>🕐 指定取餐時間</div>
+    <strong id="statusPickupTime">--:--</strong>
+    <div>請於指定時間前往取餐</div>
+  </div>
+
   <div class="order-summary-grid">
     <div class="order-summary-card">
       <span>訂單編號</span>
@@ -3215,11 +3250,12 @@ document.addEventListener('input',function(e){
   }
 })(); 
 
-/* 顧客端訂單保存：不指定時間 1 小時；指定取餐時間保存至「取餐時間＋1 小時」。 */
+/* 顧客端訂單保存：不指定時間保存至「訂單完成＋30分鐘」；指定時間保存至「指定取餐時間＋30分鐘」。 */
 
 (function(){
   const STORAGE_KEY='gekbi_customer_active_order_v1';
-  const KEEP_MS=60*60*1000;
+  const RETENTION_AFTER_COMPLETE_MS=30*60*1000;
+  const RETENTION_AFTER_PICKUP_MS=30*60*1000;
   let trackingTimer=null;
 
   function getSavedOrder(){
@@ -3229,7 +3265,11 @@ document.addEventListener('input',function(e){
       const data=JSON.parse(raw);
       if(!data?.orderId || !data?.phone || !data?.createdAt) return null;
       const expiresAt=Number(data.expiresAt||0);
-      const expireTime=expiresAt || (Number(data.createdAt)+KEEP_MS);
+      const expireTime=expiresAt || (
+        data.pickupTime
+          ? (getPickupAtMs(data.pickupTime) || (Number(data.createdAt)+RETENTION_AFTER_PICKUP_MS)) + RETENTION_AFTER_PICKUP_MS
+          : Number(data.createdAt) + RETENTION_AFTER_COMPLETE_MS
+      );
       if(Date.now()>=expireTime){
         localStorage.removeItem(STORAGE_KEY);
         return null;
@@ -3266,9 +3306,12 @@ document.addEventListener('input',function(e){
     return Date.parse(`${year}-${month}-${day}T${String(parts[0]).padStart(2,'0')}:${String(parts[1]).padStart(2,'0')}:00+08:00`);
   }
 
-  window.getOrderExpiryAt=function(pickupTime,createdAt){
+  window.getOrderExpiryAt=function(pickupTime,createdAt,completedAt){
     const pickupAt=getPickupAtMs(pickupTime);
-    return pickupAt ? pickupAt+KEEP_MS : Number(createdAt)+KEEP_MS;
+    if(pickupAt) return pickupAt+RETENTION_AFTER_PICKUP_MS;
+    if(completedAt) return Number(completedAt)+RETENTION_AFTER_COMPLETE_MS;
+    // 尚未完成時先保留；一旦狀態進入「訂單已完成」，會立即改為完成時間＋30分鐘。
+    return Number(createdAt)+RETENTION_AFTER_COMPLETE_MS;
   }
 
   function renderOrderItems(items){
@@ -3342,8 +3385,67 @@ document.addEventListener('input',function(e){
     setReminder('sent');
   }
 
-  let customerAcceptedAt=Number(localStorage.getItem('customerAcceptedAt')||0);
+  let customerAcceptedAt=0;
   let customerMakingTimer=null;
+
+  function customerAcceptedStorageKey(orderId){
+    return 'gekbi_customerAcceptedAt_' + String(orderId||'unknown');
+  }
+
+  function getTaiwanParts(date){
+    const parts=new Intl.DateTimeFormat('en-US',{
+      timeZone:'Asia/Taipei',
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',
+      hour12:false
+    }).formatToParts(date);
+    const out={};
+    parts.forEach(p=>{if(p.type!=='literal')out[p.type]=Number(p.value);});
+    return out;
+  }
+
+  function taiwanDateToUtc(parts){
+    return Date.UTC(parts.year,parts.month-1,parts.day,parts.hour,parts.minute,parts.second||0)-8*60*60*1000;
+  }
+
+  function getPickupAtFromOrder(saved,pickupTime){
+    const m=String(pickupTime||'').match(/^(\d{1,2}):(\d{2})$/);
+    if(!m || !saved?.createdAt) return 0;
+
+    const created=new Date(Number(saved.createdAt));
+    if(Number.isNaN(created.getTime())) return 0;
+
+    const p=getTaiwanParts(created);
+    const pickupHour=Number(m[1]);
+    const pickupMinute=Number(m[2]);
+
+    let day=p.day;
+    const createdMinutes=p.hour*60+p.minute;
+    const pickupMinutes=pickupHour*60+pickupMinute;
+
+    // 取餐時間若早於下單當下的營業日時間，代表跨日後取餐。
+    if(pickupMinutes<=createdMinutes){
+      const next=new Date(Date.UTC(p.year,p.month-1,p.day)+24*60*60*1000);
+      const np=new Intl.DateTimeFormat('en-US',{
+        timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'
+      }).formatToParts(next);
+      const n={};
+      np.forEach(x=>{if(x.type!=='literal')n[x.type]=Number(x.value);});
+      day=n.day;
+      p.year=n.year;
+      p.month=n.month;
+    }
+
+    return taiwanDateToUtc({
+      year:p.year,month:p.month,day,
+      hour:pickupHour,minute:pickupMinute,second:0
+    });
+  }
+
+  function getCustomerMakingAt(saved,pickupTime){
+    const pickupAt=getPickupAtFromOrder(saved,pickupTime);
+    return pickupAt ? pickupAt-(20*60*1000) : 0;
+  }
 
   function showCustomerMakingAnimation(){
     const anim=document.getElementById('customerMakingAnimation');
@@ -3365,20 +3467,35 @@ document.addEventListener('input',function(e){
     }
     if(note){
       note.style.display='';
-      note.textContent='店家已接單，請稍候。取餐時請告知手機末三碼。';
+      note.textContent='店家已接單，餐點將開始準備。';
     }
   }
 
-  function scheduleCustomerMaking(){
-    if(!customerAcceptedAt) return;
-    const remaining=Math.max(0,180000-(Date.now()-customerAcceptedAt));
+  function scheduleCustomerMaking(saved,pickupTime){
     if(customerMakingTimer) clearTimeout(customerMakingTimer);
+    customerMakingTimer=null;
+    if(!customerAcceptedAt) return;
+
+    let targetAt;
+    if(pickupTime){
+      // 指定時間訂單：指定取餐時間前 20 分鐘自動進入「餐點製作中」。
+      targetAt=getCustomerMakingAt(saved,pickupTime);
+    }else{
+      // 不指定時間：維持原本接單後 3 分鐘自動進入「餐點製作中」。
+      targetAt=customerAcceptedAt+180000;
+    }
+
+    if(!targetAt) return;
+
+    const remaining=Math.max(0,targetAt-Date.now());
     if(remaining===0){
       showCustomerMakingAnimation();
       return;
     }
+
     customerMakingTimer=setTimeout(function(){
       showCustomerMakingAnimation();
+      // 不在畫面顯示這個自動跳轉時間點。
     },remaining);
   }
 
@@ -3412,15 +3529,25 @@ document.addEventListener('input',function(e){
       if(totalEl) totalEl.textContent=`$${Number(data.total||saved.total||0).toLocaleString()}`;
       updateOrderStatusVisual(status);
       const countdown=document.getElementById('statusCountdown');
+      const pickupDisplay=document.getElementById('statusPickupTime');
       if(countdown){
-        if(data.pickup_time){
-          countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${data.pickup_time}</strong>`;
+        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+        if(pickupTime){
+          countdown.style.display='block';
+          if(pickupDisplay) pickupDisplay.textContent=pickupTime;
         }else{
-          countdown.style.display='none'; countdown.classList.remove('reserved'); countdown.innerHTML='';
+          countdown.style.display='none';
+          if(pickupDisplay) pickupDisplay.textContent='--:--';
         }
       }
 
       if(['done','完成','已完成'].includes(status)){
+        // 不指定時間：第一次確認訂單已完成時記錄完成時間，保存至完成後30分鐘。
+        if(!saved.pickupTime && !saved.completedAt){
+          saved.completedAt=Date.now();
+          saved.expiresAt=saved.completedAt+RETENTION_AFTER_COMPLETE_MS;
+          window.saveCustomerActiveOrder(saved);
+        }
         if(statusEl){
           statusEl.style.display='';
           statusEl.textContent='🟢 餐點已完成';
@@ -3429,6 +3556,8 @@ document.addEventListener('input',function(e){
         if(anim) anim.classList.remove('active');
         // 完成狀態提醒文字由 updateOrderStatusVisual() 統一控制。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
+        customerMakingTimer=null;
+        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
         stopCustomerOrderTracking();
         return true;
       }
@@ -3442,20 +3571,30 @@ document.addEventListener('input',function(e){
         if(anim) anim.classList.remove('active');
         // 取消狀態不覆蓋動態狀態列的提醒文字。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
+        customerMakingTimer=null;
+        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
         stopCustomerOrderTracking();
         return true;
       }
 
       if(['accepted','accept','已接單','接單'].includes(status)){
+        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+        const acceptedKey=customerAcceptedStorageKey(saved.orderId);
+
+        if(!customerAcceptedAt){
+          customerAcceptedAt=Number(localStorage.getItem(acceptedKey)||0);
+        }
         if(!customerAcceptedAt){
           customerAcceptedAt=Date.now();
-          localStorage.setItem('customerAcceptedAt',String(customerAcceptedAt));
+          localStorage.setItem(acceptedKey,String(customerAcceptedAt));
         }
-        scheduleCustomerMaking();
-        if(Date.now()-customerAcceptedAt>=180000){
+
+        scheduleCustomerMaking(saved,pickupTime);
+
+        const makingAt=pickupTime ? getCustomerMakingAt(saved,pickupTime) : (customerAcceptedAt+180000);
+        if(makingAt && Date.now()>=makingAt){
           showCustomerMakingAnimation();
         }else{
-          // 狀態列與提醒文字已由 updateOrderStatusVisual() 同步設定。
           const anim=document.getElementById('customerMakingAnimation');
           if(anim) anim.classList.remove('active');
           if(statusEl){
@@ -3525,7 +3664,14 @@ document.addEventListener('input',function(e){
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
     const countdown=document.getElementById('statusCountdown');
-    if(countdown && saved.pickupTime){ countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${saved.pickupTime}</strong>`; }
+    const pickupDisplay=document.getElementById('statusPickupTime');
+    if(countdown && saved.pickupTime){
+      countdown.style.display='block';
+      countdown.classList.add('reserved');
+      if(pickupDisplay) pickupDisplay.textContent=saved.pickupTime;
+    }else if(countdown){
+      countdown.style.display='none';
+    }
 
     enterCustomerOrderStatusMode();
     startCustomerOrderTracking();
