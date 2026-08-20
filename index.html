@@ -4017,10 +4017,11 @@ body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .s
 }
 body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
 body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
-  border-color:#ae8ce0 !important;
-  color:#f7f3ff !important;
-  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+  /* 已完成的前置狀態只保留紫色系，不發光；只有目前 active 狀態亮起。 */
+  background:radial-gradient(circle at 35% 28%,#4a4354 0%,#302b38 46%,#17151d 100%) !important;
+  border-color:rgba(174,140,224,.42) !important;
+  color:#ddd4ed !important;
+  box-shadow:0 5px 16px rgba(0,0,0,.28) !important;
 }
 body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
 body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
