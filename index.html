@@ -2608,8 +2608,6 @@ async function confirmAndSubmitOrder(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
   try{
-    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，目前非線上點餐時間，請依頁面顯示時間再下單。');
-
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
     const phone=document.getElementById('phone').value.trim().replace(/[\s-]/g,'');
