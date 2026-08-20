@@ -1553,8 +1553,8 @@ body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .st
 <div class="order-form">
 <label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
 <label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" autocomplete="off" inputmode="numeric" placeholder="請輸入手機號碼">
-<label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
-<select id="pickupTime"><option value="">不指定取餐時間</option></select>
+<label>取餐時間</label>
+<select id="pickupTime"><option value="">不指定（等候店家點選完成訂單即可取餐）</option></select>
 <label>是否需要餐具</label>
 <div class="cutlery-choice">
   <label><input type="radio" name="cutlery" value="需要" checked> 需要</label>
@@ -2817,12 +2817,28 @@ const orderId=Number(data?.id);
     window.saveCustomerActiveOrder(submittedOrderData);
 
   
-    // 依是否指定取餐時間，前往對應的獨立訂單確認狀態頁。
-    // 共用同一筆訂單資料、localStorage 與 Supabase 狀態追蹤，不改訂單資料結構。
-    const statusPage = pickup ? 'reserved-order-status.html' : 'order-status.html';
-    window.location.href = `${statusPage}#order-status=${orderId}`;
+    // 訂單成功後直接在目前頁面顯示訂單狀態。
+    const success=document.getElementById('successMessage');
+    if(success){
+      const digits=String(phone).replace(/\D/g,'');
+      const idEl=document.getElementById('successOrderId');
+      const pickupEl=document.getElementById('successPickup');
+      const totalEl=document.getElementById('successTotal');
+      const customerEl=document.getElementById('successCustomer');
+      const statusEl=document.getElementById('successStatus');
+      if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+      if(pickupEl) pickupEl.textContent=pickup||'不指定';
+      if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
+      if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
+      if(statusEl) statusEl.textContent='🟡 等待店家接單';
+      const sentTime=document.getElementById('statusSentTime');
+      if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
+      renderOrderItems(items);
+      enterCustomerOrderStatusMode(orderId);
+      if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+    }
 
-    return true;
+return true;
 
   }catch(error){
 
