@@ -3554,6 +3554,49 @@ document.addEventListener('input',function(e){
 
     steps.forEach(x=>x.classList.remove('active','done'));
 
+    const applyReservedTimelineTheme = () => {
+      const timeline=document.getElementById('orderStatusTimeline');
+      if(!timeline) return;
+      let order=null;
+      try{ order=(typeof getSavedOrder==='function') ? getSavedOrder() : null; }catch(e){}
+      const reserved=!!String(order?.pickupTime||'').trim();
+
+      timeline.classList.toggle('reserved-order-timeline',reserved);
+      timeline.setAttribute('data-reserved-order',reserved?'1':'0');
+      document.body.classList.toggle('reserved-order-mode',reserved);
+      document.body.setAttribute('data-reserved-order',reserved?'1':'0');
+
+      if(!reserved) return;
+
+      // 指定單：只有目前 active 狀態亮紫色；done / 未到達狀態維持暗色。
+      [...timeline.querySelectorAll('.status-step')].forEach(step=>{
+        const icon=step.querySelector('.status-icon');
+        const label=step.querySelector('.status-label');
+        const small=step.querySelector('small');
+        if(step.classList.contains('active')){
+          step.style.setProperty('color','#c9a6ff','important');
+          if(label) label.style.setProperty('color','#c49aff','important');
+          if(small) small.style.setProperty('color','#a88bcf','important');
+          if(icon){
+            icon.style.setProperty('background','radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%)','important');
+            icon.style.setProperty('border-color','#c49aff','important');
+            icon.style.setProperty('color','#fff','important');
+            icon.style.setProperty('box-shadow','0 0 0 7px rgba(164,112,255,.10),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68)','important');
+          }
+        }else{
+          step.style.setProperty('color','#88838f','important');
+          if(label) label.style.setProperty('color','#88838f','important');
+          if(small) small.style.setProperty('color','#77717f','important');
+          if(icon){
+            icon.style.setProperty('background','radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%)','important');
+            icon.style.setProperty('border-color','rgba(154,126,190,.34)','important');
+            icon.style.setProperty('color','#d8d0e6','important');
+            icon.style.setProperty('box-shadow','0 5px 16px rgba(0,0,0,.28)','important');
+          }
+        }
+      });
+    };
+
     const setReminder = (key) => {
       const el=document.getElementById('customerStatusNoteText');
       const box=document.getElementById('customerStatusNote');
@@ -3582,6 +3625,7 @@ document.addEventListener('input',function(e){
       [sent,accepted].forEach(x=>x&&x.classList.add('done'));
       if(making) making.classList.add('active');
       setReminder('making');
+      applyReservedTimelineTheme();
       return;
     }
 
@@ -3589,6 +3633,7 @@ document.addEventListener('input',function(e){
       if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
+      applyReservedTimelineTheme();
       return;
     }
 
@@ -3596,11 +3641,13 @@ document.addEventListener('input',function(e){
       if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
+      applyReservedTimelineTheme();
       return;
     }
 
     if(sent) sent.classList.add('active');
     setReminder('sent');
+    applyReservedTimelineTheme();
   }
 
   let customerAcceptedAt=0;
