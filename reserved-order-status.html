@@ -726,15 +726,15 @@ body.customer-order-status-mode .order-status-subtitle{margin-top:9px;color:#aeb
 body.customer-order-status-mode .order-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:start;margin:8px 0 18px;padding:0 3px}
 body.customer-order-status-mode .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
 body.customer-order-status-mode .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
-body.customer-order-status-mode .status-step.done:not(:last-child)::after{background:linear-gradient(90deg,#ffb23e,#ff9c18)}
-body.customer-order-status-mode .status-step.active{color:#ffb23e}
-body.customer-order-status-mode .status-step.done{color:#d9dde0}
+
+
+
 body.customer-order-status-mode .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
-body.customer-order-status-mode .status-step.done .status-icon{background:#ffad2f;border-color:#ffbf5d;color:#16191a;box-shadow:0 0 22px rgba(255,169,42,.28)}
-body.customer-order-status-mode .status-step.active .status-icon{background:#ffad2f;border-color:#ffd18a;color:#17191a;box-shadow:0 0 30px rgba(255,169,42,.48);animation:statusActivePulse 1.8s infinite ease-in-out}
+
+
 @keyframes statusActivePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 body.customer-order-status-mode .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
-body.customer-order-status-mode .status-step.active small{color:#ffb23e}
+
 body.customer-order-status-mode .status-countdown{position:relative;z-index:2;margin:0 0 14px;padding:14px 14px;border:1px solid rgba(255,255,255,.055);border-radius:15px;background:linear-gradient(145deg,#1b2023,#15191b);text-align:center;color:#b7bdc0;font-size:13px;line-height:1.55}
 body.customer-order-status-mode .status-countdown strong{display:block;margin-top:2px;color:#ffb23e;font-size:25px;letter-spacing:.04em}
 body.customer-order-status-mode .status-countdown.reserved{border-color:rgba(255,177,59,.25);background:linear-gradient(145deg,rgba(255,160,24,.08),#15191b)}
@@ -1245,6 +1245,20 @@ body.customer-order-status-mode .premium-status-timeline::before{top:43px}
 body.customer-order-status-mode .premium-status-timeline .status-label{font-size:10px}
 }
 </style>
+<style id="reserved-status-timeline-final-purple">
+/* 指定單狀態列專用：任何時間只允許目前 .active 亮紫色 */
+body.customer-order-status-mode .premium-status-timeline .status-step.active{color:#c8a8ff!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.active .status-icon{background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%)!important;border-color:#c49aff!important;color:#fff!important;box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68)!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.active .status-label{color:#c49aff!important;font-weight:900!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.active small{color:#a88bcf!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.done .status-icon,
+body.customer-order-status-mode .premium-status-timeline .status-step:not(.active) .status-icon{background:#242930!important;border-color:#3b3f49!important;color:#c8cdd5!important;box-shadow:0 0 0 7px rgba(0,0,0,.24),0 17px 36px rgba(0,0,0,.40),inset 0 2px 1px rgba(255,255,255,.07)!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.done .status-label,
+body.customer-order-status-mode .premium-status-timeline .status-step:not(.active) .status-label{color:#c8cdd4!important}
+body.customer-order-status-mode .premium-status-timeline .status-step.done small,
+body.customer-order-status-mode .premium-status-timeline .status-step:not(.active) small{color:#707780!important}
+body.customer-order-status-mode .premium-status-timeline .status-step:not(:last-child)::after{background:#343840!important}
+</style>
 </head>
 <body class="customer-order-status-mode reserved-order-mode" data-status-page="reserved">
 <main class="container">
@@ -1485,28 +1499,24 @@ function enterCustomerOrderStatusMode(orderId){
     };
 
     if(s==='done'||s==='完成'||s==='已完成'){
-      [sent,accepted,making,done].forEach(x=>x&&x.classList.add('done'));
       if(done) done.classList.add('active');
       setReminder('done');
       return;
     }
 
     if(s==='making'||s==='製作中'){
-      [sent,accepted].forEach(x=>x&&x.classList.add('done'));
       if(making) making.classList.add('active');
       setReminder('making');
       return;
     }
 
     if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
-      if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
       return;
     }
 
     if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
-      if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
       return;
