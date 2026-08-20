@@ -2878,6 +2878,8 @@ function enterCustomerOrderStatusMode(orderId){
   const isReservedForTheme=!!String(savedForTheme?.pickupTime||'').trim();
   document.body.classList.toggle('reserved-order-mode',isReservedForTheme);
   if(isReservedForTheme) document.body.classList.add('reserved-order-mode');
+  const themeTimeline=document.getElementById('orderStatusTimeline');
+  if(themeTimeline) themeTimeline.classList.toggle('reserved-order-timeline',isReservedForTheme);
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
   if(success && container && success.parentElement!==container){
@@ -3548,9 +3550,13 @@ document.addEventListener('input',function(e){
     const setReminder = (key) => {
       const el=document.getElementById('customerStatusNoteText');
       const box=document.getElementById('customerStatusNote');
+      const savedOrder = (typeof getSavedOrder==='function') ? getSavedOrder() : null;
+      const hasPickupTime = !!String(savedOrder?.pickupTime||'').trim();
       const map={
         sent:'送出訂單後，請耐心等待店家接單。',
-        accepted:'店家已接單，將於取餐時間前準備餐點。',
+        accepted: hasPickupTime
+          ? '店家已接單，將於取餐時間前準備餐點。'
+          : '店家已接單，餐點開始準備。',
         making:'餐點製作中，請耐心等候。',
         done:'餐點已完成，可前往取餐。取餐時請告知手機末三碼'
       };
@@ -3900,6 +3906,8 @@ document.addEventListener('input',function(e){
     const isReservedOrder=!!String(saved.pickupTime||'').trim();
     document.body.classList.toggle('reserved-order-mode',isReservedOrder);
     if(isReservedOrder) document.body.classList.add('reserved-order-mode');
+    const timeline=document.getElementById('orderStatusTimeline');
+    if(timeline) timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
     enterCustomerOrderStatusMode(saved.orderId);
     startCustomerOrderTracking();
   }
@@ -3927,6 +3935,43 @@ function closeStoreHolidayModalV24(){
   }
 }
 </script>
+
+
+<style id="reserved-order-timeline-final">
+/* 指定取餐時間訂單：狀態列專屬紫色；直接綁定狀態列本身。 */
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+</style>
 
 </body>
 </html>
