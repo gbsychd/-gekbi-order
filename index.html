@@ -3554,49 +3554,6 @@ document.addEventListener('input',function(e){
 
     steps.forEach(x=>x.classList.remove('active','done'));
 
-    const applyReservedTimelineTheme = () => {
-      const timeline=document.getElementById('orderStatusTimeline');
-      if(!timeline) return;
-      let order=null;
-      try{ order=(typeof getSavedOrder==='function') ? getSavedOrder() : null; }catch(e){}
-      const reserved=!!String(order?.pickupTime||'').trim();
-
-      timeline.classList.toggle('reserved-order-timeline',reserved);
-      timeline.setAttribute('data-reserved-order',reserved?'1':'0');
-      document.body.classList.toggle('reserved-order-mode',reserved);
-      document.body.setAttribute('data-reserved-order',reserved?'1':'0');
-
-      if(!reserved) return;
-
-      // 指定單：只有目前 active 狀態亮紫色；done / 未到達狀態維持暗色。
-      [...timeline.querySelectorAll('.status-step')].forEach(step=>{
-        const icon=step.querySelector('.status-icon');
-        const label=step.querySelector('.status-label');
-        const small=step.querySelector('small');
-        if(step.classList.contains('active')){
-          step.style.setProperty('color','#c9a6ff','important');
-          if(label) label.style.setProperty('color','#c49aff','important');
-          if(small) small.style.setProperty('color','#a88bcf','important');
-          if(icon){
-            icon.style.setProperty('background','radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%)','important');
-            icon.style.setProperty('border-color','#c49aff','important');
-            icon.style.setProperty('color','#fff','important');
-            icon.style.setProperty('box-shadow','0 0 0 7px rgba(164,112,255,.10),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68)','important');
-          }
-        }else{
-          step.style.setProperty('color','#88838f','important');
-          if(label) label.style.setProperty('color','#88838f','important');
-          if(small) small.style.setProperty('color','#77717f','important');
-          if(icon){
-            icon.style.setProperty('background','radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%)','important');
-            icon.style.setProperty('border-color','rgba(154,126,190,.34)','important');
-            icon.style.setProperty('color','#d8d0e6','important');
-            icon.style.setProperty('box-shadow','0 5px 16px rgba(0,0,0,.28)','important');
-          }
-        }
-      });
-    };
-
     const setReminder = (key) => {
       const el=document.getElementById('customerStatusNoteText');
       const box=document.getElementById('customerStatusNote');
@@ -3625,7 +3582,6 @@ document.addEventListener('input',function(e){
       [sent,accepted].forEach(x=>x&&x.classList.add('done'));
       if(making) making.classList.add('active');
       setReminder('making');
-      applyReservedTimelineTheme();
       return;
     }
 
@@ -3633,7 +3589,6 @@ document.addEventListener('input',function(e){
       if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
-      applyReservedTimelineTheme();
       return;
     }
 
@@ -3641,13 +3596,11 @@ document.addEventListener('input',function(e){
       if(sent) sent.classList.add('done');
       if(accepted) accepted.classList.add('active');
       setReminder('accepted');
-      applyReservedTimelineTheme();
       return;
     }
 
     if(sent) sent.classList.add('active');
     setReminder('sent');
-    applyReservedTimelineTheme();
   }
 
   let customerAcceptedAt=0;
@@ -3766,7 +3719,7 @@ document.addEventListener('input',function(e){
 
   function statusText(status){
     const s=String(status||'').trim().toLowerCase();
-    if(['done','完成','已完成'].includes(s)) return '🟢 餐點已完成';
+    if(['done','completed','完成','已完成'].includes(s)) return '🟢 餐點已完成';
     if(['cancelled','canceled','取消','已取消'].includes(s)) return '🔴 訂單已取消';
     if(['accepted','accept','已接單','接單'].includes(s)) return '🟢 店家已接單';
     if(['making','製作中'].includes(s)) return '🟠 餐點製作中';
@@ -3824,7 +3777,7 @@ document.addEventListener('input',function(e){
         }
       }
 
-      if(['done','完成','已完成'].includes(status)){
+      if(['done','completed','完成','已完成'].includes(status)){
         // 不指定時間：第一次確認訂單已完成時記錄完成時間，保存至完成後30分鐘。
         if(!saved.pickupTime && !saved.completedAt){
           saved.completedAt=Date.now();
@@ -4064,11 +4017,10 @@ body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .s
 }
 body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
 body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
-  /* 已完成的前置狀態只保留紫色系，不發光；只有目前 active 狀態亮起。 */
-  background:radial-gradient(circle at 35% 28%,#4a4354 0%,#302b38 46%,#17151d 100%) !important;
-  border-color:rgba(174,140,224,.42) !important;
-  color:#ddd4ed !important;
-  box-shadow:0 5px 16px rgba(0,0,0,.28) !important;
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
 }
 body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
 body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
