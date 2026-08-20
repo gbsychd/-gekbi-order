@@ -753,16 +753,16 @@ body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;fo
 
 /* 指定取餐時間：只顯示顧客指定的時間，不顯示系統自動跳轉的製作時間。 */
 body.customer-order-status-mode #statusCountdown{
-  margin:14px 0 0;
+  margin:14px 0 22px;
   padding:18px 16px;
-  border:1px solid rgba(255,177,59,.30);
+  border:1px solid rgba(173,124,255,.34);
   border-radius:16px;
-  background:linear-gradient(145deg,rgba(255,160,24,.085),rgba(20,24,27,.96));
+  background:linear-gradient(145deg,rgba(132,82,220,.10),rgba(20,24,27,.96));
   text-align:center;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 28px rgba(0,0,0,.16);
 }
 body.customer-order-status-mode #statusCountdown > div:first-child{
-  color:#ffbd55;
+  color:#c7a4ff;
   font-size:15px;
   font-weight:800;
   letter-spacing:.04em;
@@ -3138,14 +3138,28 @@ document.addEventListener('input',function(e){
 </script>
 
 <script>
-/* 顧客端輸入資料暫存：避免誤重新整理或離開頁面後資料消失，保留10分鐘。 */
+/* 顧客端輸入資料暫存：最後一次輸入後最多保留10分鐘；訂單送出後立即清除，避免個資被下一次開頁恢復。 */
 (function(){
   const DRAFT_KEY='gekbi_customer_form_draft_v1';
   const DRAFT_KEEP_MS=10*60*1000;
+  const DRAFT_BLOCK_KEY='gekbi_customer_form_draft_block_until_v1';
   let restoring=false;
+
+  function isDraftBlocked(){
+    try{
+      const until=Number(localStorage.getItem(DRAFT_BLOCK_KEY)||0);
+      if(until && Date.now()<until) return true;
+      if(until) localStorage.removeItem(DRAFT_BLOCK_KEY);
+    }catch(e){}
+    return false;
+  }
 
   function getDraft(){
     try{
+      if(isDraftBlocked()){
+        localStorage.removeItem(DRAFT_KEY);
+        return null;
+      }
       const raw=localStorage.getItem(DRAFT_KEY);
       if(!raw)return null;
       const data=JSON.parse(raw);
@@ -3162,6 +3176,7 @@ document.addEventListener('input',function(e){
 
   function saveDraft(){
     if(restoring)return;
+    if(isDraftBlocked())return;
     try{
       const name=document.getElementById('customerName');
       const phone=document.getElementById('phone');
@@ -3217,20 +3232,30 @@ document.addEventListener('input',function(e){
   }
 
   window.clearCustomerFormDraft=function(){
-    try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
+    try{
+      localStorage.removeItem(DRAFT_KEY);
+      // 送出訂單後至少 10 分鐘內，不允許 pagehide/beforeunload 將舊個資重新寫回。
+      localStorage.setItem(DRAFT_BLOCK_KEY,String(Date.now()+DRAFT_KEEP_MS));
+    }catch(e){}
   };
 
   window.restoreCustomerFormDraft=restoreDraft;
 
   document.addEventListener('input',function(e){
-    if(e.target && (e.target.id==='customerName'||e.target.id==='phone'))saveDraft();
+    if(e.target && (e.target.id==='customerName'||e.target.id==='phone')){
+      try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+      saveDraft();
+    }
   });
 
   document.addEventListener('change',function(e){
     if(e.target && (
       e.target.id==='pickupTime' ||
       (e.target.name==='cutlery')
-    ))saveDraft();
+    )){
+      try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+      saveDraft();
+    }
   });
 
   window.addEventListener('pagehide',saveDraft);
@@ -3345,7 +3370,7 @@ document.addEventListener('input',function(e){
       const box=document.getElementById('customerStatusNote');
       const map={
         sent:'送出訂單後，請耐心等待店家接單。',
-        accepted:'店家已接單，餐點將開始準備。',
+        accepted:'店家已接單，將於取餐時間前準備餐點。',
         making:'餐點製作中，請耐心等候。',
         done:'餐點已完成，可前往取餐。取餐時請告知手機末三碼'
       };
