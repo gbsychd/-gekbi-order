@@ -2863,23 +2863,30 @@ function enterCustomerOrderStatusMode(orderId){
   document.body.classList.add('customer-order-status-mode');
   // 狀態頁已經有「這一筆訂單」的保存資料時，直接以目前狀態頁資料判斷是否為指定單。
   // 不再只依賴 orderId 重新拼 localStorage key，避免重新整理/切頁時把紫色模式誤清掉。
-  const savedForTheme=(()=>{
-    try{
-      if(typeof getSavedOrder==='function'){
-        const current=getSavedOrder();
-        if(current) return current;
-      }
-      if(window.__customerLastSubmittedOrder) return window.__customerLastSubmittedOrder;
-      return null;
-    }catch(e){
-      return window.__customerLastSubmittedOrder||null;
-    }
-  })();
+  // 指定單只依目前這張訂單的資料判斷，直接讀 orderId 對應的獨立保存資料。
+  let savedForTheme=null;
+  try{
+    const exactKey = id && typeof getOrderStorageKey==='function' ? getOrderStorageKey(id) : '';
+    const rawExact = exactKey ? localStorage.getItem(exactKey) : null;
+    if(rawExact) savedForTheme=JSON.parse(rawExact);
+  }catch(e){}
+  if(!savedForTheme && window.__customerLastSubmittedOrder &&
+     Number(window.__customerLastSubmittedOrder.orderId||0)===id){
+    savedForTheme=window.__customerLastSubmittedOrder;
+  }
+  if(!savedForTheme && typeof getSavedOrder==='function'){
+    try{ savedForTheme=getSavedOrder(); }catch(e){}
+  }
+
   const isReservedForTheme=!!String(savedForTheme?.pickupTime||'').trim();
   document.body.classList.toggle('reserved-order-mode',isReservedForTheme);
-  if(isReservedForTheme) document.body.classList.add('reserved-order-mode');
+  document.body.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
+
   const themeTimeline=document.getElementById('orderStatusTimeline');
-  if(themeTimeline) themeTimeline.classList.toggle('reserved-order-timeline',isReservedForTheme);
+  if(themeTimeline){
+    themeTimeline.classList.toggle('reserved-order-timeline',isReservedForTheme);
+    themeTimeline.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
+  }
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
   if(success && container && success.parentElement!==container){
@@ -3905,9 +3912,12 @@ document.addEventListener('input',function(e){
 
     const isReservedOrder=!!String(saved.pickupTime||'').trim();
     document.body.classList.toggle('reserved-order-mode',isReservedOrder);
-    if(isReservedOrder) document.body.classList.add('reserved-order-mode');
+    document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
     const timeline=document.getElementById('orderStatusTimeline');
-    if(timeline) timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
+    if(timeline){
+      timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
+      timeline.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
+    }
     enterCustomerOrderStatusMode(saved.orderId);
     startCustomerOrderTracking();
   }
@@ -3970,6 +3980,55 @@ body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .st
 }
 body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done:not(:last-child)::after{
   background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+</style>
+
+
+<style id="reserved-order-timeline-hard-final">
+/* 指定訂單：直接依目前訂單的 data-reserved-order 套用紫色，避免被舊黃色樣式覆蓋。 */
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]{
+  --reserved-purple:#a66cff;
+  --reserved-purple-light:#c9a6ff;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active{
+  color:#c9a6ff !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-label,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active small,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline::before,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
 }
 </style>
 
