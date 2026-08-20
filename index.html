@@ -3108,6 +3108,7 @@ document.addEventListener('input',function(e){
 
 
   function updateOrderStatusVisual(status){
+    const s=String(status||'').trim().toLowerCase();
     /* 提醒文字與狀態列同步：只同步顯示，不改原本狀態判斷 */
     const reminderEl = document.getElementById('customerStatusNoteText');
     const reminderBox = document.getElementById('customerStatusNote');
