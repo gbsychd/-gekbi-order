@@ -2674,6 +2674,7 @@ const orderId=Number(data?.id);
     closeOrderConfirm();
     cart=[];
     clearCustomerCartStorage();
+    if(window.clearCustomerFormDraft) window.clearCustomerFormDraft();
     renderCart();
 
     // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
@@ -3102,6 +3103,118 @@ document.addEventListener('input',function(e){
 </script>
 
 <script>
+/* 顧客端輸入資料暫存：避免誤重新整理或離開頁面後資料消失，保留10分鐘。 */
+(function(){
+  const DRAFT_KEY='gekbi_customer_form_draft_v1';
+  const DRAFT_KEEP_MS=10*60*1000;
+  let restoring=false;
+
+  function getDraft(){
+    try{
+      const raw=localStorage.getItem(DRAFT_KEY);
+      if(!raw)return null;
+      const data=JSON.parse(raw);
+      if(!data?.savedAt || Date.now()-Number(data.savedAt)>=DRAFT_KEEP_MS){
+        localStorage.removeItem(DRAFT_KEY);
+        return null;
+      }
+      return data;
+    }catch(e){
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+  }
+
+  function saveDraft(){
+    if(restoring)return;
+    try{
+      const name=document.getElementById('customerName');
+      const phone=document.getElementById('phone');
+      const pickup=document.getElementById('pickupTime');
+      const cutlery=document.querySelector('input[name="cutlery"]:checked');
+
+      const data={
+        customerName:name?.value||'',
+        phone:phone?.value||'',
+        pickupTime:pickup?.value||'',
+        cutlery:cutlery?.value||'需要',
+        savedAt:Date.now()
+      };
+
+      // 沒有任何輸入時不建立暫存。
+      if(!data.customerName && !data.phone && !data.pickupTime && data.cutlery==='需要'){
+        localStorage.removeItem(DRAFT_KEY);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY,JSON.stringify(data));
+    }catch(e){
+      console.warn('無法保存顧客輸入暫存',e);
+    }
+  }
+
+  function restoreDraft(){
+    const data=getDraft();
+    if(!data)return;
+
+    restoring=true;
+    try{
+      const name=document.getElementById('customerName');
+      const phone=document.getElementById('phone');
+      const pickup=document.getElementById('pickupTime');
+
+      if(name && data.customerName)name.value=data.customerName;
+      if(phone && data.phone)phone.value=data.phone;
+
+      if(data.cutlery){
+        const radio=document.querySelector(`input[name="cutlery"][value="${CSS.escape(String(data.cutlery))}"]`);
+        if(radio)radio.checked=true;
+      }
+
+      // 取餐時間選項可能正在等待後台營業時間載入，
+      // 因此只有選項已存在時才還原，不改動取餐時間產生邏輯。
+      if(pickup && data.pickupTime &&
+         [...pickup.options].some(o=>o.value===data.pickupTime)){
+        pickup.value=data.pickupTime;
+      }
+    }finally{
+      restoring=false;
+    }
+  }
+
+  window.clearCustomerFormDraft=function(){
+    try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
+  };
+
+  window.restoreCustomerFormDraft=restoreDraft;
+
+  document.addEventListener('input',function(e){
+    if(e.target && (e.target.id==='customerName'||e.target.id==='phone'))saveDraft();
+  });
+
+  document.addEventListener('change',function(e){
+    if(e.target && (
+      e.target.id==='pickupTime' ||
+      (e.target.name==='cutlery')
+    ))saveDraft();
+  });
+
+  window.addEventListener('pagehide',saveDraft);
+  window.addEventListener('beforeunload',saveDraft);
+
+  // 姓名、手機可立即恢復；取餐時間若稍後才載入，稍後再嘗試一次。
+  function restoreWhenReady(){
+    restoreDraft();
+    setTimeout(restoreDraft,500);
+    setTimeout(restoreDraft,1500);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',restoreWhenReady);
+  }else{
+    restoreWhenReady();
+  }
+})(); 
+
 /* 顧客端訂單保存：不指定時間 1 小時；指定取餐時間保存至「取餐時間＋1 小時」。 */
 
 (function(){
