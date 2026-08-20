@@ -2752,7 +2752,7 @@ const orderId=Number(data?.id);
 
     // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
     const createdAt=Date.now();
-    window.saveCustomerActiveOrder({
+    const submittedOrderData={
       orderId,
       phone,
       customerName:name,
@@ -2761,7 +2761,9 @@ const orderId=Number(data?.id);
       items,
       createdAt,
       expiresAt:window.getOrderExpiryAt(pickup,createdAt)
-    });
+    };
+    window.__customerLastSubmittedOrder=submittedOrderData;
+    window.saveCustomerActiveOrder(submittedOrderData);
 
   
     // 訂單成功後直接在目前頁面顯示訂單狀態。
@@ -2781,7 +2783,7 @@ const orderId=Number(data?.id);
       const sentTime=document.getElementById('statusSentTime');
       if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
       renderOrderItems(items);
-      enterCustomerOrderStatusMode();
+      enterCustomerOrderStatusMode(orderId);
       if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
     }
 
@@ -2798,15 +2800,22 @@ return true;
 }
 
 
-function enterCustomerOrderStatusMode(){
-  // 同一個 index.html 進入訂單狀態模式；用 hash 記住目前是狀態頁。
-  // 這樣直接開啟乾淨網址時，仍會進入全新的點餐系統。
-  if(window.location.hash!=='#order-status'){
-    history.replaceState(null,'',window.location.pathname+window.location.search+'#order-status');
+function enterCustomerOrderStatusMode(orderId){
+  // 狀態頁必須綁定「這一張訂單」，避免下一張訂單覆蓋上一張的狀態頁。
+  const id=Number(orderId||0);
+  if(id){
+    const targetHash='#order-status='+id;
+    if(window.location.hash!==targetHash){
+      history.replaceState(null,'',window.location.pathname+window.location.search+targetHash);
+    }
   }
   document.body.classList.add('customer-order-status-mode');
   const savedForTheme=(()=>{
-    try{return JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'null');}catch(e){return null;}
+    try{
+      const themeOrderId=Number(orderId||getOrderIdFromHash());
+      const raw=themeOrderId ? localStorage.getItem(getOrderStorageKey(themeOrderId)) : localStorage.getItem('gekbi_customer_active_order_v1');
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){return null;}
   })();
   document.body.classList.toggle('reserved-order-mode',!!String(savedForTheme?.pickupTime||'').trim());
   const success=document.getElementById('successMessage');
@@ -2822,7 +2831,9 @@ function showCustomerOrderSuccess(){
   const success=document.getElementById('successMessage');
   if(!success) return;
 
-  const saved=JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');
+  const saved=window.__customerLastSubmittedOrder || (()=>{
+    try{return JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');}catch(e){return {};}
+  })();
   const digits=String(saved.phone||'').replace(/\\D/g,'');
   const idEl=document.getElementById('successOrderId');
   const pickupEl=document.getElementById('successPickup');
@@ -3369,13 +3380,25 @@ document.addEventListener('input',function(e){
 
 (function(){
   const STORAGE_KEY='gekbi_customer_active_order_v1';
+  const ORDER_KEY_PREFIX='gekbi_customer_order_v1_';
   const RETENTION_AFTER_COMPLETE_MS=30*60*1000;
   const RETENTION_AFTER_PICKUP_MS=30*60*1000;
   let trackingTimer=null;
 
+  function getOrderIdFromHash(){
+    const m=String(window.location.hash||'').match(/^#order-status=(\d+)$/);
+    return m ? Number(m[1]) : 0;
+  }
+
+  function getOrderStorageKey(orderId){
+    return ORDER_KEY_PREFIX+String(Number(orderId)||'');
+  }
+
   function getSavedOrder(){
     try{
-      const raw=localStorage.getItem(STORAGE_KEY);
+      const hashOrderId=getOrderIdFromHash();
+      const key=hashOrderId ? getOrderStorageKey(hashOrderId) : STORAGE_KEY;
+      const raw=localStorage.getItem(key);
       if(!raw) return null;
       const data=JSON.parse(raw);
       if(!data?.orderId || !data?.phone || !data?.createdAt) return null;
@@ -3386,18 +3409,25 @@ document.addEventListener('input',function(e){
           : Number(data.createdAt) + RETENTION_AFTER_COMPLETE_MS
       );
       if(Date.now()>=expireTime){
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(key);
+        if(!hashOrderId){
+          try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+        }
         return null;
       }
       return data;
     }catch(e){
-      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
   }
 
   window.saveCustomerActiveOrder=function(data){
     try{
+      const orderId=Number(data?.orderId||0);
+      if(!orderId) return;
+      // 每張訂單各自保存，避免新訂單覆蓋舊訂單的狀態頁。
+      localStorage.setItem(getOrderStorageKey(orderId),JSON.stringify(data));
+      // 只把「最後送出的訂單」記為新點餐頁的目前訂單，不會改寫舊訂單資料。
       localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     }catch(e){
       console.warn('無法保存顧客端訂單資訊',e);
@@ -3790,7 +3820,7 @@ document.addEventListener('input',function(e){
     }
 
     document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
-    enterCustomerOrderStatusMode();
+    enterCustomerOrderStatusMode(saved.orderId);
     startCustomerOrderTracking();
   }
 
