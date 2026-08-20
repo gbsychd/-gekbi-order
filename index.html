@@ -2902,7 +2902,7 @@ document.addEventListener('input',function(e){
     <span class="status-notice-icon" aria-hidden="true">
       <svg viewBox="0 0 48 48"><path d="M14 21a10 10 0 0 1 20 0v7l4 5H10l4-5v-7Z"/><path d="M20 38h8"/></svg>
     </span>
-    <span>送出後請等待店家接單。取餐時請告知手機末三碼。</span>
+    <span id="customerStatusNoteText">送出訂單後，請耐心等待店家接單。</span>
   </div>
 
   <div class="order-summary-grid">
@@ -3108,7 +3108,25 @@ document.addEventListener('input',function(e){
 
 
   function updateOrderStatusVisual(status){
+    const noteText = document.getElementById('customerStatusNoteText');
+    const reminderMap = {
+      sent: '送出訂單後，請耐心等待店家接單。',
+      accepted: '店家已接單，餐點將開始準備。',
+      making: '餐點製作中，請耐心等候。',
+      done: '餐點已完成，可前往取餐。取餐時請告知手機末三碼'
+    };
+
     const s=String(status||'').trim().toLowerCase();
+
+    let reminderKey = 'sent';
+    if(['done','完成','已完成'].includes(s)) reminderKey='done';
+    else if(['making','製作中'].includes(s)) reminderKey='making';
+    else if(['accepted','accept','已接單','接單'].includes(s)) reminderKey='accepted';
+    if(noteText) {
+      noteText.textContent = reminderMap[reminderKey];
+      const note = document.getElementById('customerStatusNote');
+      if(note) note.style.display = '';
+    }
     const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
     const sent=steps.find(x=>x.dataset.step==='sent');
     const accepted=steps.find(x=>x.dataset.step==='accepted');
@@ -3153,7 +3171,7 @@ document.addEventListener('input',function(e){
     const note=document.getElementById('customerStatusNote');
     if(anim) anim.classList.add('active');
     if(statusEl) statusEl.style.display='none';
-    if(note) note.style.display='none';
+    if(note) note.style.display='';
   }
 
   function showCustomerAccepted(){
