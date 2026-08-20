@@ -1315,6 +1315,47 @@ body.customer-order-status-mode .auto-update-icon{
 }
 </style>
 
+
+<style id="done-status-visual-only">
+/* 只強化第4階段「餐點已完成」目前狀態動畫 */
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-icon{
+  color:#fffdf4!important;
+  background:radial-gradient(circle at 34% 27%,#fff8df 0%,#ffd66f 28%,#f2aa32 58%,#b76a0b 82%,#704007 100%)!important;
+  border-color:#ffd77b!important;
+  animation:doneStatusPulse 1.9s ease-in-out infinite!important;
+  box-shadow:
+    0 0 0 7px rgba(255,190,65,.13),
+    0 0 0 12px rgba(255,190,65,.045),
+    0 0 34px rgba(255,177,45,.48),
+    0 0 72px rgba(255,166,35,.20),
+    0 18px 42px rgba(0,0,0,.48),
+    inset 0 2px 3px rgba(255,255,255,.78)!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-icon::after{
+  border-color:rgba(255,202,104,.55)!important;
+  animation:doneStatusRing 1.9s ease-in-out infinite!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-svg{
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.70)) drop-shadow(0 0 11px rgba(255,181,50,.55))!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-label{
+  color:#ffc45b!important;
+  font-weight:950!important;
+  text-shadow:0 0 14px rgba(255,181,55,.20);
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] small{
+  color:#c29a5b!important;
+}
+@keyframes doneStatusPulse{
+  0%,100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.055);filter:brightness(1.10)}
+}
+@keyframes doneStatusRing{
+  0%,100%{transform:scale(1);opacity:.55}
+  50%{transform:scale(1.09);opacity:1}
+}
+</style>
+
 </head>
 <body>
 
@@ -3190,7 +3231,7 @@ document.addEventListener('input',function(e){
         if(anim) anim.classList.remove('active');
         if(note){
           note.style.display='';
-          note.textContent='餐點已完成，可前往取餐。取餐時請告知手機末三碼。';
+          note.textContent='餐點已完成，可前往取餐。取餐時請告知手機末三碼取餐時請告知手機末三碼。';
         }
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
         stopCustomerOrderTracking();
