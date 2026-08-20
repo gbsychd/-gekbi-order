@@ -1,503 +1,107 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
-
 <head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>隔壁宵夜｜訂單通知設定</title>
-
-  <meta name="theme-color" content="#111111">
-
-  <link rel="manifest" href="./manifest.json">
-
-  <meta name="apple-mobile-web-app-capable" content="yes">
-
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-  <meta name="apple-mobile-web-app-title" content="隔壁宵夜通知">
-
-  <style>
-
-    * {
-
-      box-sizing: border-box;
-
-    }
-
-    body {
-
-      margin: 0;
-
-      min-height: 100vh;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      padding: 24px;
-
-      background: #111;
-
-      color: #fff;
-
-      font-family:
-
-        -apple-system,
-
-        BlinkMacSystemFont,
-
-        "Segoe UI",
-
-        sans-serif;
-
-    }
-
-    .box {
-
-      width: 100%;
-
-      max-width: 460px;
-
-      padding: 28px 22px;
-
-      border-radius: 18px;
-
-      background: #1d1d1f;
-
-      text-align: center;
-
-    }
-
-    h1 {
-
-      margin: 0 0 12px;
-
-      font-size: 25px;
-
-    }
-
-    .desc {
-
-      margin: 0 0 24px;
-
-      color: #bbb;
-
-      line-height: 1.7;
-
-      font-size: 15px;
-
-    }
-
-    button {
-
-      width: 100%;
-
-      min-height: 52px;
-
-      border: 0;
-
-      border-radius: 12px;
-
-      background: #16a34a;
-
-      color: #fff;
-
-      font-size: 17px;
-
-      font-weight: 700;
-
-      cursor: pointer;
-
-    }
-
-    button:disabled {
-
-      opacity: 0.55;
-
-      cursor: default;
-
-    }
-
-    #status {
-
-      margin-top: 20px;
-
-      padding: 14px;
-
-      border-radius: 10px;
-
-      background: #292929;
-
-      color: #ddd;
-
-      line-height: 1.6;
-
-      font-size: 14px;
-
-      white-space: pre-line;
-
-    }
-
-    .ok {
-
-      color: #7ee2a8;
-
-    }
-
-    .error {
-
-      color: #ff8f8f;
-
-    }
-
-    .hint {
-
-      margin-top: 18px;
-
-      color: #999;
-
-      font-size: 13px;
-
-      line-height: 1.6;
-
-    }
-
-  </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>隔壁宵夜｜訂單通知設定</title>
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="./manifest.json">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.box{width:100%;max-width:480px;padding:28px 22px;border-radius:18px;background:#1d1d1f;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+h1{margin:0 0 12px;font-size:25px}.desc{margin:0 0 24px;color:#bbb;line-height:1.7;font-size:15px}
+button{width:100%;min-height:52px;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:17px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:default}
+#status{margin-top:20px;padding:14px;border-radius:10px;background:#292929;color:#ddd;line-height:1.6;font-size:14px;white-space:pre-line}.ok{color:#7ee2a8}.error{color:#ff8f8f}.hint{margin-top:18px;color:#999;font-size:13px;line-height:1.6}
+</style>
 </head>
-
 <body>
-
-  <main class="box">
-
-    <h1>🔔 訂單通知設定</h1>
-
-    <p class="desc">
-
-      開啟後，客人下新訂單時，<br>
-
-      即使後台沒有開著，也可以收到通知。
-
-    </p>
-
-    <button id="enableButton">
-
-      開啟新訂單通知
-
-    </button>
-
-    <div id="status">
-
-      尚未設定通知
-
-    </div>
-
-    <div class="hint">
-
-      第一次設定時，iPhone 會要求允許通知。<br>
-
-      請選擇「允許」。
-
-    </div>
-
-  </main>
-
+<main class="box">
+<h1>🔔 訂單通知設定</h1>
+<p class="desc">開啟後，客人下新訂單時，<br>即使後台沒有開著，也可以收到通知。</p>
+<button id="enableButton">開啟新訂單通知</button>
+<div id="status">尚未設定通知</div>
+<div class="hint">第一次設定時，請在瀏覽器通知權限視窗選擇「允許」。<br>iPhone 請先將此網站加入主畫面後再開啟。</div>
+</main>
 <script>
-
 (() => {
+  const SUPABASE_FUNCTION_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co/functions/v1/push-subscribe";
+  const button=document.getElementById("enableButton");
+  const status=document.getElementById("status");
 
-  const SUPABASE_FUNCTION_URL =
-
-    "https://xoyxtgqamzdxbboxhcdu.supabase.co/functions/v1/push-subscribe";
-
-  const VAPID_PUBLIC_KEY =
-
-    "BEk6ASw_6gwgGNVuPvypk4HAi1XrPmR6UHpC9A8kTXQ38PAqwiKYhNGGn5WzUttcL813NKg44whkH9oWl4IZmPE";
-
-  const button = document.getElementById("enableButton");
-
-  const status = document.getElementById("status");
-
-  function setStatus(message, type = "") {
-
-    status.textContent = message;
-
-    status.className = type;
-
+  function setStatus(message,type=""){
+    status.textContent=message;
+    status.className=type;
   }
 
-  function urlBase64ToUint8Array(base64String) {
-
-    const padding =
-
-      "=".repeat((4 - base64String.length % 4) % 4);
-
-    const base64 = (
-
-      base64String +
-
-      padding
-
-    )
-
-      .replace(/-/g, "+")
-
-      .replace(/_/g, "/");
-
-    const rawData = window.atob(base64);
-
-    const outputArray =
-
-      new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-
-      outputArray[i] =
-
-        rawData.charCodeAt(i);
-
-    }
-
+  function urlBase64ToUint8Array(base64String){
+    const padding="=".repeat((4-base64String.length%4)%4);
+    const base64=(base64String+padding).replace(/-/g,"+").replace(/_/g,"/");
+    const rawData=window.atob(base64);
+    const outputArray=new Uint8Array(rawData.length);
+    for(let i=0;i<rawData.length;i++) outputArray[i]=rawData.charCodeAt(i);
     return outputArray;
-
   }
 
-  async function setupPush() {
+  async function getServerVapidPublicKey(){
+    const response=await fetch(SUPABASE_FUNCTION_URL,{method:"GET",cache:"no-store"});
+    let result={};
+    try{result=await response.json();}catch(e){}
+    if(!response.ok||!result.ok||!result.vapidPublicKey) throw new Error(result.error||"無法取得推播設定。");
+    return result.vapidPublicKey;
+  }
 
-    button.disabled = true;
+  async function setupPush(){
+    button.disabled=true;
+    try{
+      if(!(location.protocol==="https:"||location.hostname==="localhost")) throw new Error("Web Push 需要 HTTPS 網站環境。");
+      if(!("serviceWorker" in navigator)) throw new Error("這台裝置不支援 Service Worker。");
+      if(!("PushManager" in window)) throw new Error("這台瀏覽器目前不支援 Web Push。");
+      if(!("Notification" in window)) throw new Error("這台裝置不支援通知功能。");
 
-    try {
+      setStatus("正在取得目前推播金鑰……");
+      const vapidPublicKey=await getServerVapidPublicKey();
 
-      if (!(window.matchMedia("(display-mode: standalone)").matches ||
-
-            window.navigator.standalone === true)) {
-
-        throw new Error(
-
-          "請從 iPhone 主畫面的「隔壁宵夜通知」圖示開啟。\n\n不要直接從 Safari 網頁開啟。"
-
-        );
-
-      }
-
-      if (!("serviceWorker" in navigator)) {
-
-        throw new Error(
-
-          "這台裝置不支援 Service Worker。"
-
-        );
-
-      }
-
-      if (!("PushManager" in window)) {
-
-        throw new Error(
-
-          "這台裝置目前無法使用 Web Push。\n\n請確認你是從 iPhone 主畫面的網站 App 開啟。"
-
-        );
-
-      }
-
-      if (!("Notification" in window)) {
-
-        throw new Error(
-
-          "這台裝置不支援通知功能。"
-
-        );
-
-      }
-
-      setStatus(
-
-        "正在註冊通知服務……"
-
-      );
-
-      const registration =
-
-        await navigator.serviceWorker.register(
-
-          "./sw.js",
-
-          {
-
-            scope: "./"
-
-          }
-
-        );
-
+      setStatus("正在註冊通知服務……");
+      const registration=await navigator.serviceWorker.register("./sw.js",{scope:"./"});
       await navigator.serviceWorker.ready;
 
-      let permission =
-
-        Notification.permission;
-
-      if (permission === "default") {
-
-        permission =
-
-          await Notification.requestPermission();
-
-      }
-
-      if (permission !== "granted") {
-
-        throw new Error(
-
-          "通知權限沒有開啟。\n請在 iPhone 的通知設定中允許此網站通知。"
-
-        );
-
-      }
-
-      setStatus(
-
-        "通知權限已開啟。\n正在建立推播訂閱……"
-
-      );
-
-      let subscription =
-
-        await registration.pushManager.getSubscription();
-
-      if (!subscription) {
-
-        subscription =
-
-          await registration.pushManager.subscribe({
-
-            userVisibleOnly: true,
-
-            applicationServerKey:
-
-              urlBase64ToUint8Array(
-
-                VAPID_PUBLIC_KEY
-
-              )
-
-          });
-
-      }
-
-      const subscriptionJson =
-
-        subscription.toJSON();
-
-      const response =
-
-        await fetch(
-
-          SUPABASE_FUNCTION_URL,
-
-          {
-
-            method: "POST",
-
-            headers: {
-
-              "Content-Type":
-
-                "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-              subscription:
-
-                subscriptionJson,
-
-              name:
-
-                "店家 iPhone"
-
-            })
-
-          }
-
-        );
-
-      let result = {};
-
-      try {
-
-        result =
-
-          await response.json();
-
-      } catch (error) {
-
-        result = {};
-
-      }
-
-      if (!response.ok || !result.ok) {
-
-        throw new Error(
-
-          result.error ||
-
-          "推播訂閱註冊失敗。"
-
-        );
-
-      }
-
-      setStatus(
-
-        "✅ 新訂單通知已開啟！\n\n客人下單後，這台裝置會收到通知。",
-
-        "ok"
-
-      );
-
-      button.textContent =
-
-        "✅ 已開啟訂單通知";
-
-    } catch (error) {
-
+      let permission=Notification.permission;
+      if(permission==="default") permission=await Notification.requestPermission();
+      if(permission!=="granted") throw new Error("通知權限沒有開啟。\n請在瀏覽器或裝置的通知設定中允許此網站通知。");
+
+      setStatus("通知權限已開啟。\n正在更新推播訂閱……");
+
+      // 重新建立 subscription，確保使用目前伺服器端的 VAPID public key。
+      let oldSubscription=await registration.pushManager.getSubscription();
+      if(oldSubscription) await oldSubscription.unsubscribe();
+
+      const subscription=await registration.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
+      });
+
+      const response=await fetch(SUPABASE_FUNCTION_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({subscription:subscription.toJSON(),name:"店家 Web Push"})
+      });
+
+      let result={};
+      try{result=await response.json();}catch(e){}
+      if(!response.ok||!result.ok) throw new Error(result.error||"推播訂閱註冊失敗。");
+
+      setStatus("✅ 新訂單通知已開啟！\n\n客人下單後，這台裝置會收到通知。","ok");
+      button.textContent="✅ 已開啟訂單通知";
+    }catch(error){
       console.error(error);
-
-      setStatus(
-
-        "❌ 設定失敗\n\n" +
-
-        (error?.message || String(error)),
-
-        "error"
-
-      );
-
-      button.disabled = false;
-
+      setStatus("❌ 設定失敗\n\n"+(error?.message||String(error)),"error");
+      button.disabled=false;
     }
-
   }
 
-  button.addEventListener(
-
-    "click",
-
-    setupPush
-
-  );
-
+  button.addEventListener("click",setupPush);
 })();
-
 </script>
-
 </body>
-
 </html>
