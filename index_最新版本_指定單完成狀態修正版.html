@@ -1,0 +1,4036 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隔壁宵夜彰化店｜線上點餐</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:#f5f5f5;color:#222}
+header{background:#111;color:#fff;text-align:center;padding:28px 16px}
+header h1{margin:0;font-size:30px;font-weight:800}
+header p{margin:8px 0 0;color:#ccc;font-size:16px}
+.container{max-width:760px;margin:auto;padding:16px 16px 150px}
+.notice,.cart{background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.notice{margin-bottom:24px;text-align:center;font-size:17px;line-height:1.8}
+.notice-title{font-size:23px;font-weight:800}.address{color:#777;font-size:14px;margin-top:6px}
+.pickup-notice{margin-top:12px;padding:12px;border-radius:10px;background:#fff4e8;color:#c84f00;font-size:15px;font-weight:700;line-height:1.6}
+.category{font-size:24px;font-weight:800;margin:30px 2px 12px}
+.item{background:#fff;border-radius:16px;padding:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 2px 9px rgba(0,0,0,.06)}
+.item-info{flex:1;min-width:0}.item-name{font-size:18px;font-weight:700;line-height:1.5}.price{margin-top:5px;font-size:19px;color:#d35400;font-weight:800}
+.add-btn{border:0;background:#111;color:#fff;border-radius:12px;padding:12px 17px;font-size:16px;min-width:76px;cursor:pointer}.add-btn:active{transform:scale(.96)}
+.menu-card{cursor:pointer;user-select:none;touch-action:manipulation};position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.menu-card:active{transform:scale(.99)}
+.category-toggle{display:flex;align-items:center;justify-content:space-between;background:#111;color:#fff;border-radius:13px;padding:15px 17px;margin:16px 0 8px;font-size:18px;font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;z-index:50}
+.category-toggle:active{transform:scale(.99)}
+.category-arrow{font-size:14px;transition:transform .2s ease}
+.category-toggle.category-open .category-arrow{transform:rotate(180deg)}
+.category-items{display:none}
+.category-items.category-open{display:block}
+.category-items .item{margin-bottom:8px}
+.category-selector-wrap{position:sticky;top:0;z-index:80;display:flex;gap:8px;overflow-x:auto;background:#f5f5f5;padding:12px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
+.category-selector-wrap::-webkit-scrollbar{display:none}
+.category-selector-btn{flex:0 0 auto;border:0;border-radius:12px;background:#111;color:#fff;padding:13px 16px;font-size:16px;font-weight:800;white-space:nowrap;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.13);scroll-snap-align:center}
+.category-selector-btn.active{background:#d35400}
+.hidden-subtitle{margin:0 0 10px;padding:8px 4px;color:#777;font-size:14px}
+.browse-price{font-size:22px;color:#d35400;font-weight:800;margin:-5px 0 14px}.browse-description{padding:12px;background:#f7f7f7;border-radius:10px;color:#777;margin-bottom:14px}.quantity-direct{display:flex;align-items:center;justify-content:space-between;padding:10px 0 14px}.quantity-label{font-weight:800}.quantity-controls{display:flex;align-items:center;gap:14px}.quantity-controls button{width:38px;height:38px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:22px;font-weight:800;cursor:pointer}.quantity-controls span{min-width:24px;text-align:center;font-size:18px;font-weight:800}
+.inline-option-box{background:#fff;border-radius:15px;padding:17px;margin:-3px 0 14px;border:2px solid #eee;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.option-title{font-size:18px;font-weight:800;margin-bottom:14px}.option-group{margin-bottom:16px}.option-group-title{font-size:16px;font-weight:700;margin-bottom:9px}.option-list{display:flex;flex-wrap:wrap;gap:8px}
+.option-btn{border:1px solid #ddd;background:#fff;color:#222;border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer}.option-btn.selected{background:#111;color:#fff;border-color:#111}.option-price{color:#d35400;font-weight:700}.option-btn.selected .option-price{color:#fff}.option-btn.sold-out-option{background:#f3f3f3;color:#888;border-color:#ddd;cursor:not-allowed;opacity:1}.option-btn.sold-out-option .option-sold-label{display:block;margin-top:3px;font-size:12px;font-weight:800;color:#fff;background:#777;border-radius:5px;padding:2px 5px}.option-btn.sold-out-option .option-price{color:#888}
+.confirm-option,.submit-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:5px}.cancel-option{width:100%;border:1px solid #ddd;background:#fff;color:#555;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
+.hidden-title{margin-top:42px;background:#111;color:#fff;padding:15px;border-radius:14px;font-size:23px;font-weight:800;text-align:center}.hidden-subtitle{text-align:center;color:#777;font-size:14px;margin:8px 0 15px}
+.cart{margin-top:35px}.cart h2{margin:0 0 15px;font-size:25px}.cart-row{padding:14px 0;border-bottom:1px solid #eee}.cart-main{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.cart-name{font-weight:700;font-size:16px;line-height:1.5}.cart-price{font-weight:700;white-space:nowrap}.cart-options{color:#777;font-size:13px;margin-top:5px;line-height:1.6}.cart-controls{margin-top:9px;display:flex;justify-content:flex-end;align-items:center;gap:7px}.cart-controls button{border:0;background:#eee;font-size:15px;padding:7px 10px;border-radius:7px}.total{text-align:right;font-size:23px;font-weight:800;margin:20px 0}
+.order-form label{display:block;margin:15px 0 0;font-size:16px;font-weight:600}input,select{width:100%;padding:14px;margin-top:7px;border:1px solid #ddd;border-radius:11px;font-size:16px;background:#fff}.submit-btn{padding:16px;font-size:18px;margin-top:18px}.success{display:none;margin-top:15px;padding:15px;border-radius:12px;background:#eaf8ed;color:#217a35;line-height:1.7}
+.bottom-cart{position:fixed;left:12px;right:12px;bottom:12px;background:#111;color:#fff;padding:15px 18px;border-radius:17px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 5px 20px rgba(0,0,0,.25);z-index:100}.bottom-cart button{border:0;background:#d35400;color:#fff;padding:12px 18px;border-radius:11px;font-size:16px;font-weight:700}
+@media(max-width:480px){header h1{font-size:28px}.item-name{font-size:17px}.add-btn{min-width:72px;padding:11px 13px}.category{font-size:23px}}
+
+.order-closed{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.order-closed-card{width:min(520px,100%);background:#fff;border-radius:20px;padding:30px 24px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.order-closed-card h2{margin:0 0 12px;font-size:25px}.order-closed-card p{margin:8px 0;line-height:1.7;color:#555}
+.order-closed-time{font-size:19px;font-weight:800;color:#d35400;margin:16px 0}
+.closed-confirm-btn{width:100%;border:0;background:#111;color:#fff;border-radius:12px;padding:14px;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer}
+.ordering-hours-card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:7px 10px;margin:6px 0 8px;text-align:center;box-shadow:none}
+.hours-title{font-size:17px;font-weight:900;margin-bottom:2px}
+.hours-time{font-size:18px;font-weight:900;letter-spacing:.2px;line-height:1.2}
+.hours-note{font-size:11px;color:#666;margin-top:1px}
+
+/* 手機版頂部資訊緊湊化 */
+.shop-title{font-size:19px!important;margin:6px auto 3px!important;line-height:1.15!important;max-width:260px}
+.subtitle{font-size:14px!important;margin:2px 0 6px!important}
+
+@media(max-width:600px){
+  .container{padding-left:10px!important;padding-right:10px!important}
+  .shop-title{font-size:20px!important}
+  .subtitle{font-size:13px!important}
+}
+
+@media(max-width:600px){}
+
+.cutlery-choice{display:flex;gap:14px;margin:4px 0 12px}
+.cutlery-choice label{display:flex;align-items:center;gap:5px;font-weight:600}
+.cutlery-choice input{margin:0}
+
+.fixed-option{pointer-events:none!important;cursor:default!important;opacity:1!important}
+.fixed-option{pointer-events:none!important;cursor:default!important;opacity:1!important}
+.input-error{border:2px solid #d00!important;background:#fff1f1!important;box-shadow:0 0 0 2px rgba(208,0,0,.08)!important}
+.input-error::placeholder{color:#d00!important}
+
+.order-confirm-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;display:flex;align-items:center;justify-content:center;padding:14px}
+.order-confirm-dialog{width:min(92vw,480px);max-height:82vh;overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 15px 45px rgba(0,0,0,.25)}
+.order-confirm-title{text-align:center;font-size:21px;font-weight:900;margin-bottom:7px}
+.order-confirm-warm{text-align:center;font-size:13px;color:#777;background:#faf6ee;border-radius:10px;padding:9px 10px;margin-bottom:12px;line-height:1.45}
+.order-confirm-list{border-top:1px solid #eee}
+.confirm-item{padding:10px 0;border-bottom:1px solid #eee}
+.confirm-item-main{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;font-size:15px}
+.confirm-item-main strong{font-weight:800}
+.confirm-item-main b{min-width:58px;text-align:right}
+.confirm-item-options{font-size:12px;color:#777;margin-top:4px;line-height:1.45}
+.confirm-total{text-align:right;font-size:20px;font-weight:900;padding:13px 0 4px}
+.order-confirm-actions{display:flex;gap:10px;margin-top:14px}
+.order-confirm-actions button{flex:1;border:0;border-radius:11px;padding:12px 8px;font-size:16px;font-weight:900;cursor:pointer}
+.order-confirm-continue{background:#eee;color:#333}
+.order-confirm-submit{background:#222;color:#fff}
+
+/* 購物車資訊更緊湊 */
+.cart-row{padding:7px 0!important;margin:0!important}
+.cart-main{gap:5px!important}
+.cart-name{line-height:1.25!important;margin:0!important}
+.cart-options{margin-top:2px!important;line-height:1.3!important;font-size:12px!important}
+.cart-controls{margin-top:5px!important;gap:5px!important}
+.cart-controls button{padding:5px 9px!important}
+
+.cart-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:7px!important;padding:6px 0!important}
+.cart-main{min-width:0!important;flex:1!important}
+.cart-name{font-size:14px!important;line-height:1.2!important}
+.cart-options{font-size:11px!important;line-height:1.25!important;margin-top:2px!important}
+.cart-actions-inline{display:flex!important;align-items:center!important;gap:3px!important;white-space:nowrap!important}
+.cart-actions-inline button{padding:3px 7px!important;min-width:26px!important;height:27px!important}
+.cart-qty{min-width:15px;text-align:center;font-size:13px}
+.cart-actions-inline .cart-price{font-weight:800!important;min-width:48px;text-align:right;font-size:14px!important}
+.cart-actions-inline .cart-delete{padding:3px 6px!important;font-size:12px!important}
+.cart-controls{display:none!important}
+@media(max-width:600px){
+  .cart-actions-inline{gap:2px!important}
+  .cart-actions-inline .cart-price{min-width:44px!important}
+  .cart-actions-inline button{padding:3px 6px!important}
+}
+
+/* 菜單品項：名稱與價格同列，價格固定靠最右側 */
+.item-info{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important}
+.item-name{flex:1!important;min-width:0!important}
+.item-price{margin-left:auto!important;white-space:nowrap!important;text-align:right!important}
+
+/* 底部「已選 X 項／結帳」縮小版 */
+.bottom-cart{padding:6px 10px!important;min-height:40px!important;height:40px!important;box-sizing:border-box!important}
+.bottom-cart button{padding:6px 14px!important;font-size:14px!important;line-height:1.1!important}
+.bottom-cart div{font-size:14px!important;line-height:1.1!important}
+
+/* 底部結帳列往上移，避免 iPhone Safari 底部操作區誤觸 */
+.bottom-cart{
+  bottom:12px!important;
+  margin-bottom:env(safe-area-inset-bottom, 0px)!important;
+}
+
+.non-ordering-close{position:absolute;right:12px;top:10px;width:34px;height:34px;border:0;border-radius:50%;background:#111;color:#fff;font-size:22px;line-height:34px;cursor:pointer;z-index:10;}
+"".checkout-total-strong{font-weight:900}.order-success-detail{font-weight:700}
+.ordering-closed-banner{position:sticky;top:0;z-index:90;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff4e8;border-bottom:1px solid #ffd5ad;padding:10px 14px;color:#8f4300;font-size:14px}
+.ordering-closed-banner>div{display:flex;flex-direction:column;gap:2px}.ordering-closed-banner strong{font-size:16px}.ordering-closed-banner span{font-size:12px;color:#8a6b55}
+.ordering-closed-banner button{border:0;background:#111;color:#fff;width:32px;height:32px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;flex:0 0 auto}
+.bottom-cart-info{display:flex;align-items:center;gap:14px}.bottom-cart-info strong{font-size:17px}
+.success-title{font-size:22px;font-weight:900;margin-bottom:14px}
+
+/* ===== 訂單狀態頁：質感版面（僅視覺，不改既有內容/邏輯） ===== */
+body.customer-order-status-mode{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,158,27,.10), transparent 34%),
+    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
+  color:#f5f5f5;
+}
+body.customer-order-status-mode .container{
+  max-width:780px !important;
+  min-height:calc(100vh - 88px) !important;
+  padding:24px 14px 44px !important;
+}
+body.customer-order-status-mode .container > *:not(#successMessage){
+  display:none!important;
+}
+body.customer-order-status-mode #successMessage{
+  position:relative;
+  overflow:hidden;
+  display:block!important;
+  margin:0 auto!important;
+  padding:30px 20px 24px!important;
+  border:1px solid rgba(255,169,47,.52)!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,160,24,.11),transparent 30%),
+    linear-gradient(145deg,#15191b,#0e1113)!important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.035)!important;
+  color:#f5f5f5!important;
+}
+body.customer-order-status-mode #successMessage::before{
+  content:"";
+  position:absolute;
+  left:18%;
+  right:18%;
+  top:-1px;
+  height:2px;
+  background:linear-gradient(90deg,transparent,#ffad32,transparent);
+  box-shadow:0 0 22px rgba(255,167,35,.7);
+}
+body.customer-order-status-mode #successMessage::after{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  left:50%;
+  top:42px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,158,27,.10),transparent 68%);
+  pointer-events:none;
+}
+body.customer-order-status-mode #successMessage .success-title{
+  position:relative;
+  z-index:1;
+  margin:0 0 24px!important;
+  padding:4px 0 8px;
+  text-align:center!important;
+  font-size:30px!important;
+  line-height:1.25;
+  font-weight:900!important;
+  color:#ffb23e!important;
+  letter-spacing:.02em;
+  text-shadow:0 0 20px rgba(255,168,39,.18);
+}
+body.customer-order-status-mode .success-grid{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin:0!important;
+  padding:0!important;
+}
+body.customer-order-status-mode .success-grid>div{
+  min-height:82px;
+  box-sizing:border-box;
+  padding:16px 15px!important;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:15px!important;
+  background:linear-gradient(145deg,#1a1f22,#14181a)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+body.customer-order-status-mode .success-grid span{
+  margin-bottom:7px!important;
+  color:#8e969b!important;
+  font-size:14px!important;
+  letter-spacing:.03em;
+}
+body.customer-order-status-mode .success-grid strong{
+  display:block;
+  color:#fff!important;
+  font-size:22px!important;
+  line-height:1.25;
+  font-weight:900!important;
+}
+body.customer-order-status-mode #successStatus{
+  color:#ffb23e!important;
+}
+body.customer-order-status-mode #successCustomer{
+  position:relative;
+  z-index:1;
+  margin-top:10px!important;
+  padding:16px 17px!important;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:15px!important;
+  background:#151a1d!important;
+  color:#f0f0f0!important;
+  font-size:17px;
+  line-height:1.55;
+  font-weight:700;
+}
+body.customer-order-status-mode #customerStatusNote{
+  position:relative;
+  z-index:1;
+  margin-top:14px!important;
+  padding:17px!important;
+  border-radius:15px!important;
+  border:1px solid rgba(255,170,45,.16);
+  background:rgba(255,160,24,.055)!important;
+  color:#ffb23e!important;
+  font-size:16px;
+  line-height:1.65;
+  text-align:center;
+}
+body.customer-order-status-mode .customer-making-animation{
+  position:relative;
+  z-index:2;
+  margin:14px 0 0;
+  padding:28px 12px 24px!important;
+  border-radius:17px;
+  border:1px solid rgba(255,169,47,.24);
+  background:
+    radial-gradient(circle at 50% 35%,rgba(255,159,24,.14),transparent 45%),
+    #14191b;
+  gap:16px!important;
+}
+body.customer-order-status-mode .customer-making-animation strong{
+  color:#ffb23e;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+body.customer-order-status-mode .customer-making-dots{
+  position:relative;
+  width:96px;
+  height:48px;
+  gap:0!important;
+}
+body.customer-order-status-mode .customer-making-dots::before{
+  content:"";
+  position:absolute;
+  inset:2px 20px;
+  border:2px solid rgba(255,177,59,.28);
+  border-top-color:#ffae2e;
+  border-radius:50%;
+  animation:customerCookingRing 1.7s linear infinite;
+}
+body.customer-order-status-mode .customer-making-dots span{
+  position:absolute;
+  width:10px!important;
+  height:10px!important;
+  top:19px;
+  background:#ffae2e!important;
+  box-shadow:0 0 14px rgba(255,168,39,.8);
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(1){
+  left:24px;
+  animation:customerCookingPulse 1.2s infinite ease-in-out;
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(2){
+  left:43px;
+  animation:customerCookingPulse 1.2s .18s infinite ease-in-out;
+}
+body.customer-order-status-mode .customer-making-dots span:nth-child(3){
+  left:62px;
+  animation:customerCookingPulse 1.2s .36s infinite ease-in-out;
+}
+@keyframes customerCookingRing{
+  to{transform:rotate(360deg)}
+}
+@keyframes customerCookingPulse{
+  0%,100%{transform:translateY(7px) scale(.55);opacity:.35}
+  50%{transform:translateY(-7px) scale(1);opacity:1}
+}
+@media(max-width:480px){
+  body.customer-order-status-mode .container{
+    padding:18px 12px 32px!important;
+  }
+  body.customer-order-status-mode #successMessage{
+    padding:26px 14px 20px!important;
+    border-radius:22px!important;
+  }
+  body.customer-order-status-mode #successMessage .success-title{
+    font-size:27px!important;
+  }
+  body.customer-order-status-mode .success-grid{
+    gap:8px!important;
+  }
+  body.customer-order-status-mode .success-grid>div{
+    min-height:78px;
+    padding:14px 12px!important;
+  }
+  body.customer-order-status-mode .success-grid strong{
+    font-size:20px!important;
+  }
+}
+
+/* 送出訂單後，同一個點餐頁切換成訂單狀態頁，不開新分頁 */
+body.customer-order-status-mode .ordering-hours-card,
+body.customer-order-status-mode #orderingClosedBanner,
+body.customer-order-status-mode .bottom-cart{
+  display:none!important;
+}
+body.customer-order-status-mode .container{
+  max-width:760px;
+  min-height:calc(100vh - 88px);
+  padding:28px 16px 40px;
+}
+body.customer-order-status-mode .container > *:not(#successMessage){
+  display:none!important;
+}
+body.customer-order-status-mode #successMessage{
+  display:block!important;
+  margin:0;
+  padding:28px 22px;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 2px 14px rgba(0,0,0,.08);
+}
+body.customer-order-status-mode #successMessage .success-title{
+  font-size:30px;
+  text-align:center;
+  margin-bottom:22px;
+}
+.customer-making-animation{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:34px 10px 20px;
+  text-align:center;
+}
+.customer-making-animation.active{display:flex!important}
+.customer-making-dots{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+}
+.customer-making-dots span{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#999;
+  animation:customerMakingDot 1.2s infinite ease-in-out;
+}
+.customer-making-dots span:nth-child(2){animation-delay:.15s}
+.customer-making-dots span:nth-child(3){animation-delay:.3s}
+@keyframes customerMakingDot{
+  0%,80%,100%{transform:scale(.55);opacity:.35}
+  40%{transform:scale(1);opacity:1}
+}
+.success-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.success-grid>div{background:#fff;border-radius:10px;padding:10px}.success-grid span{display:block;font-size:12px;color:#777;margin-bottom:3px}.success-grid strong{font-size:17px}.success-note{margin-top:12px;padding:10px;border-radius:10px;background:#fff;color:#217a35;font-weight:700}
+@media(max-width:480px){.bottom-cart-info{gap:8px}.bottom-cart-info strong{font-size:15px}.success-grid{grid-template-columns:1fr}}
+.address a{color:inherit;text-decoration:none}.address a:hover{text-decoration:underline}.address{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.shop-contact-link,
+.shop-contact-link:visited{
+  color:#06c !important;
+  text-decoration:underline !important;
+  text-underline-offset:2px;
+}
+
+/* 非點餐時段：頁面內提醒，不使用獨立視窗 */
+.non-ordering-inline-notice{
+  width:100%;
+  box-sizing:border-box;
+  margin:0 auto;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:#fff4e6;
+  border-radius:10px;
+  color:#222;
+  font-weight:800;
+  line-height:1.45;
+}
+.non-ordering-inline-notice .notice-title{
+  font-size:17px;
+  font-weight:900;
+}
+.non-ordering-inline-notice .notice-sub{
+  font-size:13px;
+  font-weight:600;
+  color:#666;
+  margin-top:2px;
+}
+
+/* 地址／電話：明確藍字＋底線 */
+.shop-contact-link,
+.shop-contact-link:link,
+.shop-contact-link:visited,
+.shop-contact-link:hover,
+.shop-contact-link:active{
+  color:#0066cc !important;
+  text-decoration-line:underline !important;
+  text-decoration-style:solid !important;
+  text-decoration-thickness:2px !important;
+  text-underline-offset:3px !important;
+}
+
+/* 非點餐時段頁面內提醒：真正水平置中、明顯顯示 */
+.non-ordering-inline-notice,
+.ordering-closed-notice,
+.closed-notice{
+  width:100% !important;
+  box-sizing:border-box !important;
+  min-height:64px !important;
+  margin:10px auto !important;
+  padding:14px 48px 14px 48px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  background:#fff4e6 !important;
+  border-radius:10px !important;
+  color:#222 !important;
+  font-weight:800 !important;
+  line-height:1.45 !important;
+}
+.non-ordering-inline-notice > *,
+.ordering-closed-notice > *,
+.closed-notice > *{
+  text-align:center !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.non-ordering-inline-notice .notice-title{
+  font-size:18px !important;
+  font-weight:900 !important;
+}
+.non-ordering-inline-notice .notice-sub{
+  font-size:13px !important;
+  font-weight:600 !important;
+  color:#666 !important;
+}
+
+/* 正確的非點餐提醒：頁面內、水平置中、明顯 */
+#orderingClosedBanner.ordering-closed-banner{
+  width:100% !important;
+  box-sizing:border-box !important;
+  min-height:76px !important;
+  margin:10px auto !important;
+  padding:14px 52px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  background:#fff4e6 !important;
+  border-radius:12px !important;
+  color:#222 !important;
+}
+#orderingClosedBanner.ordering-closed-banner > div{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+#orderingClosedBanner.ordering-closed-banner strong{
+  display:block !important;
+  font-size:19px !important;
+  font-weight:900 !important;
+  text-align:center !important;
+}
+#orderingClosedBanner.ordering-closed-banner span{
+  display:block !important;
+  margin-top:4px !important;
+  font-size:14px !important;
+  color:#666 !important;
+  text-align:center !important;
+}
+#orderingClosedBanner.ordering-closed-banner button{
+  position:absolute !important;
+}
+
+/* 底部購物車：總計緊鄰結帳按鈕 */
+#floatingCartBar{
+  display:flex !important;
+  align-items:center !important;
+}
+#floatingCartBar .checkout-total-inline{
+  margin-left:auto !important;
+  margin-right:8px !important;
+}
+#floatingCartBar button,
+#floatingCartBar .checkout-btn,
+#floatingCartBar [id*="checkout"],
+#floatingCartBar [class*="checkout"]{
+  flex:0 0 auto !important;
+}
+
+/* 兼容目前版本底部購物車容器命名 */
+.floating-cart-bar{
+  display:flex !important;
+  align-items:center !important;
+}
+.floating-cart-bar .checkout-total-inline{
+  margin-left:auto !important;
+  margin-right:8px !important;
+}
+
+/* 底部購物車：左側項目數，右側「總計」緊鄰「結帳」 */
+.bottom-cart{
+  display:flex !important;
+  align-items:center !important;
+  gap:0 !important;
+}
+.bottom-cart-info{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+}
+.bottom-cart-total{
+  flex:0 0 auto !important;
+  margin-left:auto !important;
+  margin-right:8px !important;
+  white-space:nowrap !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1.1 !important;
+}
+.bottom-cart > button{
+  flex:0 0 auto !important;
+}
+
+/* 非點餐提醒關閉 X：固定在最右側 */
+#orderingClosedBanner .non-ordering-close{
+  position:absolute !important;
+  right:12px !important;
+  left:auto !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+}
+
+/* 非點餐提醒：可關閉，X 固定最右側 */
+#orderingClosedBanner{
+  position:relative !important;
+}
+#orderingClosedBanner .non-ordering-close{
+  position:absolute !important;
+  right:12px !important;
+  left:auto !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:34px !important;
+  height:34px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:#111 !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:34px !important;
+  text-align:center !important;
+  cursor:pointer !important;
+  z-index:20 !important;
+}
+
+
+/* 非點餐提醒：內容置中，右側 X 可直接關閉 */
+#orderingClosedBanner{
+  position:relative !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  min-height:64px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  padding:12px 58px 12px 18px !important;
+  background:#fff4e6 !important;
+  border-radius:10px !important;
+}
+#orderingClosedBanner .ordering-closed-content{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+#orderingClosedBanner .ordering-closed-content strong{
+  display:block !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+}
+#orderingClosedBanner .ordering-closed-content span{
+  display:block !important;
+  margin-top:3px !important;
+  font-size:13px !important;
+  color:#666 !important;
+}
+#orderingClosedBanner .non-ordering-close{
+  position:absolute !important;
+  right:10px !important;
+  left:auto !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:#111 !important;
+  color:#fff !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+  pointer-events:auto !important;
+  z-index:9999 !important;
+}
+
+/* 手機餐具選擇：需要／不需要上下排列，避免文字跑版 */
+.cutlery-choice{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+  margin:8px 0 14px !important;
+}
+.cutlery-choice label{
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  margin:0 !important;
+  padding:8px 10px !important;
+  box-sizing:border-box !important;
+  white-space:nowrap !important;
+  line-height:1.4 !important;
+}
+.cutlery-choice input[type="radio"]{
+  flex:0 0 auto !important;
+  width:18px !important;
+  height:18px !important;
+  margin:0 !important;
+}
+
+/* 顧客資料錯誤：清楚標示並配合自動定位 */
+.order-field-error{
+  border:2px solid #d93025 !important;
+  outline:2px solid rgba(217,48,37,.12) !important;
+  background:#fff8f7 !important;
+}
+.order-field-error-text{
+  margin-top:5px !important;
+  color:#d93025 !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  line-height:1.4 !important;
+}
+
+
+/* ===== 訂單狀態頁 2.0：高質感進度版面（僅顯示層） ===== */
+body.customer-order-status-mode #successMessage{max-width:680px!important;padding:26px 18px 22px!important}
+body.customer-order-status-mode .order-status-hero{display:block;position:relative;z-index:2;text-align:center;margin-bottom:22px}
+body.customer-order-status-mode .order-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 18px;border:1px solid rgba(255,177,59,.38);border-radius:999px;background:rgba(255,160,24,.08);color:#ffb23e;font-size:18px;font-weight:900;box-shadow:0 0 24px rgba(255,160,24,.08)}
+body.customer-order-status-mode .order-status-subtitle{margin-top:9px;color:#aeb4b7;font-size:15px;line-height:1.6}
+body.customer-order-status-mode .order-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:start;margin:8px 0 18px;padding:0 3px}
+body.customer-order-status-mode .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
+body.customer-order-status-mode .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
+body.customer-order-status-mode .status-step.done:not(:last-child)::after{background:linear-gradient(90deg,#ffb23e,#ff9c18)}
+body.customer-order-status-mode .status-step.active{color:#ffb23e}
+body.customer-order-status-mode .status-step.done{color:#d9dde0}
+body.customer-order-status-mode .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
+body.customer-order-status-mode .status-step.done .status-icon{background:#ffad2f;border-color:#ffbf5d;color:#16191a;box-shadow:0 0 22px rgba(255,169,42,.28)}
+body.customer-order-status-mode .status-step.active .status-icon{background:#ffad2f;border-color:#ffd18a;color:#17191a;box-shadow:0 0 30px rgba(255,169,42,.48);animation:statusActivePulse 1.8s infinite ease-in-out}
+@keyframes statusActivePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+body.customer-order-status-mode .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
+body.customer-order-status-mode .status-step.active small{color:#ffb23e}
+body.customer-order-status-mode .status-countdown{position:relative;z-index:2;margin:0 0 14px;padding:14px 14px;border:1px solid rgba(255,255,255,.055);border-radius:15px;background:linear-gradient(145deg,#1b2023,#15191b);text-align:center;color:#b7bdc0;font-size:13px;line-height:1.55}
+body.customer-order-status-mode .status-countdown strong{display:block;margin-top:2px;color:#ffb23e;font-size:25px;letter-spacing:.04em}
+body.customer-order-status-mode .status-countdown.reserved{border-color:rgba(255,177,59,.25);background:linear-gradient(145deg,rgba(255,160,24,.08),#15191b)}
+body.customer-order-status-mode .status-countdown.reserved strong{font-size:21px}
+body.customer-order-status-mode .order-status-details{position:relative;z-index:2;margin-top:10px;padding:16px;border-radius:15px;border:1px solid rgba(255,255,255,.045);background:linear-gradient(145deg,#1a1f22,#14181a)}
+body.customer-order-status-mode .order-status-detail-row{display:flex;justify-content:space-between;gap:15px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:14px}
+body.customer-order-status-mode .order-status-detail-row:last-child{border-bottom:0}
+body.customer-order-status-mode .order-status-detail-row span{color:#8e969b}.order-status-detail-row strong{color:#f3f5f6;text-align:right}
+body.customer-order-status-mode .order-items-card{position:relative;z-index:2;margin-top:14px;padding:16px;border-radius:15px;border:1px solid rgba(255,255,255,.055);background:linear-gradient(145deg,#191e21,#131719)}
+body.customer-order-status-mode .order-items-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;color:#f4f5f5;font-size:17px;font-weight:900}
+body.customer-order-status-mode .order-item-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+body.customer-order-status-mode .order-item-row:last-child{border-bottom:0;padding-bottom:2px}
+body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;font-weight:800;line-height:1.45}.order-item-options{margin-top:3px;color:#8f979b;font-size:12px;line-height:1.5}.order-item-qty{color:#b8bec1;font-size:13px}.order-item-price{color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
+@media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
+
+
+/* 指定取餐時間：只顯示顧客指定的時間，不顯示系統自動跳轉的製作時間。 */
+body.customer-order-status-mode #statusCountdown{
+  margin:14px 0 22px;
+  padding:18px 16px;
+  border:1px solid rgba(173,124,255,.34);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(132,82,220,.10),rgba(20,24,27,.96));
+  text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 28px rgba(0,0,0,.16);
+}
+body.customer-order-status-mode #statusCountdown > div:first-child{
+  color:#c7a4ff;
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+body.customer-order-status-mode #statusCountdown strong{
+  display:block;
+  margin:5px 0 3px;
+  color:#fff;
+  font-size:30px;
+  line-height:1.15;
+  letter-spacing:.06em;
+}
+body.customer-order-status-mode #statusCountdown > div:last-child{
+  color:#aeb5b8;
+  font-size:13px;
+}
+
+/* 取餐時間：只恢復原本藍色視覺，不修改取餐時間邏輯。 */
+#pickupTime{
+  border:1px solid #2196f3!important;
+  color:#1565c0!important;
+  background:#fff!important;
+}
+#pickupTime:focus{
+  border-color:#1976d2!important;
+  outline:none!important;
+  box-shadow:0 0 0 2px rgba(33,150,243,.15)!important;
+}
+</style>
+
+<style id="store-holiday-v21">
+#storeClosedBanner{display:none;position:relative;width:100%;box-sizing:border-box;min-height:64px;align-items:center;justify-content:center;text-align:center;padding:12px 58px 12px 18px;background:#fff0f0;border:1px solid #f0b7b7;border-radius:10px;margin:8px 0;}
+#storeClosedBanner .store-closed-content{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#storeClosedBanner strong{display:block;font-size:18px;font-weight:900;color:#b00000;}
+#storeClosedBanner span{display:block;margin-top:3px;font-size:13px;color:#666;}
+#storeClosedBanner button{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:50%;background:#111;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
+</style>
+
+<style id="store-holiday-modal-v24">
+#storeHolidayModalV24{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.58);
+  box-sizing:border-box;
+}
+#storeHolidayModalV24.show{display:flex}
+#storeHolidayModalV24 .holiday-box{
+  width:min(420px,92vw);
+  background:#fff;
+  border-radius:18px;
+  padding:24px 20px 20px;
+  box-shadow:0 18px 60px rgba(0,0,0,.3);
+  text-align:center;
+}
+#storeHolidayModalV24 .holiday-title{
+  font-size:23px;
+  font-weight:900;
+  color:#b00000;
+  margin-bottom:8px;
+}
+#storeHolidayModalV24 .holiday-date{
+  font-size:17px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+#storeHolidayModalV24 .holiday-text{
+  color:#555;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:18px;
+}
+#storeHolidayModalV24 .holiday-close{
+  width:100%;
+  min-height:46px;
+  border:0;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+</style>
+
+
+<style id="premium-order-status-final">
+/* ===== 訂單確認狀態頁｜高清質感版 ===== */
+body.customer-order-status-mode{
+  background:#080b0d!important;
+}
+body.customer-order-status-mode #successMessage{
+  position:relative;
+  width:min(100%,1080px)!important;
+  max-width:1080px!important;
+  min-height:100vh;
+  margin:0 auto!important;
+  padding:72px 58px 46px!important;
+  box-sizing:border-box;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse 65% 28% at 50% 0%,rgba(255,173,49,.105),transparent 68%),
+    radial-gradient(circle at 8% 18%,rgba(255,181,72,.035),transparent 22%),
+    linear-gradient(180deg,#111618 0%,#0c1113 48%,#0a0e10 100%)!important;
+  border:1px solid rgba(255,186,72,.27)!important;
+  border-radius:27px!important;
+  box-shadow:
+    0 35px 100px rgba(0,0,0,.58),
+    inset 0 1px 0 rgba(255,255,255,.045),
+    inset 0 -1px 0 rgba(255,173,49,.06)!important;
+}
+
+/* subtle premium frame */
+body.customer-order-status-mode #successMessage::before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border:1px solid rgba(255,255,255,.025);
+  border-radius:20px;
+  pointer-events:none;
+}
+body.customer-order-status-mode #successMessage::after{
+  content:"";
+  position:absolute;
+  top:-160px;
+  left:50%;
+  width:520px;
+  height:300px;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(255,181,65,.10),transparent 68%);
+  filter:blur(12px);
+  pointer-events:none;
+}
+
+/* timeline */
+body.customer-order-status-mode .premium-status-timeline{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:0!important;
+  margin:0 0 48px!important;
+  padding:10px 0 0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.customer-order-status-mode .premium-status-timeline::before{
+  content:"";
+  position:absolute;
+  left:9.5%;
+  right:9.5%;
+  top:69px;
+  height:3px;
+  border-radius:99px;
+  background:linear-gradient(90deg,#f6aa31 0%,#e7a23a 24%,rgba(185,145,83,.45) 52%,rgba(105,110,108,.25) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 14px rgba(255,167,40,.08);
+  z-index:0;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step{
+  position:relative;
+  z-index:1;
+  min-width:0;
+  padding:0 8px;
+  text-align:center;
+  color:#737b7e;
+  font-size:16px;
+  font-weight:650;
+}
+body.customer-order-status-mode .premium-status-timeline .status-icon{
+  position:relative;
+  width:112px!important;
+  height:112px!important;
+  margin:0 auto 24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  box-sizing:border-box;
+  background:
+    radial-gradient(circle at 34% 28%,#3a3f40 0,#24292b 42%,#151a1c 73%,#0f1315 100%)!important;
+  border:2px solid rgba(183,158,115,.30)!important;
+  color:#e4e5e4!important;
+  box-shadow:
+    0 0 0 7px rgba(0,0,0,.24),
+    0 0 0 9px rgba(183,158,115,.10),
+    0 17px 36px rgba(0,0,0,.45),
+    inset 0 2px 1px rgba(255,255,255,.08)!important;
+  transition:all .4s cubic-bezier(.2,.8,.2,1);
+}
+body.customer-order-status-mode .premium-status-timeline .status-icon::before{
+  content:"";
+  position:absolute;
+  inset:9px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:50%;
+}
+body.customer-order-status-mode .premium-status-timeline .status-icon::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  border:1px solid rgba(255,182,65,.12);
+  opacity:.7;
+}
+body.customer-order-status-mode .status-svg{
+  width:53px;
+  height:53px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.25;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));
+}
+body.customer-order-status-mode .status-label{
+  min-height:30px;
+  line-height:1.45;
+  letter-spacing:.025em;
+  white-space:nowrap;
+}
+body.customer-order-status-mode .status-step small{
+  display:block!important;
+  margin-top:10px!important;
+  color:#757d80!important;
+  font-size:13px!important;
+  font-weight:450!important;
+  line-height:1.45;
+  white-space:nowrap;
+}
+
+/* ===== 指定取餐時間：整條狀態列改用紫色識別 ===== */
+body.customer-order-status-mode.reserved-order-mode{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(151,91,255,.11), transparent 34%),
+    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode #successStatus{
+  color:#c49aff !important;
+}
+
+/* active / completed */
+body.customer-order-status-mode .premium-status-timeline .status-step.active .status-icon{
+  color:#fff!important;
+  background:
+    radial-gradient(circle at 35% 28%,#fff4d3 0,#ffc24f 34%,#e7941c 66%,#8f560c 100%)!important;
+  border-color:#f8bd51!important;
+  box-shadow:
+    0 0 0 7px rgba(255,179,54,.09),
+    0 0 0 10px rgba(255,179,54,.035),
+    0 0 46px rgba(255,170,40,.38),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68)!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active .status-label{
+  color:#ffb83e!important;
+  font-weight:900;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active small{
+  color:#9d8764!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.done .status-icon{
+  color:#f7f8f8!important;
+  background:
+    radial-gradient(circle at 35% 28%,#4a5051,#2b3032 46%,#161b1d 100%)!important;
+  border-color:rgba(222,184,117,.52)!important;
+  box-shadow:
+    0 0 0 7px rgba(255,177,48,.035),
+    0 12px 30px rgba(0,0,0,.42),
+    inset 0 2px 1px rgba(255,255,255,.10)!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.done .status-label{
+  color:#d8dcdd!important;
+}
+
+/* active icon micro motion */
+body.customer-order-status-mode .status-step.active:nth-child(1) .status-icon{animation:clockGlow 2.4s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(2) .status-icon{animation:storeLift 2s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(3) .status-icon{animation:cookFloat 1.65s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(4) .status-icon{animation:readyGlow 2.1s ease-in-out infinite}
+@keyframes clockGlow{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.035) rotate(-5deg)}}
+@keyframes storeLift{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes cookFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes readyGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+
+/* notice */
+body.customer-order-status-mode .status-notice{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  min-height:88px;
+  margin:0 0 26px!important;
+  padding:15px 24px;
+  box-sizing:border-box;
+  border:1px solid rgba(255,180,58,.28);
+  border-radius:19px;
+  background:
+    radial-gradient(circle at 12% 50%,rgba(255,170,42,.10),transparent 17%),
+    radial-gradient(circle at 88% 50%,rgba(255,170,42,.06),transparent 16%),
+    linear-gradient(90deg,rgba(34,29,21,.88),rgba(26,25,22,.94),rgba(34,29,21,.88));
+  color:#ffb33d;
+  font-size:21px;
+  font-weight:750;
+  letter-spacing:.02em;
+  line-height:1.5;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 12px 32px rgba(0,0,0,.20);
+}
+body.customer-order-status-mode .status-notice::before,
+body.customer-order-status-mode .status-notice::after{
+  content:"";
+  position:absolute;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#ffbd52;
+  box-shadow:0 0 12px #ffad31;
+}
+body.customer-order-status-mode .status-notice::before{left:49px;top:50%;transform:translateY(-50%)}
+body.customer-order-status-mode .status-notice::after{right:49px;top:50%;transform:translateY(-50%)}
+body.customer-order-status-mode .status-notice-icon{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  color:#ffc05a;
+  filter:drop-shadow(0 0 8px rgba(255,177,52,.38));
+  animation:noticeRing 2.4s ease-in-out infinite;
+}
+body.customer-order-status-mode .status-notice-icon svg{
+  width:100%;
+  height:100%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+@keyframes noticeRing{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* summary */
+body.customer-order-status-mode .order-summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin:0 0 16px!important;
+}
+body.customer-order-status-mode .order-summary-card{
+  min-height:136px;
+  padding:25px 29px;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:18px;
+  background:linear-gradient(145deg,#1a2022,#121719);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 10px 28px rgba(0,0,0,.16);
+}
+body.customer-order-status-mode .order-summary-card span{
+  display:block;
+  margin-bottom:12px;
+  color:#8b9397;
+  font-size:17px;
+  font-weight:500;
+  letter-spacing:.06em;
+}
+body.customer-order-status-mode .order-summary-card strong{
+  color:#f4f5f5;
+  font-size:39px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.015em;
+}
+body.customer-order-status-mode .order-summary-card:nth-child(2) strong{
+  color:#ffb63f;
+}
+
+/* customer row */
+body.customer-order-status-mode .customer-summary-card{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  box-sizing:border-box;
+  margin:0 0 18px!important;
+  padding:17px 27px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:18px;
+  background:linear-gradient(145deg,#181e21,#121719);
+  color:#e9ebeb;
+  font-size:21px;
+  font-weight:750;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+body.customer-order-status-mode .customer-summary-card::before{
+  content:"";
+  width:21px;
+  height:21px;
+  margin-right:17px;
+  flex:0 0 21px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#d1a65e,#73511f);
+  box-shadow:0 0 12px rgba(255,181,63,.12);
+  clip-path:polygon(48% 0,62% 0,100% 38%,100% 52%,62% 100%,48% 100%,0 52%,0 38%);
+}
+
+/* order items */
+body.customer-order-status-mode .premium-order-items{
+  margin:0!important;
+  padding:24px 28px 10px!important;
+  border:1px solid rgba(255,255,255,.075)!important;
+  border-radius:19px!important;
+  background:linear-gradient(145deg,#171d20,#101517)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 12px 32px rgba(0,0,0,.18)!important;
+}
+body.customer-order-status-mode .premium-order-items .order-items-title{
+  display:flex!important;
+  align-items:center;
+  gap:15px;
+  margin-bottom:8px!important;
+  color:#e6e9e9!important;
+  font-size:22px!important;
+  font-weight:850!important;
+  letter-spacing:.02em;
+}
+body.customer-order-status-mode .items-title-icon{
+  width:27px;height:27px;
+  color:#d3a15b;
+}
+body.customer-order-status-mode .items-title-icon svg{
+  width:100%;height:100%;
+  fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;
+}
+body.customer-order-status-mode .premium-order-items .order-item-row{
+  padding:19px 0!important;
+  border-bottom-color:rgba(255,255,255,.065)!important;
+}
+body.customer-order-status-mode .premium-order-items .order-item-name{
+  color:#f0f1f1!important;
+  font-size:19px!important;
+  font-weight:800!important;
+}
+body.customer-order-status-mode .premium-order-items .order-item-options{
+  margin-top:6px!important;
+  color:#8b9396!important;
+  font-size:14px!important;
+}
+body.customer-order-status-mode .premium-order-items .order-item-price{
+  color:#eeeeed!important;
+  font-size:19px!important;
+  font-weight:850!important;
+}
+body.customer-order-status-mode .premium-order-items .order-items-total,
+body.customer-order-status-mode .premium-order-items .total{
+  border-top-color:rgba(255,180,60,.18)!important;
+}
+
+/* footer */
+body.customer-order-status-mode .status-auto-update{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-top:29px;
+  color:#727b7f;
+  font-size:15px;
+}
+body.customer-order-status-mode .auto-update-icon{
+  color:#a5abad;
+  font-size:20px;
+  animation:autoUpdateSpin 2.8s linear infinite;
+}
+@keyframes autoUpdateSpin{to{transform:rotate(360deg)}}
+
+/* responsive */
+@media(max-width:800px){
+  body.customer-order-status-mode #successMessage{
+    width:100%!important;
+    min-height:100dvh;
+    padding:42px 22px 32px!important;
+    border-radius:22px!important;
+  }
+  body.customer-order-status-mode .premium-status-timeline{
+    margin-bottom:32px!important;
+  }
+  body.customer-order-status-mode .premium-status-timeline::before{
+    left:8%;
+    right:8%;
+    top:57px;
+    height:2px;
+  }
+  body.customer-order-status-mode .premium-status-timeline .status-icon{
+    width:88px!important;height:88px!important;
+    margin-bottom:18px!important;
+  }
+  body.customer-order-status-mode .status-svg{width:43px;height:43px}
+  body.customer-order-status-mode .premium-status-timeline .status-label{
+    font-size:13px;
+  }
+  body.customer-order-status-mode .premium-status-timeline .status-step small{
+    font-size:10px!important;
+    margin-top:7px!important;
+  }
+  body.customer-order-status-mode .status-notice{
+    min-height:70px;
+    font-size:16px;
+    gap:13px;
+  }
+  body.customer-order-status-mode .status-notice-icon{width:31px;height:31px;flex-basis:31px}
+  body.customer-order-status-mode .order-summary-card{min-height:108px;padding:19px 20px}
+  body.customer-order-status-mode .order-summary-card span{font-size:14px}
+  body.customer-order-status-mode .order-summary-card strong{font-size:30px}
+  body.customer-order-status-mode .customer-summary-card{font-size:17px;padding:15px 20px}
+  body.customer-order-status-mode .premium-order-items{padding:20px 20px 8px!important}
+}
+@media(max-width:600px){
+  body.customer-order-status-mode #successMessage{
+    padding:27px 13px 25px!important;
+  }
+  body.customer-order-status-mode .premium-status-timeline{
+    margin-bottom:25px!important;
+  }
+  body.customer-order-status-mode .premium-status-timeline::before{
+    left:7%;
+    right:7%;
+    top:48px;
+  }
+  body.customer-order-status-mode .premium-status-timeline .status-step{
+    padding:0 2px;
+  }
+  body.customer-order-status-mode .premium-status-timeline .status-icon{
+    width:68px!important;height:68px!important;
+    margin-bottom:13px!important;
+    box-shadow:
+      0 0 0 5px rgba(0,0,0,.24),
+      0 0 0 7px rgba(183,158,115,.10),
+      0 10px 25px rgba(0,0,0,.42),
+      inset 0 2px 1px rgba(255,255,255,.08)!important;
+  }
+  body.customer-order-status-mode .status-svg{width:34px;height:34px}
+  body.customer-order-status-mode .premium-status-timeline .status-label{
+    font-size:11px;
+    min-height:37px;
+    white-space:normal;
+  }
+  body.customer-order-status-mode .premium-status-timeline .status-step small{
+    display:none!important;
+  }
+  body.customer-order-status-mode .status-notice{
+    min-height:61px;
+    padding:10px 14px;
+    font-size:13px;
+    border-radius:15px;
+  }
+  body.customer-order-status-mode .status-notice::before{left:18px}
+  body.customer-order-status-mode .status-notice::after{right:18px}
+  body.customer-order-status-mode .status-notice-icon{width:27px;height:27px;flex-basis:27px}
+  body.customer-order-status-mode .order-summary-grid{gap:9px}
+  body.customer-order-status-mode .order-summary-card{
+    min-height:86px;
+    padding:14px 15px;
+    border-radius:15px;
+  }
+  body.customer-order-status-mode .order-summary-card span{font-size:12px;margin-bottom:7px}
+  body.customer-order-status-mode .order-summary-card strong{font-size:25px}
+  body.customer-order-status-mode .customer-summary-card{
+    min-height:56px;
+    margin-bottom:12px!important;
+    padding:12px 15px;
+    border-radius:15px;
+    font-size:14px;
+  }
+  body.customer-order-status-mode .customer-summary-card::before{
+    width:16px;height:16px;margin-right:12px;flex-basis:16px;
+  }
+  body.customer-order-status-mode .premium-order-items{
+    padding:17px 15px 7px!important;
+    border-radius:16px!important;
+  }
+  body.customer-order-status-mode .premium-order-items .order-items-title{
+    font-size:17px!important;
+    gap:10px;
+  }
+  body.customer-order-status-mode .items-title-icon{width:22px;height:22px}
+  body.customer-order-status-mode .premium-order-items .order-item-row{padding:14px 0!important}
+  body.customer-order-status-mode .premium-order-items .order-item-name{font-size:15px!important}
+  body.customer-order-status-mode .premium-order-items .order-item-options{font-size:11px!important}
+  body.customer-order-status-mode .premium-order-items .order-item-price{font-size:15px!important}
+  body.customer-order-status-mode .status-auto-update{margin-top:19px;font-size:11px}
+}
+@media(max-width:380px){
+  body.customer-order-status-mode #successMessage{padding-left:9px!important;padding-right:9px!important}
+  body.customer-order-status-mode .premium-status-timeline .status-icon{width:58px!important;height:58px!important}
+  body.customer-order-status-mode .status-svg{width:29px;height:29px}
+  body.customer-order-status-mode .premium-status-timeline::before{top:43px}
+  body.customer-order-status-mode .premium-status-timeline .status-label{font-size:10px}
+  body.customer-order-status-mode .status-notice{font-size:12px}
+}
+</style>
+
+
+<style id="done-status-visual-only">
+/* 只強化第4階段「餐點已完成」目前狀態動畫 */
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-icon{
+  color:#fffdf4!important;
+  background:radial-gradient(circle at 34% 27%,#fff8df 0%,#ffd66f 28%,#f2aa32 58%,#b76a0b 82%,#704007 100%)!important;
+  border-color:#ffd77b!important;
+  animation:doneStatusPulse 1.9s ease-in-out infinite!important;
+  box-shadow:
+    0 0 0 7px rgba(255,190,65,.13),
+    0 0 0 12px rgba(255,190,65,.045),
+    0 0 34px rgba(255,177,45,.48),
+    0 0 72px rgba(255,166,35,.20),
+    0 18px 42px rgba(0,0,0,.48),
+    inset 0 2px 3px rgba(255,255,255,.78)!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-icon::after{
+  border-color:rgba(255,202,104,.55)!important;
+  animation:doneStatusRing 1.9s ease-in-out infinite!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-svg{
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.70)) drop-shadow(0 0 11px rgba(255,181,50,.55))!important;
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] .status-label{
+  color:#ffc45b!important;
+  font-weight:950!important;
+  text-shadow:0 0 14px rgba(255,181,55,.20);
+}
+body.customer-order-status-mode .premium-status-timeline .status-step.active[data-step="done"] small{
+  color:#c29a5b!important;
+}
+@keyframes doneStatusPulse{
+  0%,100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.055);filter:brightness(1.10)}
+}
+@keyframes doneStatusRing{
+  0%,100%{transform:scale(1);opacity:.55}
+  50%{transform:scale(1.09);opacity:1}
+}
+</style>
+
+
+<style id="reserved-status-final-override">
+/* ===== 指定取餐時間訂單：狀態列最終紫色覆蓋層 ===== */
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  color:#fff !important;
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  color:#f7f3ff !important;
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-label{
+  color:#d8d0e6 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-icon{
+  background:radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%) !important;
+  border-color:rgba(154,126,190,.34) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-label{
+  color:#88838f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) small{
+  color:#77717f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(:last-child)::after{
+  background:linear-gradient(90deg,rgba(157,110,226,.70),rgba(93,78,116,.28)) !important;
+}
+</style>
+
+</head>
+<body>
+
+
+
+<div class="order-closed" id="orderClosed">
+  <div class="order-closed-card">
+    <h2>目前非線上點餐時間</h2>
+    <p>線上點餐系統開放時間</p>
+    <div class="order-closed-time">載入中…</div>
+    <p>菜單仍可瀏覽，開放時間依店家每週設定。</p>
+    <button class="closed-confirm-btn" onclick="closeOrderingNotice()">確定</button>
+  </div>
+</div>
+<header><h1>隔壁宵夜彰化店</h1><p style="display:none">線上點餐系統 自取專用</p></header>
+<div class="ordering-hours-card">
+  <div class="hours-title">🕐 線上點餐時間</div>
+  <div class="hours-time">18:00 ～ 隔日 01:10</div>
+  <div class="hours-note" style="display:none">自取專用｜非點餐時間仍可瀏覽菜單</div>
+</div>
+<div id="orderingClosedBanner" class="ordering-closed-banner" style="display:none" aria-hidden="true">
+  <div class="ordering-closed-content">
+    <strong>🌙 目前尚未開放線上點餐</strong>
+    
+  </div>
+  <button type="button" class="non-ordering-close" aria-label="關閉提示" onclick="closeOrderingBanner(); return false;">×</button>
+</div>
+
+<div id="storeClosedBanner" aria-hidden="true">
+  <div class="store-closed-content">
+    <strong>🔴 今日店休</strong>
+    <span>今日暫停接受線上點餐，菜單仍可瀏覽。</span>
+  </div>
+  <button type="button" aria-label="關閉店休提示" onclick="closeStoreClosedBanner();return false;">×</button>
+</div>
+
+<div id="storeHolidayModalV24" aria-hidden="true">
+  <div class="holiday-box" role="dialog" aria-modal="true">
+    <div class="holiday-title">🔴 今日店休</div>
+    <div id="storeHolidayDateV24" class="holiday-date"></div>
+    <div class="holiday-text">今日為店休日，目前暫停接受線上點餐。<br>菜單仍可正常瀏覽。</div>
+    <button type="button" class="holiday-close" onclick="closeStoreHolidayModalV24()">知道了</button>
+  </div>
+</div>
+
+<div class="container">
+<div class="notice">
+<div class="address">
+  <a href="https://www.google.com/maps/search/?api=1&query=%E5%BD%B0%E5%8C%96%E5%B8%82%E4%BB%81%E6%84%9B%E8%B7%AF149%E8%99%9F" target="_blank" rel="noopener" class="shop-contact-link">📍 彰化市仁愛路149號　導航</a>
+  <span>｜</span>
+  <a href="tel:047222297" class="shop-contact-link">☎️ 04-7222297　撥打</a>
+</div>
+<div class="pickup-notice">📢 訂單送出後，請等待訂單狀態顯示「餐點完成」即可取餐</div>
+</div>
+<div id="menu"></div>
+<div class="cart" id="cartBox">
+<h2>🛒 訂單</h2><div id="cartItems">尚未選擇餐點</div>
+<div class="total">合計：$<span id="total">0</span></div>
+<div class="order-form">
+<label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
+<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" autocomplete="off" inputmode="numeric" placeholder="請輸入手機號碼">
+<label>取餐時間</label>
+<select id="pickupTime"><option value="">不指定（等候店家點選完成訂單即可取餐）</option></select>
+<label>是否需要餐具</label>
+<div class="cutlery-choice">
+  <label><input type="radio" name="cutlery" value="需要" checked> 需要</label>
+  <label><input type="radio" name="cutlery" value="不需要"> 不需要</label>
+</div>
+<button class="submit-btn" onclick="submitOrder()">送出訂單</button>
+<div class="bottom-cart"><div class="bottom-cart-info"><div>🛒 已選 <span id="count">0</span> 項</div></div><div class="bottom-cart-total">總計 $<span id="bottomTotal">0</span></div><button onclick="collapseAllCategories();document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">結帳</button></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function validateTaiwanMobile(value){
+  const phone=String(value||'').replace(/[\s-]/g,'');
+  return /^09\d{8}$/.test(phone);
+}
+</script>
+<script>
+const SUPABASE_URL = "https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+<script>
+const soldOut = {};
+let soldOutLoaded=false;
+function getSoldOutNameByKey(key){
+  const k=String(key||'');
+  let m=k.match(/^menu-(\d+)-(\d+)$/);
+  if(m){
+    const gi=Number(m[1]),ii=Number(m[2]);
+    return menus[gi]?.[1]?.[ii]?.[0] ?? null;
+  }
+  m=k.match(/^hidden-(\d+)$/);
+  if(m){
+    return hiddenMenus[Number(m[1])]?.[0] ?? null;
+  }
+  return null;
+}
+function getSameNameSoldOutKeys(name){
+  const target=String(name||'').trim();
+  if(!target)return [];
+  const keys=[];
+  const addDetail=(parentKey,optionName)=>{
+    if(String(optionName||'').trim()===target)keys.push(`${parentKey}::detail::${encodeURIComponent(target)}`);
+  };
+  menus.forEach((menu,gi)=>{
+    (menu[1]||[]).forEach((item,ii)=>{
+      if(String(item?.[0]||'').trim()===target)keys.push(`menu-${gi}-${ii}`);
+    });
+    const parentOptions=menu[2];
+    if(parentOptions){
+      const parentKey=`menu-${gi}`;
+      (parentOptions.options||[]).forEach(o=>addDetail(parentKey+'-detail',o?.[0]));
+      // 前台的細項資料依品項展開，因此與後台的 parentKey::detail::name 格式對齊。
+      (menu[1]||[]).forEach((item,ii)=>{
+        const key=`menu-${gi}-${ii}`;
+        (parentOptions.options||[]).forEach(o=>addDetail(key,o?.[0]));
+        (parentOptions.extraOptions||[]).forEach(o=>addDetail(key,o?.[0]));
+      });
+    }
+  });
+  hiddenMenus.forEach((item,ii)=>{
+    const parentKey=`hidden-${ii}`;
+    if(String(item?.[0]||'').trim()===target)keys.push(parentKey);
+    (item?.[2]||[]).forEach(group=>{
+      (group?.options||[]).forEach(option=>addDetail(parentKey,option?.[0]));
+    });
+  });
+  return [...new Set(keys)];
+}
+function isSoldOut(key){
+  if(soldOut[key]===true)return true;
+  const name=getSoldOutNameByKey(key);
+  if(!name)return false;
+  return getSameNameSoldOutKeys(name).some(k=>soldOut[k]===true);
+}
+async function loadSoldOutStatus(){
+  const {data,error}=await supabaseClient.from('menu_item_status').select('item_key,sold_out');
+  if(error){console.error('讀取完售狀態失敗：',error);return}
+  Object.keys(soldOut).forEach(k=>delete soldOut[k]);
+  (data||[]).forEach(row=>{soldOut[row.item_key]=!!row.sold_out});
+  soldOutLoaded=true;
+  renderMenu();
+}
+async function setSoldOut(key,value){
+  const {error}=await supabaseClient.from('menu_item_status').upsert({item_key:key,sold_out:!!value,updated_at:new Date().toISOString()});
+  if(error){console.error('更新完售狀態失敗：',error);return}
+  soldOut[key]=!!value;
+  renderMenu();
+}
+const menus=[
+["隔壁奶酥",[["經典原味厚奶酥",60],["日式抹茶厚奶酥",60],["可可布朗尼厚奶酥",60],["香濃花生厚奶酥",60],["經典芝麻厚奶酥",60],["香蒜厚片",50]],{type:"奶酥",options:[["起司",10],["麻糬",15],["酥皮",15]]}],
+["經典吐司",[["起司蛋吐司",45],["火腿蛋吐司",50],["培根蛋吐司",55],["鮪魚蛋吐司",55],["薯餅蛋吐司",60],["豬排蛋吐司",60],["咔啦雞排蛋吐司",65],["熱狗捲",35],["果醬吐司",25]],{type:"吐司",options:[["起司",10]],jam:true}],
+["美味蛋餅",[["原味蛋餅",35],["起司蛋餅",40],["火腿蛋餅",45],["熱狗蛋餅",50],["培根蛋餅",50],["鮪魚蛋餅",50],["薯餅蛋餅",55],["豬排蛋餅",55],["咔啦雞排蛋餅",60],["可可脆脆蛋餅",65]],{type:"蛋餅",options:[["雙蛋",15],["起司",10]]}],
+["個人特餐-附紅茶",[["豬排黑胡椒麵",100],["豬排蘑菇麵",100],["豬排炒泡麵",105]],{type:"個人特餐",options:[["加麵",15],["奶茶",10],["冷泡茶",15],["麻辣",5],["香辣",15]]}],
+["招牌麵食（乾）",[["古早味紅蔥雞絲麵",50],["古早味剁椒雞絲麵",60],["招牌炒泡麵",80],["沙茶炒泡麵",85],["招牌麻辣炒泡麵",85],["香辣炒泡麵",95]],{type:"麵食",options:[["加麵",15],["起司",10]],noNoodleExtra:[""]}],
+["秘製鍋燒(湯)",[["原味鍋燒",95],["沙茶鍋燒",105],["麻辣鍋燒",105],["咖哩鍋燒",115],["起司牛奶鍋燒",125],["泰式冬陰鍋燒",130]],{type:"鍋燒"}],
+["點心炸物",[["荷包蛋",20],["單點豬排",30],["熱狗",30],["薯餅",30],["小肉豆",35],["甜不辣",40],["炸湯圓",40],["薯條",40],["玉米布丁酥",40],["小雞球",45],["麥香雞塊",45],["咔啦雞排（辣）",45],["酥炸杏鮑菇",45],["雙色地瓜QQ球",45],["芋泥球",45],["魷米花",50],["土魠魚塊（炸）",55],["炸元寶",65],["日式炸豬排",70]],null],
+["飲品",[["紅茶",25],["麥茶",25],["奶茶",35],["冷泡茶",45]],null]
+]
+const hiddenMenus=[
+["豬排大套餐",190,[
+{title:"主餐",single:true,options:[["豬排炒泡麵",0],["豬排蘑菇麵",0],["豬排黑胡椒麵",0]],main:true},
+{title:"奶酥(不吃請勿選擇)",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]],cream:true},
+{title:"炸物",single:false,max:1,options:[["甜不辣",0],["美國脆薯",0],["小雞球",0],["芋泥球",0]],fried:true},
+{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}
+]],
+["單人獨享餐",125,[{title:"主餐 2 選 1",single:true,options:[["古早味紅蔥雞絲麵",0],["古早味剁椒雞絲麵",10]]},{title:"奶酥 6 選 1",single:true,options:[["原味",0],["可可",0],["抹茶",0],["花生",0],["芝麻",0],["香蒜",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
+["單人經濟套餐",135,[{title:"主餐",single:true,options:[["招牌炒泡麵",0]]},{title:"炸物",single:true,options:[["小肉豆",0]]},{title:"飲品",single:true,drink:true,options:[["紅茶",0],["奶茶",10],["冷泡茶",15]]}]],
+["日式炸豬排烏龍麵",135,[{title:"口味",single:true,options:[["白醬",0],["蘑菇",0],["黑胡椒",0]]}]]
+];
+const MENU_IMAGE_BUCKET='menu-images';
+const menuCatalogByKey = {};
+let menuCatalogRealtimeChannel = null;
+
+function catalogOptionList(itemKey, fallback){
+  const row=menuCatalogByKey[String(itemKey||"")];
+  const source=row?.option_prices;
+  if(row && source && typeof source==="object"){
+    return Object.entries(source).map(([name,price])=>[String(name),Number(price)||0]);
+  }
+  return (fallback||[]).map(o=>[o[0],Number(o[1])||0]);
+}
+
+function catalogOptionMap(itemKey){
+  const list=catalogOptionList(itemKey,[]);
+  return new Map(list.map(o=>[String(o[0]),Number(o[1])||0]));
+}
+
+function catalogIsActive(itemKey){
+  const row=menuCatalogByKey[String(itemKey||"")];
+  return row ? row.is_active!==false : true;
+}
+
+async function applyMenuCatalogOverrides(){
+  try{
+    const {data,error}=await supabaseClient.from('menu_catalog')
+      .select('item_key,item_name,base_price,option_prices,is_active,category_name,sort_order');
+    if(error || !Array.isArray(data))return;
+
+    Object.keys(menuCatalogByKey).forEach(k=>delete menuCatalogByKey[k]);
+    (data||[]).forEach(row=>{
+      if(row.item_key)menuCatalogByKey[String(row.item_key)]=row;
+    });
+
+    menus.forEach((m,mi)=>{
+      m[1].forEach((it,ii)=>{
+        const key=`menu-${mi}-${ii}`;
+        const row=menuCatalogByKey[key];
+        if(!row)return;
+        if(row.item_name)it[0]=String(row.item_name);
+        if(Number.isFinite(Number(row.base_price)))it[1]=Number(row.base_price);
+        it[2]=catalogIsActive(key);
+      });
+    });
+
+    hiddenMenus.forEach((it,i)=>{
+      const key=`hidden-${i}`;
+      const row=menuCatalogByKey[key];
+      if(!row)return;
+      if(row.item_name)it[0]=String(row.item_name);
+      if(Number.isFinite(Number(row.base_price)))it[1]=Number(row.base_price);
+      it[3]=catalogIsActive(key);
+    });
+
+    renderMenu();
+  }catch(e){
+    console.warn('讀取後台菜單名稱／價格／細項失敗',e);
+  }
+}
+
+function startMenuCatalogRealtime(){
+  if(menuCatalogRealtimeChannel)supabaseClient.removeChannel(menuCatalogRealtimeChannel);
+  menuCatalogRealtimeChannel=supabaseClient
+    .channel('menu-catalog-public')
+    .on('postgres_changes',{event:'*',schema:'public',table:'menu_catalog'},()=>{
+      applyMenuCatalogOverrides();
+    })
+    .subscribe();
+}
+
+const ADMIN_EMAIL='smile510352@gmail.com';
+// 以下為本店 Foodpanda 平台公開使用的品項照片；店家上傳後會自動覆蓋。
+const platformImageUrls={
+  'menu-0-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201309.jpg?height=220&width=220',
+  'menu-0-2':'https://images.deliveryhero.io/image/fd-tw/Products/136201310.jpg?height=220&width=220',
+  'menu-0-3':'https://images.deliveryhero.io/image/fd-tw/products/136201318.jpg?height=220&width=220',
+  'menu-0-5':'https://images.deliveryhero.io/image/fd-tw/Products/136201315.jpg?height=220&width=220',
+  'menu-1-1':'https://images.deliveryhero.io/image/fd-tw/Products/136400014.jpg?height=220&width=220',
+  'menu-1-2':'https://images.deliveryhero.io/image/fd-tw/Products/136400011.jpg?height=220&width=220',
+  'menu-1-3':'https://images.deliveryhero.io/image/fd-tw/Products/136400016.jpg?height=220&width=220',
+  'menu-1-4':'https://images.deliveryhero.io/image/fd-tw/Products/136400009.jpg?height=220&width=220',
+  'menu-1-5':'https://images.deliveryhero.io/image/fd-tw/Products/136400015.jpg?height=220&width=220',
+  'menu-2-1':'https://images.deliveryhero.io/image/fd-tw/Products/136400018.jpg?height=220&width=220',
+  'menu-2-3':'https://images.deliveryhero.io/image/fd-tw/Products/136400022.jpg?height=220&width=220',
+  'menu-2-4':'https://images.deliveryhero.io/image/fd-tw/Products/136400020.jpg?height=220&width=220',
+  'menu-2-5':'https://images.deliveryhero.io/image/fd-tw/Products/136400024.jpg?height=220&width=220',
+  'menu-2-6':'https://images.deliveryhero.io/image/fd-tw/products/136400012.jpg?height=220&width=220',
+  'menu-2-7':'https://images.deliveryhero.io/image/fd-tw/products/136400019.jpg?height=220&width=220',
+  'menu-2-8':'https://images.deliveryhero.io/image/fd-tw/products/136400023.jpg?height=220&width=220',
+  'menu-3-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201307.jpg?height=220&width=220',
+  'menu-6-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201336.jpg?height=220&width=220',
+  'menu-6-2':'https://images.deliveryhero.io/image/fd-tw/Products/136201340.jpg?height=220&width=220',
+  'menu-6-3':'https://images.deliveryhero.io/image/fd-tw/Products/136201334.jpg?height=220&width=220',
+  'menu-6-5':'https://images.deliveryhero.io/image/fd-tw/Products/136201335.jpg?height=220&width=220',
+  'menu-6-7':'https://images.deliveryhero.io/image/fd-tw/Products/136201344.jpg?height=220&width=220',
+  'menu-6-8':'https://images.deliveryhero.io/image/fd-tw/Products/136201343.jpg?height=220&width=220',
+  'menu-6-9':'https://images.deliveryhero.io/image/fd-tw/Products/136201345.jpg?height=220&width=220',
+  'menu-6-10':'https://images.deliveryhero.io/image/fd-tw/Products/136201341.jpg?height=220&width=220',
+  'menu-7-0':'https://images.deliveryhero.io/image/fd-tw/Products/136201332.jpg?height=220&width=220',
+  'menu-7-1':'https://images.deliveryhero.io/image/fd-tw/Products/136201331.jpg?height=220&width=220'
+};
+let uploadedImageUrls={};
+function getItemImage(itemKey){return uploadedImageUrls[itemKey]||platformImageUrls[itemKey]||''}
+function imageMarkup(itemKey,name){
+  const url=getItemImage(itemKey);
+  return url?``:'';
+}
+async function loadMenuImages(){
+  const {data,error}=await supabaseClient.from('menu_item_images').select('item_key,image_path');
+  if(error){console.warn('讀取餐點圖片失敗：',error.message);return}
+  uploadedImageUrls={};
+  (data||[]).forEach(row=>{
+    const {data:urlData}=supabaseClient.storage.from(MENU_IMAGE_BUCKET).getPublicUrl(row.image_path);
+    if(urlData?.publicUrl)uploadedImageUrls[row.item_key]=urlData.publicUrl;
+  });
+  renderMenu();
+}
+function getImageAdminItems(){
+  const items=[];
+  menus.forEach((menu,mi)=>menu[1].forEach((item,ii)=>items.push({key:`menu-${mi}-${ii}`,name:`${menu[0]}｜${item[0]}`})));
+  hiddenMenus.forEach((item,index)=>items.push({key:`hidden-${index}`,name:`隱藏版菜單｜${item[0]}`}));
+  return items;
+}
+function setImageAdminStatus(message){document.getElementById('imageAdminStatus').textContent=message||''}
+async function openImageAdmin(){
+  document.getElementById('imageAdminModal').style.display='flex';
+  setImageAdminStatus('正在確認登入狀態…');
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  const isAdmin=user?.email?.toLowerCase()===ADMIN_EMAIL;
+  document.getElementById('imageAdminLogin').style.display=isAdmin?'none':'block';
+  document.getElementById('imageAdminUpload').style.display=isAdmin?'block':'none';
+  if(isAdmin){
+    const select=document.getElementById('imageAdminItem');
+    select.innerHTML=getImageAdminItems().map(item=>`<option value="${item.key}">${escapeHtml(item.name)}</option>`).join('');
+    setImageAdminStatus(`已登入：${ADMIN_EMAIL}`);
+  }else setImageAdminStatus('請使用店家 Email 取得登入連結。');
+}
+function closeImageAdmin(){document.getElementById('imageAdminModal').style.display='none'}
+async function sendAdminLogin(){
+  setImageAdminStatus('正在寄送登入連結…');
+  const {error}=await supabaseClient.auth.signInWithOtp({email:ADMIN_EMAIL});
+  setImageAdminStatus(error?`寄送失敗：${error.message}`:'登入連結已寄到店家 Email，請點信件中的連結後回到此頁面。');
+}
+async function uploadMenuImage(){
+  const file=document.getElementById('imageAdminFile').files?.[0];
+  const itemKey=document.getElementById('imageAdminItem').value;
+  if(!file){setImageAdminStatus('請先選擇一張圖片。');return}
+  if(file.size>5*1024*1024){setImageAdminStatus('圖片不可超過 5MB。');return}
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setImageAdminStatus('僅支援 JPG、PNG 或 WebP。');return}
+  setImageAdminStatus('正在上傳圖片…');
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(user?.email?.toLowerCase()!==ADMIN_EMAIL){setImageAdminStatus('目前不是店家管理帳號。');return}
+  const extension=file.name.split('.').pop().toLowerCase();
+  const imagePath=`menu/${itemKey}-${Date.now()}.${extension}`;
+  const {data:oldRow}=await supabaseClient.from('menu_item_images').select('image_path').eq('item_key',itemKey).maybeSingle();
+  const {error:uploadError}=await supabaseClient.storage.from(MENU_IMAGE_BUCKET).upload(imagePath,file,{contentType:file.type});
+  if(uploadError){setImageAdminStatus(`上傳失敗：${uploadError.message}`);return}
+  const {error:saveError}=await supabaseClient.from('menu_item_images').upsert({item_key:itemKey,image_path:imagePath,updated_at:new Date().toISOString()});
+  if(saveError){setImageAdminStatus(`儲存失敗：${saveError.message}`);return}
+  if(oldRow?.image_path)await supabaseClient.storage.from(MENU_IMAGE_BUCKET).remove([oldRow.image_path]);
+  await loadMenuImages();
+  document.getElementById('imageAdminFile').value='';
+  setImageAdminStatus('圖片已更新。');
+}
+let cart=[];
+const CART_STORAGE_KEY='gekbi_customer_cart_v1';
+const CART_KEEP_MS=60*60*1000;
+function saveCustomerCart(){
+  try{
+    if(!cart.length){localStorage.removeItem(CART_STORAGE_KEY);return;}
+    localStorage.setItem(CART_STORAGE_KEY,JSON.stringify({cart,savedAt:Date.now()}));
+  }catch(e){console.warn('無法保存購物車資料',e);}
+}
+function restoreCustomerCart(){
+  try{
+    const raw=localStorage.getItem(CART_STORAGE_KEY);
+    if(!raw)return;
+    const saved=JSON.parse(raw);
+    if(!Array.isArray(saved?.cart)||!saved.cart.length||!saved.savedAt||Date.now()-Number(saved.savedAt)>=CART_KEEP_MS){
+      localStorage.removeItem(CART_STORAGE_KEY);
+      return;
+    }
+    cart=saved.cart;
+  }catch(e){
+    localStorage.removeItem(CART_STORAGE_KEY);
+    cart=[];
+  }
+}
+function clearCustomerCartStorage(){
+  try{localStorage.removeItem(CART_STORAGE_KEY);}catch(e){}
+}
+let activeMenuCategory='menu-0';
+function escapeQuotes(t){return t.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function escapeHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function isSpecialCreamSoldOut(itemKey,name){
+  const key=String(itemKey||'');
+  if(key!=='hidden-0'&&key!=='hidden-1')return false;
+  const specialMap={
+    '原味':'menu-0-0',
+    '抹茶':'menu-0-1',
+    '可可':'menu-0-2',
+    '花生':'menu-0-3',
+    '芝麻':'menu-0-4',
+    '香蒜':'menu-0-5'
+  };
+  const sourceKey=specialMap[String(name||'')];
+  return !!(sourceKey&&soldOut[sourceKey]===true);
+}
+function isSingleEnjoymentForcedSold(){
+  // 只要「隔壁奶酥」六種厚片中有任一品項完售，
+  // 隱藏版的「單人獨享餐」即代表無法提供，整個套餐直接顯示售完。
+  const creamKeys=['menu-0-0','menu-0-1','menu-0-2','menu-0-3','menu-0-4','menu-0-5'];
+  return creamKeys.some(key=>soldOut[key]===true);
+}
+function optionButton(o,single,max,contextKey){
+  const optionName=String(o[0]||'').trim();
+  const sameNameSold=getSameNameSoldOutKeys(optionName).some(k=>soldOut[k]===true);
+  const sold=isSpecialCreamSoldOut(contextKey,optionName) || sameNameSold;
+  return `<button class="option-btn${sold?' sold-out-option':''}" data-name="${escapeHtml(o[0])}" data-price="${o[1]}" data-single="${single?1:0}" data-max="${max||0}" ${sold?'disabled aria-disabled="true"':''} ${sold?'':`onclick="toggleOption(this)"`}>${o[0]}${o[1]>0?` <span class="option-price">+${o[1]}</span>`:""}${sold?'<span class="option-sold-label">售完</span>':''}</button>`}
+function collapseAllCategories(){
+  document.querySelectorAll('.category-items.category-open').forEach(box=>{
+    box.classList.remove('category-open');
+  });
+  document.querySelectorAll('.category-toggle.category-open').forEach(btn=>{
+    btn.classList.remove('category-open');
+  });
+}
+
+function toggleCategory(catId){
+  const box=document.getElementById(catId);
+  if(!box)return;
+  const btn=document.querySelector(`[data-category-target="${catId}"]`);
+  if(!btn)return;
+
+  const wasOpen=box.classList.contains('category-open');
+
+  // 收合其他分類
+  document.querySelectorAll('.category-items.category-open').forEach(other=>{
+    if(other!==box)other.classList.remove('category-open');
+  });
+  document.querySelectorAll('.category-toggle.category-open').forEach(otherBtn=>{
+    if(otherBtn!==btn)otherBtn.classList.remove('category-open');
+  });
+
+  box.classList.toggle('category-open',!wasOpen);
+  btn.classList.toggle('category-open',!wasOpen);
+
+  if(!wasOpen){
+    // 展開後，將「被點選的大項標題」直接定位到畫面最上方，
+    // 下面立刻就是該分類的品項，顧客不需要再手動滑動。
+    setTimeout(()=>{
+      const top=btn.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({top:Math.max(0,top-6),left:0,behavior:'smooth'});
+    },30);
+  }
+}
+function renderCategory(m,mi){
+  let html=`<div class="category-items category-open" id="category-${mi}">`;
+  m[1].forEach((it,ii)=>{
+    const id=`menu-${mi}-${ii}`;
+    if(!catalogIsActive(id))return;
+    const sold=isSoldOut(id);
+    const click=sold?"":`onclick="openItemBrowse(${mi},${ii},'${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openItemBrowse(${mi},${ii},'${id}')}"`;
+    html+=`<div class="item menu-card ${sold?'sold-out-item':''}" id="${id}" role="button" tabindex="${sold?-1:0}" ${click}>
+      <div class="item-info"><div class="item-name">${it[0]}</div><div class="price">$${it[1]}</div></div>
+      ${sold?'<span class="sold-badge">完售</span>':''}
+    </div>`;
+  });
+  return html+`</div>`;
+}
+
+function renderHiddenCategory(){
+  let html=`<div class="category-items category-open" id="category-hidden">
+    <div class="hidden-subtitle">隱藏版餐點｜數量有限，售完為止</div>`;
+  hiddenMenus.forEach((it,i)=>{
+    const id=`hidden-${i}`;
+    if(!catalogIsActive(id))return;
+    const sold=isSoldOut(id) || (i===1 && isSingleEnjoymentForcedSold());
+    const click=sold?"":`onclick="openHiddenOptions(${i},'${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHiddenOptions(${i},'${id}')}"`;
+    html+=`<div class="item menu-card ${sold?'sold-out-item':''}" id="${id}" role="button" tabindex="${sold?-1:0}" ${click}>
+      <div class="item-info"><div class="item-name">${it[0]}</div><div class="price">$${it[1]}</div></div>
+      ${sold?'<span class="sold-badge">完售</span>':''}
+    </div>`;
+  });
+  return html+`</div>`;
+}
+
+function selectMenuCategory(categoryId){
+  activeMenuCategory=categoryId;
+  renderMenu();
+  requestAnimationFrame(()=>{
+    document.getElementById('menu').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
+function centerActiveCategory(){
+  const wrap=document.querySelector('.category-selector-wrap');
+  if(!wrap)return;
+  const count=Number(wrap.dataset.categoryCount||0);
+  const activeIndex=Number(wrap.dataset.activeIndex||0);
+  const button=wrap.children[count+activeIndex];
+  if(!button)return;
+  wrap.scrollLeft=button.offsetLeft-(wrap.clientWidth-button.offsetWidth)/2;
+}
+function enableCategoryLoop(){
+  const wrap=document.querySelector('.category-selector-wrap');
+  if(!wrap)return;
+  const count=Number(wrap.dataset.categoryCount||0);
+  if(!count||wrap.children.length<count*3)return;
+  const segmentWidth=wrap.children[count].offsetLeft-wrap.children[0].offsetLeft;
+  wrap.addEventListener('scroll',()=>{
+    if(wrap.dataset.looping==='1'||!segmentWidth)return;
+    if(wrap.scrollLeft<segmentWidth*.45){
+      wrap.dataset.looping='1';
+      wrap.scrollLeft+=segmentWidth;
+      wrap.dataset.looping='0';
+    }else if(wrap.scrollLeft>segmentWidth*1.55){
+      wrap.dataset.looping='1';
+      wrap.scrollLeft-=segmentWidth;
+      wrap.dataset.looping='0';
+    }
+  },{passive:true});
+}
+function renderMenu(){
+  const categories=[];
+  menus.forEach((m,mi)=>{
+    categories.push({id:`menu-${mi}`,name:m[0],menu:m,menuIndex:mi});
+    // 隱藏版菜單固定排在秘製鍋燒後、點心炸物前。
+    if(m[0].includes("秘製鍋燒")) categories.push({id:'hidden',name:'隱藏版菜單',hidden:true});
+  });
+  if(!categories.some(category=>category.id===activeMenuCategory)) activeMenuCategory=categories[0].id;
+  const activeIndex=categories.findIndex(category=>category.id===activeMenuCategory);
+  const buttonSet=categories.map(category=>`<button type="button" class="category-selector-btn ${category.id===activeMenuCategory?'active':''}" data-category-id="${category.id}" onclick="selectMenuCategory('${category.id}')">${escapeHtml(category.name)}</button>`).join('');
+  const buttons=buttonSet+buttonSet+buttonSet;
+  const selected=categories.find(category=>category.id===activeMenuCategory);
+  let html=`<div class="category-selector-wrap" aria-label="餐點分類" data-category-count="${categories.length}" data-active-index="${activeIndex}">${buttons}</div>`;
+  html+=selected.hidden?renderHiddenCategory():renderCategory(selected.menu,selected.menuIndex);
+  document.getElementById('menu').innerHTML=html;
+  requestAnimationFrame(()=>{
+    centerActiveCategory();
+    enableCategoryLoop();
+  });
+}
+function openItemBrowse(mi,ii,itemId){
+  const item=menus[mi][1][ii];
+  const name=item[0], price=item[1];
+  const old=document.getElementById('browse-'+itemId);
+  if(old){old.remove();return}
+
+  const config=menus[mi][2];
+  const catalogOptions=catalogOptionList(itemId,config?.options||[]);
+  let html=`<div class="inline-option-box browse-box" id="browse-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}" data-mi="${mi}" data-ii="${ii}" data-item-key="${itemId}">
+    <div class="option-group">`;
+
+  if(menus[mi][0].includes("鍋燒")){
+    const catalogMap=catalogOptionMap(itemId);
+    const noodles=[["意麵",catalogMap.has("意麵")?catalogMap.get("意麵"):0],["雞絲",catalogMap.has("雞絲")?catalogMap.get("雞絲"):0],["冬粉",catalogMap.has("冬粉")?catalogMap.get("冬粉"):0],["泡麵",catalogMap.has("泡麵")?catalogMap.get("泡麵"):0],["烏龍麵",catalogMap.has("烏龍麵")?catalogMap.get("烏龍麵"):20]];
+    const extras=[["加麵",catalogMap.has("加麵")?catalogMap.get("加麵"):15],["起司",catalogMap.has("起司")?catalogMap.get("起司"):10],["豆皮",catalogMap.has("豆皮")?catalogMap.get("豆皮"):20]];
+    html+=`<div class="option-group-title">麵體</div>
+      <div class="option-list">${noodles.map(o=>optionButton(o,true)).join("")}</div>
+      <div class="option-group-title" style="margin-top:14px">加料</div>
+      <div class="option-list">${extras.map(o=>optionButton(o,false)).join("")}</div>`;
+    if(name==="起司牛奶鍋燒"){
+      const spicy=catalogMap.get("麻辣") ?? 10;
+      html+=`<div class="option-group-title" style="margin-top:14px">口味</div>
+        <div class="option-list">${optionButton(["麻辣",spicy],false)}</div>`;
+    }
+  }else if(name==="香蒜厚片"){
+    html+=`<div class="browse-description">此餐點無細項</div>`;
+  }else if(name==="原味蛋餅"){
+    const p=catalogOptionMap(itemId).get("雙蛋") ?? 15;
+    html+=`<div class="option-group-title">細項</div><div class="option-list">${optionButton(["雙蛋",p],false)}</div>`;
+  }else if(config && config.jam && name==="果醬吐司"){
+    const jamMap=catalogOptionMap(itemId);
+    const jam=[["巧克力",jamMap.get("巧克力")??0],["花生",jamMap.get("花生")??0],["草莓",jamMap.get("草莓")??0]];
+    html+=`<div class="option-group-title">果醬口味</div><div class="option-list">${jam.map(o=>optionButton(o,true)).join('')}</div>`;
+  }else if(config && config.options){
+    let options=catalogOptions.slice();
+    if(name==="豬排黑胡椒麵"||name==="豬排蘑菇麵"){
+      options=options.filter(o=>o[0]!=="麻辣"&&o[0]!=="香辣"&&o[0]!=="加辣");
+    }
+    if(config.noNoodleExtra && config.noNoodleExtra.includes(name)){
+      options=options.filter(o=>o[0]!=="加麵");
+    }
+    if(config.type==="個人特餐"){
+      const drink=options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
+      const other=options.filter(o=>o[0]!=="奶茶"&&o[0]!=="冷泡茶"&&o[0]!=="麻辣"&&o[0]!=="香辣");
+      const spicy=options.filter(o=>o[0]==="麻辣"||o[0]==="香辣");
+      if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,true)).join('')}</div></div>`;
+      if(spicy.length)html+=`<div class="option-group"><div class="option-group-title">辣度</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
+      if(drink.length)html+=`<div class="option-group"><div class="option-group-title">飲品</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    }else{
+      html+=`<div class="option-group-title">選擇細項</div><div class="option-list">${options.map(o=>optionButton(o,false)).join('')}</div>`;
+    }
+  }else{
+    html+=`<div class="quantity-direct" data-qty="1">
+      <div class="quantity-label">數量</div>
+      <div class="quantity-controls">
+        <button type="button" onclick="event.stopPropagation();changeDirectQty('${itemId}',-1)">−</button>
+        <span id="direct-qty-${itemId}">1</span>
+        <button type="button" onclick="event.stopPropagation();changeDirectQty('${itemId}',1)">＋</button>
+      </div>
+    </div>`;
+  }
+
+  const noOptions=!config;
+  const purchaseDisabled=!isOrderingOpen();
+  if(!noOptions){
+    html+=`<button class="confirm-option" ${purchaseDisabled?'disabled style="opacity:.55;pointer-events:none"':''} onclick="event.stopPropagation();confirmBrowseAdd('${itemId}')">加入購物車</button>`;
+  }else{
+    html+=`<button class="confirm-option direct-add-btn" ${purchaseDisabled?'disabled style="opacity:.55;pointer-events:none"':''} onclick="event.stopPropagation();confirmDirectAdd('${itemId}')">加入購物車</button>`;
+  }
+  html+=`<button class="cancel-option" onclick="event.stopPropagation();closeBrowse('${itemId}')">返回菜單</button>
+  </div>`;
+
+  const card=document.getElementById(itemId);
+  if(card) card.insertAdjacentHTML('afterend',html);
+  applyOrderingHours();
+}
+function changeDirectQty(itemId,delta){
+  const box=document.getElementById('browse-'+itemId);
+  if(!box)return;
+  let qty=Number(box.dataset.qty||1)+delta;
+  if(qty<1)qty=1;
+  box.dataset.qty=qty;
+  const el=document.getElementById('direct-qty-'+itemId);
+  if(el)el.textContent=qty;
+}
+function confirmDirectAdd(itemId){
+  if(!isOrderingOpen())return;
+  const box=document.getElementById('browse-'+itemId);
+  if(!box)return;
+  const qty=Math.max(1,Number(box.dataset.qty||1));
+  for(let i=0;i<qty;i++){
+    addToCart(box.dataset.baseName,Number(box.dataset.basePrice),[],itemId);
+  }
+  box.remove();
+}
+
+function closeBrowse(itemId){
+  const box=document.getElementById('browse-'+itemId);
+  if(box)box.remove();
+}
+
+function confirmBrowseAdd(itemId){
+  if(!isOrderingOpen())return;
+  const box=document.getElementById('browse-'+itemId);
+  if(!box)return;
+  const name=box.dataset.baseName;
+  const basePrice=Number(box.dataset.basePrice);
+  const selected=Array.from(box.querySelectorAll('.option-btn.selected'));
+
+  if(name==="果醬吐司" && !selected.length){
+    alert("請選擇果醬口味！");
+    return;
+  }
+  if(document.querySelector(`#browse-${itemId}`) && box.querySelector('[data-name="意麵"],[data-name="雞絲"],[data-name="冬粉"],[data-name="泡麵"],[data-name="烏龍麵"]') && !box.querySelector('.option-btn[data-name="意麵"].selected,.option-btn[data-name="雞絲"].selected,.option-btn[data-name="冬粉"].selected,.option-btn[data-name="泡麵"].selected,.option-btn[data-name="烏龍麵"].selected')){
+    alert("請選擇麵體！");
+    return;
+  }
+
+  let extra=0;
+  const options=selected.map(b=>{
+    const p=Number(b.dataset.price||0);
+    extra+=p;
+    return {name:b.dataset.name,price:p};
+  });
+
+  addToCart(name,basePrice+extra,options,itemId);
+  box.remove();
+}
+
+function handleAdd(name,price,itemId,mi,ii){
+if(!isOrderingOpen())return;
+if(name==="香蒜厚片")return addToCart(name,price,[],itemId); if(name==="原味蛋餅")return openOptions(name,price,{type:"蛋餅",options:[["雙蛋",15]]},itemId);
+const config=menus[mi][2];
+if(menus[mi][0].includes('鍋燒'))return openHotpotOptions(name,price,itemId);
+if(!config)return addToCart(name,price,[],itemId);
+if(config.jam&&name==="果醬吐司")return openJamOptions(name,price,itemId);
+let localConfig=JSON.parse(JSON.stringify(config));
+localConfig.options=catalogOptionList(itemId,localConfig.options||[]);
+if(name==="豬排黑胡椒麵"||name==="豬排蘑菇麵"){
+  localConfig.options=localConfig.options.filter(o=>o[0]!=="麻辣"&&o[0]!=="香辣"&&o[0]!=="加辣");
+}
+if(config.noNoodleExtra&&config.noNoodleExtra.includes(name))localConfig.options=localConfig.options.filter(o=>o[0]!=="加麵");
+openOptions(name,price,localConfig,itemId)}
+function openJamOptions(name,price,itemId){
+  const existing=document.getElementById('option-'+itemId);
+  if(existing){
+    existing.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  const jamMap=catalogOptionMap(itemId);
+  const jam=[["巧克力",jamMap.get("巧克力")??0],["花生",jamMap.get("花生")??0],["草莓",jamMap.get("草莓")??0]];
+  const html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}">
+    <div class="option-title">${name}｜選擇口味</div>
+    <div class="option-group">
+      <div class="option-group-title">果醬口味</div>
+      <div class="option-list">${jam.map(o=>optionButton(o,true)).join('')}</div>
+    </div>
+    <button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+    <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button>
+  </div>`;
+  insertOptionBox(itemId,html);
+}
+function openHotpotOptions(name,price,itemId){
+  const old=document.getElementById('option-'+itemId);
+  if(old){old.remove();return}
+  const catalogMap=catalogOptionMap(itemId);
+  const noodles=[
+    ["意麵",catalogMap.get("意麵")??0],
+    ["雞絲",catalogMap.get("雞絲")??0],
+    ["冬粉",catalogMap.get("冬粉")??0],
+    ["泡麵",catalogMap.get("泡麵")??0],
+    ["烏龍麵",catalogMap.get("烏龍麵")??20]
+  ];
+  const extras=[
+    ["加麵",catalogMap.get("加麵")??15],
+    ["起司",catalogMap.get("起司")??10],
+    ["豆皮",catalogMap.get("豆皮")??20]
+  ];
+  let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}">
+    <div class="option-title">${name}｜選擇細項</div>
+    <div class="option-group"><div class="option-group-title">麵體</div><div class="option-list">${noodles.map(o=>optionButton(o,true)).join('')}</div></div>
+    <div class="option-group"><div class="option-group-title">加料</div><div class="option-list">${extras.map(o=>optionButton(o,false)).join('')}</div></div>`;
+  if(name==='起司牛奶鍋燒'){
+    const spicy=catalogMap.get("麻辣")??10;
+    html+=`<div class="option-group"><div class="option-group-title">口味</div><div class="option-list">${optionButton(["麻辣",spicy],false)}</div></div>`;
+  }
+  html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;
+  insertOptionBox(itemId,html);
+}
+function openOptions(name,price,config,itemId){
+const old=document.getElementById('option-'+itemId);if(old){old.remove();return}
+const effectiveConfig={...config,options:catalogOptionList(itemId,config?.options||[])};
+config=effectiveConfig;
+let html=`<div class="inline-option-box" id="option-${itemId}" data-base-name="${escapeHtml(name)}" data-base-price="${price}"><div class="option-title">${name}｜選擇細項</div>`;
+if(config.options){
+  if(config.type==="個人特餐"){
+    const drink=config.options.filter(o=>o[0]==="奶茶"||o[0]==="冷泡茶");
+    const other=config.options.filter(o=>o[0]!=="奶茶"&&o[0]!=="冷泡茶"&&o[0]!=="麻辣"&&o[0]!=="香辣");
+    const spicy=config.options.filter(o=>o[0]==="麻辣"||o[0]==="香辣");
+    if(other.length)html+=`<div class="option-group"><div class="option-group-title">其他細項</div><div class="option-list">${other.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(spicy.length)html+=`<div class="option-group" data-mutual="spicy"><div class="option-group-title">辣度</div><div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div></div>`;
+    if(drink.length)html+=`<div class="option-group" data-mutual="drink"><div class="option-group-title">飲品</div><div class="option-list">${drink.map(o=>optionButton(o,true)).join('')}</div></div>`;
+  }else{
+    html+=`<div class="option-group"><div class="option-group-title">可加購</div><div class="option-list">${config.options.map(o=>optionButton(o,false)).join('')}</div></div>`;
+  }
+}
+html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button><button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;
+insertOptionBox(itemId,html)}
+function openHiddenOptions(index,itemId){
+  const old=document.getElementById('option-'+itemId);
+  if(old){old.remove();return}
+  const item=hiddenMenus[index];
+
+  if(index!==0){
+    let html=`<div class="inline-option-box hidden-option-box" id="option-${itemId}" data-base-name="${escapeHtml(item[0])}" data-base-price="${item[1]}" data-package="${index}" data-item-key="${itemId}">`;
+
+    if(item[0]==='單人經濟套餐'){
+      const drinkGroup=item[2].find(g=>g.title==='飲品');
+      const drinkOptions=catalogOptionList(itemId,drinkGroup?.options||[]);
+      html+=`<div class="option-group" data-group="main">
+        <div class="option-group-title">主餐</div>
+        <div class="option-list"><button type="button" class="option-btn selected fixed-option" data-name="招牌炒泡麵" data-price="0" aria-disabled="true">招牌炒泡麵</button></div>
+      </div>
+      <div class="option-group" data-group="fried">
+        <div class="option-group-title">炸物</div>
+        <div class="option-list"><button type="button" class="option-btn selected fixed-option" data-name="小肉豆" data-price="0" aria-disabled="true">小肉豆</button></div>
+      </div>
+      <div class="option-group" data-group="drink">
+        <div class="option-group-title">飲品</div>
+        <div class="option-list">${drinkOptions.map(o=>optionButton(o,true)).join('')}</div>
+      </div>`;
+    }else{
+      item[2].forEach(g=>{
+        const groupOptions=catalogOptionList(itemId,g.options||[]);
+        html+=`<div class="option-group" data-group="${g.fried?'fried':g.cream?'cream':g.main?'main':g.drink?'drink':''}">
+          <div class="option-group-title">${g.title}</div>
+          <div class="option-list">${groupOptions.map(o=>optionButton(o,!!g.single,g.max,g.cream?itemId:null)).join('')}</div>
+        </div>`;
+      });
+    }
+
+    html+=`<button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+      <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button></div>`;
+    insertOptionBox(itemId,html);
+    return;
+  }
+
+  const mains=item[2][0].options;
+  let html=`<div class="inline-option-box hidden-option-box" id="option-${itemId}" data-base-name="${escapeHtml(item[0])}" data-base-price="${item[1]}" data-package="0" data-item-key="${itemId}">
+    <div class="option-group" data-group="main">
+      <div class="option-group-title">主餐</div>
+      <div class="option-list">
+        ${catalogOptionList(itemId,mains).map(o=>`<button class="option-btn package-main-btn" data-name="${escapeHtml(o[0])}" data-price="0" data-single="1" onclick="selectPackageMain(this,'${itemId}')">${o[0]}</button>`).join('')}
+      </div>
+    </div>
+    <div id="package-main-detail-${itemId}"></div>
+    <div class="option-group" data-group="cream">
+      <div class="option-group-title">奶酥(不吃請勿選擇)</div>
+      <div class="option-list">
+        ${catalogOptionList(itemId,item[2][1].options).map(o=>optionButton(o,true,0,itemId)).join('')}
+      </div>
+    </div>
+    <div class="option-group" data-group="fried">
+      <div class="option-group-title">炸物</div>
+      <div class="option-list">
+        ${catalogOptionList(itemId,item[2][2].options).map(o=>optionButton(o,false,1)).join('')}
+      </div>
+    </div>
+    <div class="option-group" data-group="drink">
+      <div class="option-group-title">飲品</div>
+      <div class="option-list">
+        ${catalogOptionList(itemId,item[2][3].options).map(o=>optionButton(o,true)).join('')}
+      </div>
+    </div>
+    <button class="confirm-option" onclick="confirmInlineOptions('${itemId}')">確認加入購物車</button>
+    <button class="cancel-option" onclick="closeOptions('${itemId}')">關閉</button>
+  </div>`;
+  insertOptionBox(itemId,html);
+}
+function selectPackageMain(btn,itemId){
+  const box=document.getElementById('option-'+itemId);
+  box.querySelectorAll('.package-main-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  const mainName=btn.dataset.name;
+  let options=[];
+
+  // 豬排套餐三種主餐：細項只保留「加麵」；豬排炒泡麵另外提供加辣，
+  // 不顯示飲品。
+  if(mainName==='豬排炒泡麵'){
+    options=[["加麵",15],["麻辣",5],["香辣",15]];
+  }else if(mainName==='豬排蘑菇麵'){
+    options=[["加麵",15]];
+  }else if(mainName==='豬排黑胡椒麵'){
+    options=[["加麵",15]];
+  }
+
+  const target=document.getElementById('package-main-detail-'+itemId);
+  let html=`<div class="inline-option-box package-main-detail-box" data-main="${escapeHtml(mainName)}" data-item-key="${itemId}">`;
+
+  const spicy=options.filter(o=>o[0]==='麻辣'||o[0]==='香辣');
+  const noodle=options.filter(o=>o[0]==='加麵');
+
+  if(noodle.length){
+    html+=`<div class="option-group">
+      <div class="option-group-title">加麵</div>
+      <div class="option-list">${noodle.map(o=>optionButton(o,false)).join('')}</div>
+    </div>`;
+  }
+  if(spicy.length){
+    html+=`<div class="option-group" data-mutual="main-spicy">
+      <div class="option-group-title">加辣</div>
+      <div class="option-list">${spicy.map(o=>optionButton(o,true)).join('')}</div>
+    </div>`;
+  }
+
+  html+=`</div>`;
+  target.innerHTML=html;
+}
+function insertOptionBox(itemId,html){
+  const existing=document.getElementById('option-'+itemId);
+  if(existing){
+    existing.outerHTML=html;
+    return;
+  }
+  document.getElementById(itemId).insertAdjacentHTML('afterend',html);
+  applyOrderingHours();
+}
+function toggleOption(btn){const box=btn.closest('.inline-option-box');const group=btn.closest('.option-group');const isSingle=btn.dataset.single==='1';const max=Number(btn.dataset.max||0);if(isSingle){
+  if(btn.classList.contains('selected')){btn.classList.remove('selected')}
+  else{group.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+}else{const selected=group.querySelectorAll('.option-btn.selected');if(!btn.classList.contains('selected')&&max===1&&selected.length>=1){selected.forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}else if(!btn.classList.contains('selected')&&max&&selected.length>=max){alert(`最多選 ${max} 項`);return}else{btn.classList.toggle('selected')}}const fried=box?.querySelector('[data-group="fried"]');const cream=box?.querySelector('[data-group="cream"]');if(fried&&cream){const creamSelected=cream.querySelector('.option-btn.selected');const friedBtns=fried.querySelectorAll('.option-btn');const limit=creamSelected?1:2;friedBtns.forEach(b=>{b.dataset.max=limit});const current=fried.querySelectorAll('.option-btn.selected');if(current.length>limit){current.forEach((b,i)=>{if(i>=limit)b.classList.remove('selected')})}fried.querySelector('.option-group-title').textContent=`炸物 4 選 ${limit}${creamSelected?'':'(奶酥不吃請選兩樣)'}`}}
+function confirmInlineOptions(itemId){
+if(!isOrderingOpen())return;
+const box=document.getElementById('option-'+itemId);
+const name=box.dataset.baseName,basePrice=Number(box.dataset.basePrice);
+const selected=Array.from(box.querySelectorAll('.option-btn.selected'));
+
+if(name==='果醬吐司'&&!selected.length){alert('請選擇果醬口味！');return}
+if(name.includes('鍋燒')&&!selected.some(b=>['意麵','雞絲','冬粉','泡麵','烏龍麵'].includes(b.dataset.name))){alert('請先選擇麵體！');return}
+
+if(box.dataset.package==='0'){
+  const mainBtn=box.querySelector('[data-group="main"] .option-btn.selected');
+  const cream=box.querySelector('[data-group="cream"] .option-btn.selected');
+  const fried=box.querySelectorAll('[data-group="fried"] .option-btn.selected');
+  const drink=box.querySelector('[data-group="drink"] .option-btn.selected');
+  if(!mainBtn){alert('請先選擇主餐！');return}
+  if(!cream&&fried.length!==2){alert('奶酥不吃請選兩樣炸物！');return}
+  if(cream&&fried.length!==1){alert('選擇奶酥後，炸物請選1樣！');return}
+  if(!drink){alert('請選擇飲品！');return}
+
+  const mainDetail=box.querySelector('.package-main-detail-box');
+  let options=[];
+  let extra=0;
+
+  if(mainDetail){
+    mainDetail.querySelectorAll('.option-btn.selected').forEach(b=>{
+      const p=Number(b.dataset.price||0);
+      extra+=p;
+      options.push({name:b.dataset.name,price:p,group:(b.closest('.option-group')?.dataset.group||'extra')});
+    });
+  }
+
+  options.push({name:mainBtn.dataset.name,price:0,group:'main'});
+  if(cream)options.push({name:cream.dataset.name,price:0,group:'cream'});
+  fried.forEach(b=>options.push({name:b.dataset.name,price:0,group:'fried'}));
+  options.push({name:drink.dataset.name,price:Number(drink.dataset.price||0),group:'drink'});
+  extra+=Number(drink.dataset.price||0);
+
+  addToCart(name,basePrice+extra,options);
+  box.remove();
+  return;
+}
+let extra=0;
+const options=selected.map(b=>{
+  const p=Number(b.dataset.price);extra+=p;
+  const g=b.closest('.option-group');
+  let group=g?.dataset.group||'extra';
+  const title=g?.querySelector('.option-group-title')?.textContent||'';
+  if(title.includes('主餐'))group='main';
+  else if(title.includes('奶酥'))group='cream';
+  else if(title.includes('炸物'))group='fried';
+  else if(title.includes('飲品'))group='drink';
+  return{name:b.dataset.name,price:p,group};
+});
+if(name==='單人經濟套餐'){
+  const drink=box.querySelector('[data-group="drink"] .option-btn.selected');
+  if(!drink){alert('請選擇飲品！');return}
+  // 主餐、炸物已在畫面上以固定反黑選項存在，selected 已會被上面的
+  // 通用流程收集，因此這裡不再重複加入。
+}
+addToCart(name,basePrice+extra,options);
+box.remove();
+}
+
+function closePackageDetail(){
+  const box=document.getElementById('package-main-detail');
+  if(box) box.remove();
+}
+
+function confirmPackageDetail(){
+  const box=document.getElementById('package-main-detail');
+  if(!box)return;
+
+  const mainName=box.dataset.main;
+  const mainDetail=Array.from(box.querySelectorAll('[data-group="main-detail"] .option-btn.selected,[data-group="main-drink"] .option-btn.selected,[data-group="main-spicy"] .option-btn.selected'));
+  const cream=box.querySelector('[data-group="cream"] .option-btn.selected');
+  const fried=box.querySelectorAll('[data-group="fried"] .option-btn.selected');
+  const drink=box.querySelector('[data-group="drink"] .option-btn.selected');
+
+  if(!cream&&fried.length!==2){alert('奶酥不吃請選兩樣炸物！');return}
+  if(cream&&fried.length!==1){alert('選擇奶酥後，炸物請選1樣！');return}
+  if(!drink){alert('請選擇飲品！');return}
+
+  let options=[];
+  let extra=0;
+
+  mainDetail.forEach(b=>{const p=Number(b.dataset.price);extra+=p;options.push({name:b.dataset.name,price:p})});
+  if(cream)options.push({name:cream.dataset.name,price:0});
+  fried.forEach(b=>options.push({name:b.dataset.name,price:0}));
+  if(drink){const p=Number(drink.dataset.price);extra+=p;options.push({name:drink.dataset.name,price:p})}
+
+  addToCart('豬排大套餐｜'+mainName,Number(box.dataset.basePrice)+extra,options,box.dataset.itemKey||'hidden-0');
+  box.remove();
+}
+function closeOptions(itemId){const box=document.getElementById('option-'+itemId);if(box)box.remove()}
+function addToCart(name,price,options,itemKey){
+  const opts=options||[];
+  const key=JSON.stringify({
+    name,
+    options:[...opts].sort((a,b)=>(a.group||'').localeCompare(b.group||'')||a.name.localeCompare(b.name)||Number(a.price)-Number(b.price))
+      .map(o=>[o.name,Number(o.price||0),o.group||''])
+  });
+  const existing=cart.find(item=>{
+    const itemKey=JSON.stringify({
+      name:item.name,
+      options:[...(item.options||[])].sort((a,b)=>(a.group||'').localeCompare(b.group||'')||a.name.localeCompare(b.name)||Number(a.price)-Number(b.price))
+        .map(o=>[o.name,Number(o.price||0),o.group||''])
+    });
+    return itemKey===key;
+  });
+  if(existing){
+    existing.qty+=1;
+  }else{
+    cart.push({name,price,options:opts,qty:1,itemKey:itemKey||''});
+  }
+  saveCustomerCart();
+  renderCart();
+}
+function sortCartOptions(options){
+  const getRank=(o)=>{
+    const n=String(o?.name||'');
+    const g=String(o?.group||'');
+    // 1. 主餐
+    if(g==='main'||g.includes('主餐')) return 10;
+    // 2. 奶酥優先，再炸物
+    if(g==='cream'||g.includes('奶酥')) return 20;
+    if(g==='fried'||g.includes('炸物')) return 30;
+    // 3. 加麵／加辣／加起司
+    if(g==='extra'||g.includes('加麵')||g.includes('加辣')||g.includes('加起司')) return 40;
+    // 4. 飲品最後
+    if(g==='drink'||g.includes('飲品')) return 50;
+
+    // 舊資料／沒有 group 時的文字判斷。
+    if(/加麵|加辣|加起司/.test(n)) return 40;
+    if(/紅茶|奶茶|冷泡茶|麥茶|咖啡|可樂|雪碧|飲料|飲品/.test(n)) return 50;
+    return 35;
+  };
+  return [...(options||[])]
+    .map((o,i)=>({...o,__order:getRank(o),__index:i}))
+    .sort((a,b)=>a.__order-b.__order||a.__index-b.__index)
+    .map(({__order,__index,...o})=>o);
+}
+function renderCart(){
+  const el=document.getElementById('cartItems');
+  if(!cart.length){
+    el.innerHTML='尚未選擇餐點';
+    document.getElementById('total').textContent='0';
+    document.getElementById('count').textContent='0';
+    const bottomTotal=document.getElementById('bottomTotal'); if(bottomTotal) bottomTotal.textContent='0';
+    return;
+  }
+  let html='',total=0,count=0;
+  cart.forEach((item,i)=>{
+    const itemTotal=item.price*item.qty;
+    total+=itemTotal; count+=item.qty;
+    const sorted=sortCartOptions(item.options||[]);
+    const opt=sorted.length?`<div class="cart-options">細項：${sorted.map(o=>o.name+(o.price>0?' +'+o.price:'')).join('、')}</div>`:'';
+    html+=`<div class="cart-row"><div class="cart-main"><div class="cart-name">${item.name}</div>${opt}</div>
+    <div class="cart-actions-inline">
+      <button onclick="changeQty(${i},-1)">−</button><span class="cart-qty">${item.qty}</span><button onclick="changeQty(${i},1)">＋</button>
+      <span class="cart-price">$${itemTotal}</span><button class="cart-delete" onclick="removeItem(${i})">刪除</button>
+    </div></div>`;
+  });
+  el.innerHTML=html;
+  document.getElementById('total').textContent=total;
+  document.getElementById('count').textContent=count;
+  const bottomTotal=document.getElementById('bottomTotal'); if(bottomTotal) bottomTotal.textContent=total;
+}
+
+function changeQty(i,a){cart[i].qty+=a;if(cart[i].qty<=0)cart.splice(i,1);saveCustomerCart();renderCart()}
+function removeItem(i){cart.splice(i,1);saveCustomerCart();renderCart()}
+
+function pad2(n){return String(n).padStart(2,'0')}
+function getTaipeiNow(){
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(new Date());
+  const get=k=>Number(parts.find(p=>p.type===k)?.value||0);
+  return {year:get('year'),month:get('month'),day:get('day'),hour:get('hour'),minute:get('minute'),second:get('second')};
+}
+let orderingHoursSchedule = {
+  1:{enabled:true,start:"18:00",end:"01:10"},
+  2:{enabled:true,start:"18:00",end:"01:10"},
+  3:{enabled:true,start:"18:00",end:"01:10"},
+  4:{enabled:true,start:"18:00",end:"01:10"},
+  5:{enabled:true,start:"18:00",end:"01:10"},
+  6:{enabled:true,start:"18:00",end:"01:10"},
+  7:{enabled:true,start:"18:00",end:"01:10"}
+};
+let orderingHoursLoaded=false;
+
+function getTaipeiWeekday(){
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(new Date());
+  return ({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7})[parts]||1;
+}
+function hmToMinutes(hm){
+  const p=String(hm||'00:00').split(':').map(Number);
+  return (p[0]||0)*60+(p[1]||0);
+}
+function getOrderingWindowForNow(){
+  const now=getTaipeiNow();
+  const minutes=now.hour*60+now.minute;
+  const today=getTaipeiWeekday();
+  const todayRow=orderingHoursSchedule[today];
+  if(todayRow?.enabled){
+    const s=hmToMinutes(todayRow.start), e=hmToMinutes(todayRow.end);
+    if(s===e) return {open:true,row:todayRow,day:today};
+    if(s<e && minutes>=s && minutes<e) return {open:true,row:todayRow,day:today};
+    if(s>e && minutes>=s) return {open:true,row:todayRow,day:today};
+  }
+  const prev=today===1?7:today-1;
+  const prevRow=orderingHoursSchedule[prev];
+  if(prevRow?.enabled){
+    const s=hmToMinutes(prevRow.start), e=hmToMinutes(prevRow.end);
+    if(s>e && minutes<e) return {open:true,row:prevRow,day:prev};
+  }
+  return {open:false,row:todayRow||null,day:today};
+}
+function isOrderingOpenBySchedule(){
+  return getOrderingWindowForNow().open;
+}
+function formatOrderingRange(row){
+  if(!row)return '暫停線上點餐';
+  if(hmToMinutes(row.start)===hmToMinutes(row.end))return '00:00 ～ 24:00';
+  const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
+  return s>e ? `${row.start} ～ 隔日 ${row.end}` : `${row.start} ～ ${row.end}`;
+}
+function updateOrderingHoursDisplay(){
+  const el=document.querySelector('.hours-time');
+  if(!el)return;
+  const active=getOrderingWindowForNow();
+  if(active.open){
+    el.textContent=formatOrderingRange(active.row);
+  }else{
+    const today=orderingHoursSchedule[getTaipeiWeekday()];
+    el.textContent=today?.enabled ? formatOrderingRange(today) : '今日暫停線上點餐';
+  }
+  const note=document.querySelector('.hours-note');
+  if(note)note.textContent='自取專用｜點餐時間依店家後台每週設定自動更新';
+}
+async function loadOrderingHours(){
+  try{
+    const {data,error}=await supabaseClient.from('ordering_hours').select('day_of_week,enabled,start_time,end_time').order('day_of_week');
+    if(error){console.error('讀取點餐時間失敗：',error);return false;}
+    (data||[]).forEach(r=>{
+      const d=Number(r.day_of_week);
+      if(d>=1&&d<=7) orderingHoursSchedule[d]={
+        enabled:Boolean(r.enabled),
+        start:String(r.start_time||'18:00:00').slice(0,5),
+        end:String(r.end_time||'01:10:00').slice(0,5)
+      };
+    });
+    orderingHoursLoaded=true;
+    updateOrderingHoursDisplay();
+    applyOrderingHours();
+    initPickupTimes();
+    return true;
+  }catch(e){
+    console.error('讀取點餐時間失敗：',e);
+    return false;
+  }
+}
+
+function initPickupTimes(){
+  const select=document.getElementById('pickupTime');
+  if(!select)return;
+
+  const currentValue=select.value;
+  select.innerHTML='';
+
+  const first=document.createElement('option');
+  first.value='';
+  first.textContent='不指定（等候店家點選完成訂單即可取餐）';
+  select.appendChild(first);
+
+  // 最早可指定時間：
+  // 目前時間先進位到下一個10分鐘，再往後30分鐘。
+  const now=getTaipeiNow();
+  const nowDate=new Date(Date.UTC(now.year,now.month-1,now.day,now.hour,now.minute,0));
+  const rounded=new Date(nowDate.getTime());
+  const roundedMinutes=Math.ceil(rounded.getUTCMinutes()/10)*10;
+  if(roundedMinutes>=60){
+    rounded.setUTCHours(rounded.getUTCHours()+1,0,0,0);
+  }else{
+    rounded.setUTCMinutes(roundedMinutes,0,0);
+  }
+  const minPickup=rounded.getTime()+30*60*1000;
+
+  const seen=new Set();
+
+  // 只顯示落在後台營業時段內、且不晚於「營業結束前10分鐘」
+  // 的指定取餐時間。
+  for(let offset=0;offset<=24*60;offset+=10){
+    const d=new Date(minPickup+offset*60*1000);
+    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
+    const h=d.getUTCHours(), minute=d.getUTCMinutes();
+    const jsDay=new Date(Date.UTC(y,mo-1,day)).getUTCDay();
+    const dow=jsDay===0?7:jsDay;
+    const prev=dow===1?7:dow-1;
+    const mins=h*60+minute;
+    const candidateTime=d.getTime();
+
+    let intervalEnd=null;
+
+    // 先判斷「今天」的營業時段。
+    const row=orderingHoursSchedule[dow];
+    if(row?.enabled){
+      const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
+
+      if(s<e){
+        // 同日營業，例如 18:00～23:30。
+        if(mins>=s && mins<e){
+          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(e/60),e%60,0);
+        }
+      }else if(s>e){
+        // 跨日營業，例如 18:00～01:30。
+        // 今天開始的營業，結束時間在隔日。
+        if(mins>=s){
+          intervalEnd=Date.UTC(y,mo-1,day+1,Math.floor(e/60),e%60,0);
+        }
+      }else{
+        // s === e 不代表24小時營業。
+        // 本系統沒有固定24小時營業模式，完全依後台設定判斷。
+        intervalEnd=null;
+      }
+    }
+    // 如果今天的營業時段沒有涵蓋，就判斷「昨天跨日」延續到今天凌晨。
+    if(intervalEnd===null){
+      const prevRow=orderingHoursSchedule[prev];
+      if(prevRow?.enabled){
+        const ps=hmToMinutes(prevRow.start), pe=hmToMinutes(prevRow.end);
+        if(ps>pe && mins<pe){
+          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(pe/60),pe%60,0);
+        }
+      }
+    }
+
+    if(intervalEnd===null)continue;
+
+    // 最晚指定時間 = 營業結束時間往前10分鐘。
+    const latestPickup=intervalEnd-10*60*1000;
+    if(candidateTime>latestPickup)continue;
+
+    const value=`${String(h).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+    if(seen.has(value))continue;
+    seen.add(value);
+
+    const option=document.createElement('option');
+    option.value=value;
+    option.textContent=value;
+    select.appendChild(option);
+  }
+
+  if(currentValue && [...select.options].some(o=>o.value===currentValue)){
+    select.value=currentValue;
+  }
+}
+function buildOrderSummary(){
+  let total=0;
+  let html='<div class="order-confirm-title">請再次確認您的訂單</div>';
+  html+='<div class="order-confirm-warm">溫馨提醒：送出前再確認一次餐點與細項，避免點錯喔！</div>';
+  html+='<div class="order-confirm-list">';
+  cart.forEach(item=>{
+    total+=item.price*item.qty;
+    html+=`<div class="confirm-item">
+      <div class="confirm-item-main"><span>${escapeHtml(item.name)}</span><strong>× ${item.qty}</strong><b>$${item.price*item.qty}</b></div>`;
+    if(item.options?.length){
+      html+=`<div class="confirm-item-options">${sortCartOptions(item.options).map(o=>escapeHtml(o.name)+(o.price>0?` +$${o.price}`:'')).join('、')}</div>`;
+    }
+    html+='</div>';
+  });
+  html+=`</div><div class="confirm-total">合計：$${total}</div>`;
+  return html;
+}
+
+function showOrderConfirm(){
+  const modal=document.getElementById('orderConfirmModal');
+  const body=document.getElementById('orderConfirmBody');
+  body.innerHTML=buildOrderSummary();
+  modal.style.display='flex';
+}
+
+function closeOrderConfirm(){
+  document.getElementById('orderConfirmModal').style.display='none';
+}
+
+async function confirmAndSubmitOrder(){
+  if(window.validateOrderCustomerFields){
+    const customerFieldsValid=window.validateOrderCustomerFields();
+    if(!customerFieldsValid){
+      closeOrderConfirm();
+      return false;
+    }
+  }
+
+  const submitBtn=document.querySelector('.order-confirm-submit');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
+
+  try{
+    const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
+    const name=document.getElementById('customerName').value.trim();
+    const phone=document.getElementById('phone').value.trim().replace(/[\s-]/g,'');
+    const pickup=document.getElementById('pickupTime').value||null;
+
+    if(!cart.length) throw new Error('購物車目前沒有餐點。');
+    if(!name) throw new Error('請輸入姓名。');
+    if(!/^09\d{8}$/.test(phone)) throw new Error('請輸入有效的台灣手機號碼（09 開頭共 10 碼）。');
+
+    const items=cart.map(item=>({
+      item_key:item.itemKey||'',
+      name:item.name,
+      qty:Number(item.qty||1),
+      price:Number(item.price||0),
+      options:(item.options||[]).map(o=>({
+        name:o.name,
+        price:Number(o.price||0),
+        group:o.group||''
+      }))
+    }));
+
+    let data=null;
+
+let error=null;
+
+try{
+
+  const result=await supabaseClient.rpc('create_order_atomic',{
+
+    p_customer_name:name,
+
+    p_phone:phone,
+
+    p_pickup_time:pickup,
+
+    p_cutlery:cutlery,
+
+    p_items:items
+
+  });
+
+  data=result.data;
+
+  error=result.error;
+
+}catch(fetchError){
+
+  // 網路層 Failed to fetch：
+
+  // 不重新建立訂單，先確認訂單是否其實已經成功建立。
+
+  console.error('訂單請求發生網路錯誤：',fetchError);
+
+  throw new Error('訂單送出後網路連線中斷，請確認訂單狀態。');
+
+}
+
+if(error) throw new Error(error.message||'訂單送出失敗。');
+
+const orderId=Number(data?.id);
+    const serverTotal=Number(data?.total||0);
+    if(!orderId) throw new Error('訂單建立成功，但沒有取得訂單編號。');
+
+    closeOrderConfirm();
+    cart=[];
+    clearCustomerCartStorage();
+    if(window.clearCustomerFormDraft) window.clearCustomerFormDraft();
+    renderCart();
+
+    // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
+    const createdAt=Date.now();
+    const submittedOrderData={
+      orderId,
+      phone,
+      customerName:name,
+      pickupTime:pickup,
+      total:serverTotal,
+      items,
+      createdAt,
+      expiresAt:window.getOrderExpiryAt(pickup,createdAt)
+    };
+    window.__customerLastSubmittedOrder=submittedOrderData;
+    window.saveCustomerActiveOrder(submittedOrderData);
+
+  
+    // 訂單成功後直接在目前頁面顯示訂單狀態。
+    const success=document.getElementById('successMessage');
+    if(success){
+      const digits=String(phone).replace(/\D/g,'');
+      const idEl=document.getElementById('successOrderId');
+      const pickupEl=document.getElementById('successPickup');
+      const totalEl=document.getElementById('successTotal');
+      const customerEl=document.getElementById('successCustomer');
+      const statusEl=document.getElementById('successStatus');
+      if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+      if(pickupEl) pickupEl.textContent=pickup||'不指定';
+      if(totalEl) totalEl.textContent=`$${serverTotal.toLocaleString()}`;
+      if(customerEl) customerEl.textContent=`${name}｜手機末三碼 ${digits.slice(-3)}`;
+      if(statusEl) statusEl.textContent='🟡 等待店家接單';
+      const sentTime=document.getElementById('statusSentTime');
+      if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
+      renderOrderItems(items);
+      enterCustomerOrderStatusMode(orderId);
+      if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+    }
+
+return true;
+
+  }catch(error){
+
+    console.error(error);
+    alert(error.message||'訂單送出失敗，請稍後再試。');
+    return false;
+  }finally{
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='確認';submitBtn.style.opacity='1';}
+  }
+}
+
+
+function enterCustomerOrderStatusMode(orderId){
+  // 狀態頁必須綁定「這一張訂單」，避免下一張訂單覆蓋上一張的狀態頁。
+  const id=Number(orderId||0);
+  if(id){
+    const targetHash='#order-status='+id;
+    if(window.location.hash!==targetHash){
+      history.replaceState(null,'',window.location.pathname+window.location.search+targetHash);
+    }
+  }
+  document.body.classList.add('customer-order-status-mode');
+  // 狀態頁已經有「這一筆訂單」的保存資料時，直接以目前狀態頁資料判斷是否為指定單。
+  // 不再只依賴 orderId 重新拼 localStorage key，避免重新整理/切頁時把紫色模式誤清掉。
+  // 指定單只依目前這張訂單的資料判斷，直接讀 orderId 對應的獨立保存資料。
+  let savedForTheme=null;
+  try{
+    const exactKey = id && typeof getOrderStorageKey==='function' ? getOrderStorageKey(id) : '';
+    const rawExact = exactKey ? localStorage.getItem(exactKey) : null;
+    if(rawExact) savedForTheme=JSON.parse(rawExact);
+  }catch(e){}
+  if(!savedForTheme && window.__customerLastSubmittedOrder &&
+     Number(window.__customerLastSubmittedOrder.orderId||0)===id){
+    savedForTheme=window.__customerLastSubmittedOrder;
+  }
+  if(!savedForTheme && typeof getSavedOrder==='function'){
+    try{ savedForTheme=getSavedOrder(); }catch(e){}
+  }
+
+  const isReservedForTheme=!!String(savedForTheme?.pickupTime||'').trim();
+  document.body.classList.toggle('reserved-order-mode',isReservedForTheme);
+  document.body.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
+
+  const themeTimeline=document.getElementById('orderStatusTimeline');
+  if(themeTimeline){
+    themeTimeline.classList.toggle('reserved-order-timeline',isReservedForTheme);
+    themeTimeline.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
+  }
+  const success=document.getElementById('successMessage');
+  const container=document.querySelector('.container');
+  if(success && container && success.parentElement!==container){
+    container.appendChild(success);
+  }
+  if(success) success.style.display='block';
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
+function showCustomerOrderSuccess(){
+  const success=document.getElementById('successMessage');
+  if(!success) return;
+
+  const saved=window.__customerLastSubmittedOrder || (()=>{
+    try{return JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');}catch(e){return {};}
+  })();
+  const digits=String(saved.phone||'').replace(/\\D/g,'');
+  const idEl=document.getElementById('successOrderId');
+  const pickupEl=document.getElementById('successPickup');
+  const totalEl=document.getElementById('successTotal');
+  const customerEl=document.getElementById('successCustomer');
+  const statusEl=document.getElementById('successStatus');
+
+  if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+  if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
+  if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
+  if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
+  if(statusEl) statusEl.textContent='🟡 等待店家接單';
+
+  success.style.display='block';
+  success.scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+}
+
+function submitOrder(){
+  if(!isOrderingOpen())return;
+  if(!cart.length){alert('請先選擇餐點！');return}
+  const nameEl=document.getElementById('customerName'),phoneEl=document.getElementById('phone');
+  const name=nameEl.value.trim(),phone=phoneEl.value.trim();
+  nameEl.classList.remove('input-error');phoneEl.classList.remove('input-error');
+  if(!name){nameEl.classList.add('input-error');nameEl.focus();return}
+  if(!phone){phoneEl.classList.add('input-error');phoneEl.focus();return}
+  showOrderConfirm();
+}
+
+let shopClosedDates=new Set();
+let shopClosedLoaded=false;
+let storeClosedBannerDismissed=false;
+function todayTaipeiKey(){
+  const n=getTaipeiNow();
+  return `${n.year}-${pad2(n.month)}-${pad2(n.day)}`;
+}
+function isStoreClosedToday(){
+  return shopClosedLoaded && shopClosedDates.has(todayTaipeiKey());
+}
+function isOrderingOpen(){
+  return isOrderingOpenBySchedule();
+}
+async function loadShopClosedDates(){
+  try{
+    const {data,error}=await supabaseClient.from('shop_closed_dates').select('closed_date');
+    if(error){console.error('讀取店休日期失敗：',error);return false;}
+    shopClosedDates=new Set((data||[]).map(r=>String(r.closed_date).slice(0,10)));
+    shopClosedLoaded=true;
+    applyOrderingHours();
+    return true;
+  }catch(e){console.error('讀取店休日期失敗：',e);return false;}
+}
+function closeStoreClosedBanner(){
+  storeClosedBannerDismissed=true;
+  const el=document.getElementById('storeClosedBanner');
+  if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}
+}
+
+let orderingNoticeDismissed=false;
+function closeOrderingNotice(){
+  orderingNoticeDismissed=true;
+  const modal=document.getElementById('orderClosed');
+  if(modal){
+    modal.style.display='none';
+    modal.setAttribute('aria-hidden','true');
+  }
+  const banner=document.getElementById('orderingClosedBanner');
+  if(banner){
+    banner.style.setProperty('display','none','important');
+    banner.setAttribute('aria-hidden','true');
+  }
+  document.body.style.overflow='';
+}
+function closeOrderingBanner(){
+  closeOrderingNotice();
+  return false;
+}
+function closeOrderingBanner(){closeOrderingNotice();}
+
+async function applyOrderingHours(){
+  const closedModal=document.getElementById('orderClosed');
+  const banner=document.getElementById('orderingClosedBanner');
+  const storeBanner=document.getElementById('storeClosedBanner');
+  const holidayModal=document.getElementById('storeHolidayModalV24');
+
+  if(isStoreClosedToday()){
+    // 店休與「非點餐時間」是兩種不同狀態：店休只顯示店休視窗。
+    if(closedModal)closedModal.style.display='none';
+    if(banner){
+      banner.style.setProperty('display','none','important');
+      banner.setAttribute('aria-hidden','true');
+    }
+    if(storeBanner){
+      storeBanner.style.display='none';
+      storeBanner.setAttribute('aria-hidden','true');
+    }
+    if(holidayModal && !storeClosedBannerDismissed){
+      const d=document.getElementById('storeHolidayDateV24');
+      if(d){
+        const n=getTaipeiNow();
+        d.textContent=`${n.month}/${n.day} 店休`;
+      }
+      holidayModal.classList.add('show');
+      holidayModal.setAttribute('aria-hidden','false');
+    }
+
+    document.querySelectorAll('.add-btn,.confirm-option,.submit-btn').forEach(btn=>{
+      btn.disabled=true;
+      btn.style.opacity='.55';
+      btn.style.pointerEvents='none';
+    });
+    document.querySelectorAll('.menu-card').forEach(card=>{
+      card.style.pointerEvents='auto';
+      card.style.opacity='1';
+    });
+    return;
+  }
+
+  // 非店休：關閉店休視窗，恢復原本非點餐時間邏輯。
+  if(holidayModal){
+    holidayModal.classList.remove('show');
+    holidayModal.setAttribute('aria-hidden','true');
+  }
+  if(storeBanner){
+    storeBanner.style.display='none';
+    storeBanner.setAttribute('aria-hidden','true');
+  }
+
+  const open=isOrderingOpen();
+  updateOrderingHoursDisplay();
+  if(closedModal){
+    closedModal.style.display='none';
+    closedModal.setAttribute('aria-hidden','true');
+  }
+  if(open){
+    if(banner){
+      banner.style.setProperty('display','none','important');
+      banner.setAttribute('aria-hidden','true');
+    }
+    document.querySelectorAll('.add-btn,.confirm-option,.submit-btn').forEach(btn=>{
+      btn.disabled=false;
+      btn.style.opacity='';
+      btn.style.pointerEvents='';
+    });
+  }else{
+    document.querySelectorAll('.add-btn,.confirm-option,.submit-btn').forEach(btn=>{
+      btn.disabled=true;
+      btn.style.opacity='.55';
+      btn.style.pointerEvents='none';
+    });
+    if(banner && !orderingNoticeDismissed){
+      banner.style.setProperty('display','flex','important');
+      banner.setAttribute('aria-hidden','false');
+    }
+  }
+}
+
+restoreCustomerCart();renderMenu();renderCart();initPickupTimes();loadOrderingHours();loadShopClosedDates();applyOrderingHours();loadSoldOutStatus();applyMenuCatalogOverrides();startMenuCatalogRealtime();setInterval(()=>{loadOrderingHours();loadShopClosedDates();applyOrderingHours()},60000);
+supabaseClient.channel('menu-item-status-public').on('postgres_changes',{event:'*',schema:'public',table:'menu_item_status'},()=>loadSoldOutStatus()).subscribe();
+</script>
+
+<script>
+document.addEventListener('input',function(e){
+  if(e.target.id==='customerName'||e.target.id==='phone'){
+    if(e.target.value.trim()) e.target.classList.remove('input-error');
+  }
+});
+
+
+(function(){
+  function closeOrderingClosedBanner(){
+    var el=document.getElementById('orderingClosedBanner');
+    if(!el) return;
+    el.style.display='none';
+    el.setAttribute('aria-hidden','true');
+  }
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest && e.target.closest('#orderingClosedBanner .non-ordering-close');
+    if(btn){
+      e.preventDefault();
+      e.stopPropagation();
+      closeOrderingClosedBanner();
+    }
+  });
+})();
+</script>
+
+<div id="successMessage" class="success" style="display:none">
+  <div id="orderStatusTimeline" class="order-status-timeline premium-status-timeline" aria-label="訂單進度">
+    <div class="status-step active" data-step="sent">
+      <div class="status-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" class="status-svg"><circle cx="24" cy="24" r="9"/><path d="M24 14v10l6 4"/><path d="M24 5v3M24 40v3M5 24h3M40 24h3"/></svg>
+      </div>
+      <div class="status-label">等待店家接單中</div>
+      <small><span style="display:none !important">店家尚未接單</span></small>
+    </div>
+    <div class="status-step" data-step="accepted">
+      <div class="status-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" class="status-svg"><path d="M8 21h32M11 21v17h26V21M9 21l3-8h24l3 8M17 27v7M24 27v7M31 27v7M14 38h20"/></svg>
+      </div>
+      <div class="status-label">店家已接受訂單</div>
+      <small><span style="display:none !important">店家已接單</span></small>
+    </div>
+    <div class="status-step" data-step="making">
+      <div class="status-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" class="status-svg"><path d="M11 29h26M14 29c0 6 4 10 10 10s10-4 10-10"/><path d="M17 23c-2-4 3-5 1-9M24 23c-2-4 3-5 1-9M31 23c-2-4 3-5 1-9"/></svg>
+      </div>
+      <div class="status-label">餐點製作中</div>
+      <small><span style="display:none !important">料理中，請稍候</span></small>
+    </div>
+    <div class="status-step" data-step="done">
+      <div class="status-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" class="status-svg"><path d="M12 19h24v22H12zM16 19v-4a8 8 0 0 1 16 0v4"/><path d="M18 28l4 4 9-10"/></svg>
+      </div>
+      <div class="status-label">訂單已完成</div>
+      <small><span style="display:none !important">請依取餐時間前往取餐</span></small>
+    </div>
+  </div>
+
+  <div id="customerStatusNote" class="status-notice">
+    <span class="status-notice-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M14 21a10 10 0 0 1 20 0v7l4 5H10l4-5v-7Z"/><path d="M20 38h8"/></svg>
+    </span>
+    <span id="customerStatusNoteText">送出訂單後，請耐心等待店家接單。</span>
+  </div>
+
+  <div id="statusCountdown" class="status-countdown reserved" style="display:none" aria-live="polite">
+    <div>🕐 指定取餐時間</div>
+    <strong id="statusPickupTime">--:--</strong>
+    <div>請於指定時間前往取餐</div>
+  </div>
+
+  <div class="order-summary-grid">
+    <div class="order-summary-card">
+      <span>訂單編號</span>
+      <strong id="successOrderId">—</strong>
+    </div>
+    <div class="order-summary-card">
+      <span>訂單金額</span>
+      <strong id="successTotal">$0</strong>
+    </div>
+  </div>
+
+  <div id="successCustomer" class="customer-summary-card"></div>
+
+  <div id="orderItemsCard" class="order-items-card premium-order-items" style="display:none">
+    <div class="order-items-title">
+      <span class="items-title-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M14 8h20v32H14z"/><path d="M19 15h10M19 21h10M19 27h7"/></svg>
+      </span>
+      訂單內容
+    </div>
+    <div id="orderItemsList"></div>
+  </div>
+
+  <div class="status-auto-update">
+    <span class="auto-update-icon" aria-hidden="true">↻</span>
+    <span>訂單狀態會自動更新，請放心等待。</span>
+  </div>
+</div>
+
+<div id="orderConfirmModal" class="order-confirm-modal" style="display:none">
+  <div class="order-confirm-dialog">
+    <div id="orderConfirmBody"></div>
+    <div class="order-confirm-actions">
+      <button type="button" class="order-confirm-continue" onclick="closeOrderConfirm()">繼續點餐</button>
+      <button type="button" class="order-confirm-submit" onclick="confirmAndSubmitOrder()">確認</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function bindOrderingClosedClose(){
+    var banner=document.getElementById('orderingClosedBanner');
+    if(!banner) return;
+    var closeBtn=banner.querySelector('.non-ordering-close');
+    if(!closeBtn) return;
+
+    closeBtn.onclick=function(ev){
+      if(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      banner.style.setProperty('display','none','important');
+      banner.setAttribute('aria-hidden','true');
+      return false;
+    };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',bindOrderingClosedClose);
+  }else{
+    bindOrderingClosedClose();
+  }
+})();
+</script>
+
+<script>
+(function(){
+  function focusOrderField(id, message){
+    var el=document.getElementById(id);
+    if(!el) return false;
+
+    el.classList.add('order-field-error');
+    el.setAttribute('aria-invalid','true');
+    el.setAttribute('title',message || '請確認輸入內容');
+
+    // 錯誤欄位直接帶到手機畫面中央，讓顧客知道是哪裡錯。
+    setTimeout(function(){
+      try{
+        el.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+      }catch(e){
+        el.scrollIntoView();
+      }
+      try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+    },30);
+
+    // 清除舊錯誤提示，避免重複堆疊。
+    var old=el.parentElement && el.parentElement.querySelector('.order-field-error-text');
+    if(old) old.remove();
+
+    var tip=document.createElement('div');
+    tip.className='order-field-error-text';
+    tip.textContent=message || '請確認輸入內容';
+    if(el.parentElement) el.parentElement.appendChild(tip);
+
+    el.addEventListener('input',function clearErr(){
+      el.classList.remove('order-field-error');
+      el.removeAttribute('aria-invalid');
+      el.removeAttribute('title');
+      var t2=el.parentElement && el.parentElement.querySelector('.order-field-error-text');
+      if(t2) t2.remove();
+      el.removeEventListener('input',clearErr);
+    });
+    return false;
+  }
+
+  window.validateOrderCustomerFields=function(){
+    var name=document.getElementById('customerName') || document.getElementById('name');
+    var phone=document.getElementById('customerPhone') || document.getElementById('phone');
+
+    if(name){
+      var nameValue=(name.value || '').trim();
+      if(!nameValue){
+        focusOrderField(name.id,'請輸入姓氏');
+        return false;
+      }
+    }
+
+    if(phone){
+      var phoneValue=(phone.value || '').replace(/[\s-]/g,'');
+      if(!/^09\d{8}$/.test(phoneValue)){
+        focusOrderField(phone.id,'請輸入正確的台灣手機號碼（09 開頭共 10 碼）');
+        return false;
+      }
+    }
+    return true;
+  };
+})();
+</script>
+
+<script>
+/* 顧客端輸入資料暫存：最後一次輸入後最多保留10分鐘；訂單送出後立即清除，避免個資被下一次開頁恢復。 */
+(function(){
+  const DRAFT_KEY='gekbi_customer_form_draft_v1';
+  const DRAFT_KEEP_MS=10*60*1000;
+  const DRAFT_BLOCK_KEY='gekbi_customer_form_draft_block_until_v1';
+  let restoring=false;
+
+  function isDraftBlocked(){
+    try{
+      const until=Number(localStorage.getItem(DRAFT_BLOCK_KEY)||0);
+      if(until && Date.now()<until) return true;
+      if(until) localStorage.removeItem(DRAFT_BLOCK_KEY);
+    }catch(e){}
+    return false;
+  }
+
+  function getDraft(){
+    try{
+      if(isDraftBlocked()){
+        localStorage.removeItem(DRAFT_KEY);
+        return null;
+      }
+      const raw=localStorage.getItem(DRAFT_KEY);
+      if(!raw)return null;
+      const data=JSON.parse(raw);
+      if(!data?.savedAt || Date.now()-Number(data.savedAt)>=DRAFT_KEEP_MS){
+        localStorage.removeItem(DRAFT_KEY);
+        return null;
+      }
+      return data;
+    }catch(e){
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+  }
+
+  function saveDraft(){
+    if(restoring)return;
+    if(isDraftBlocked())return;
+    try{
+      const name=document.getElementById('customerName');
+      const phone=document.getElementById('phone');
+      const pickup=document.getElementById('pickupTime');
+      const cutlery=document.querySelector('input[name="cutlery"]:checked');
+
+      const data={
+        customerName:name?.value||'',
+        phone:phone?.value||'',
+        pickupTime:pickup?.value||'',
+        cutlery:cutlery?.value||'需要',
+        savedAt:Date.now()
+      };
+
+      // 沒有任何輸入時不建立暫存。
+      if(!data.customerName && !data.phone && !data.pickupTime && data.cutlery==='需要'){
+        localStorage.removeItem(DRAFT_KEY);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY,JSON.stringify(data));
+    }catch(e){
+      console.warn('無法保存顧客輸入暫存',e);
+    }
+  }
+
+  function restoreDraft(){
+    const data=getDraft();
+    if(!data)return;
+
+    restoring=true;
+    try{
+      const name=document.getElementById('customerName');
+      const phone=document.getElementById('phone');
+      const pickup=document.getElementById('pickupTime');
+
+      if(name && data.customerName)name.value=data.customerName;
+      if(phone && data.phone)phone.value=data.phone;
+
+      if(data.cutlery){
+        const radio=document.querySelector(`input[name="cutlery"][value="${CSS.escape(String(data.cutlery))}"]`);
+        if(radio)radio.checked=true;
+      }
+
+      // 取餐時間選項可能正在等待後台營業時間載入，
+      // 因此只有選項已存在時才還原，不改動取餐時間產生邏輯。
+      if(pickup && data.pickupTime &&
+         [...pickup.options].some(o=>o.value===data.pickupTime)){
+        pickup.value=data.pickupTime;
+      }
+    }finally{
+      restoring=false;
+    }
+  }
+
+  window.clearCustomerFormDraft=function(){
+    try{
+      localStorage.removeItem(DRAFT_KEY);
+      // 送出訂單後至少 10 分鐘內，不允許 pagehide/beforeunload 將舊個資重新寫回。
+      localStorage.setItem(DRAFT_BLOCK_KEY,String(Date.now()+DRAFT_KEEP_MS));
+    }catch(e){}
+  };
+
+  window.restoreCustomerFormDraft=restoreDraft;
+
+  let userStartedNewEntry=false;
+
+  // 送出上一筆訂單後，瀏覽器可能自行觸發 input（例如自動填入）。
+  // 在顧客真正點擊/觸碰輸入框以前，不允許這種 input 解除10分鐘封鎖。
+  function beginNewEntry(e){
+    const el=e.target;
+    if(!el || (el.id!=='customerName' && el.id!=='phone'))return;
+    userStartedNewEntry=true;
+    try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+    el.value='';
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(err){}
+  }
+
+  document.addEventListener('pointerdown',beginNewEntry,true);
+  document.addEventListener('touchstart',beginNewEntry,true);
+  document.addEventListener('keydown',function(e){
+    if((e.target?.id==='customerName'||e.target?.id==='phone') && !e.isComposing){
+      if(!userStartedNewEntry){
+        userStartedNewEntry=true;
+        try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+        e.target.value='';
+      }
+      saveDraft();
+    }
+  },true);
+
+  document.addEventListener('input',function(e){
+    if(e.target && (e.target.id==='customerName'||e.target.id==='phone')){
+      if(!userStartedNewEntry)return;
+      saveDraft();
+    }
+  });
+
+  document.addEventListener('change',function(e){
+    if(e.target && (
+      e.target.id==='pickupTime' ||
+      (e.target.name==='cutlery')
+    )){
+      try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
+      saveDraft();
+    }
+  });
+
+  window.addEventListener('pagehide',saveDraft);
+  window.addEventListener('beforeunload',saveDraft);
+
+  // 姓名、手機可立即恢復；取餐時間若稍後才載入，稍後再嘗試一次。
+  function clearBlockedFormFields(){
+    if(!isDraftBlocked())return;
+    userStartedNewEntry=false;
+    const name=document.getElementById('customerName');
+    const phone=document.getElementById('phone');
+    if(name)name.value='';
+    if(phone)phone.value='';
+  }
+
+  function restoreWhenReady(){
+    clearBlockedFormFields();
+    restoreDraft();
+    setTimeout(function(){
+      clearBlockedFormFields();
+      restoreDraft();
+    },500);
+    setTimeout(function(){
+      clearBlockedFormFields();
+      restoreDraft();
+    },1500);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',restoreWhenReady);
+  }else{
+    restoreWhenReady();
+  }
+})(); 
+
+/* 顧客端訂單保存：不指定時間保存至「訂單完成＋30分鐘」；指定時間保存至「指定取餐時間＋30分鐘」。 */
+
+(function(){
+  const STORAGE_KEY='gekbi_customer_active_order_v1';
+  const ORDER_KEY_PREFIX='gekbi_customer_order_v1_';
+  const RETENTION_AFTER_COMPLETE_MS=30*60*1000;
+  const RETENTION_AFTER_PICKUP_MS=30*60*1000;
+  let trackingTimer=null;
+
+  function getOrderIdFromHash(){
+    const m=String(window.location.hash||'').match(/^#order-status=(\d+)$/);
+    return m ? Number(m[1]) : 0;
+  }
+
+  function getOrderStorageKey(orderId){
+    return ORDER_KEY_PREFIX+String(Number(orderId)||'');
+  }
+
+  function getSavedOrder(){
+    try{
+      const hashOrderId=getOrderIdFromHash();
+      const key=hashOrderId ? getOrderStorageKey(hashOrderId) : STORAGE_KEY;
+      const raw=localStorage.getItem(key);
+      if(!raw) return null;
+      const data=JSON.parse(raw);
+      if(!data?.orderId || !data?.phone || !data?.createdAt) return null;
+      const expiresAt=Number(data.expiresAt||0);
+      const expireTime=expiresAt || (
+        data.pickupTime
+          ? (getPickupAtMs(data.pickupTime) || (Number(data.createdAt)+RETENTION_AFTER_PICKUP_MS)) + RETENTION_AFTER_PICKUP_MS
+          : Number(data.createdAt) + RETENTION_AFTER_COMPLETE_MS
+      );
+      if(Date.now()>=expireTime){
+        localStorage.removeItem(key);
+        if(!hashOrderId){
+          try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+        }
+        return null;
+      }
+      return data;
+    }catch(e){
+      return null;
+    }
+  }
+
+  window.saveCustomerActiveOrder=function(data){
+    try{
+      const orderId=Number(data?.orderId||0);
+      if(!orderId) return;
+      // 每張訂單各自保存，避免新訂單覆蓋舊訂單的狀態頁。
+      localStorage.setItem(getOrderStorageKey(orderId),JSON.stringify(data));
+      // 只把「最後送出的訂單」記為新點餐頁的目前訂單，不會改寫舊訂單資料。
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    }catch(e){
+      console.warn('無法保存顧客端訂單資訊',e);
+    }
+  };
+
+  function getPickupAtMs(pickupTime){
+    if(!pickupTime) return null;
+    const now=getTaipeiNow();
+    const parts=String(pickupTime).split(':').map(Number);
+    if(parts.length<2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return null;
+    let day=String(now.day).padStart(2,'0');
+    let month=String(now.month).padStart(2,'0');
+    let year=String(now.year);
+    const currentMinutes=now.hour*60+now.minute;
+    const pickupMinutes=parts[0]*60+parts[1];
+    if(pickupMinutes<currentMinutes){
+      const d=new Date(Date.UTC(now.year,now.month-1,now.day)+86400000);
+      year=d.getUTCFullYear(); month=String(d.getUTCMonth()+1).padStart(2,'0'); day=String(d.getUTCDate()).padStart(2,'0');
+    }
+    return Date.parse(`${year}-${month}-${day}T${String(parts[0]).padStart(2,'0')}:${String(parts[1]).padStart(2,'0')}:00+08:00`);
+  }
+
+  window.getOrderExpiryAt=function(pickupTime,createdAt,completedAt){
+    const pickupAt=getPickupAtMs(pickupTime);
+    if(pickupAt) return pickupAt+RETENTION_AFTER_PICKUP_MS;
+    if(completedAt) return Number(completedAt)+RETENTION_AFTER_COMPLETE_MS;
+    // 尚未完成時先保留；一旦狀態進入「訂單已完成」，會立即改為完成時間＋30分鐘。
+    return Number(createdAt)+RETENTION_AFTER_COMPLETE_MS;
+  }
+
+  function renderOrderItems(items){
+    const card=document.getElementById('orderItemsCard');
+    const list=document.getElementById('orderItemsList');
+    if(!card||!list) return;
+    if(!Array.isArray(items)||!items.length){card.style.display='none';list.innerHTML='';return;}
+    list.innerHTML=items.map(item=>{
+      const opts=Array.isArray(item.options)?item.options:[];
+      const optText=opts.map(o=>`${o.name}${Number(o.price||0)>0?' +$'+Number(o.price).toLocaleString():''}`).join('、');
+      return `<div class="order-item-row"><div><div class="order-item-name">${item.name||''}</div>${optText?`<div class="order-item-options">${optText}</div>`:''}</div><div class="order-item-qty">×${Number(item.qty||1)}</div><div class="order-item-price">$${Number(item.price||0).toLocaleString()}</div></div>`;
+    }).join('');
+    card.style.display='block';
+  }
+  window.renderOrderItems = renderOrderItems;
+
+
+  function updateOrderStatusVisual(status){
+    const s=String(status||'').trim().toLowerCase();
+
+    const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
+    const sent=steps.find(x=>x.dataset.step==='sent');
+    const accepted=steps.find(x=>x.dataset.step==='accepted');
+    const making=steps.find(x=>x.dataset.step==='making');
+    const done=steps.find(x=>x.dataset.step==='done');
+
+    steps.forEach(x=>x.classList.remove('active','done'));
+
+    const setReminder = (key) => {
+      const el=document.getElementById('customerStatusNoteText');
+      const box=document.getElementById('customerStatusNote');
+      const savedOrder = (typeof getSavedOrder==='function') ? getSavedOrder() : null;
+      const hasPickupTime = !!String(savedOrder?.pickupTime||'').trim();
+      const map={
+        sent:'送出訂單後，請耐心等待店家接單。',
+        accepted: hasPickupTime
+          ? '店家已接單，將於取餐時間前準備餐點。'
+          : '店家已接單，餐點開始準備。',
+        making:'餐點製作中，請耐心等候。',
+        done:'餐點已完成，可前往取餐。取餐時請告知手機末三碼'
+      };
+      if(el) el.textContent=map[key];
+      if(box) box.style.display='';
+    };
+
+    if(s==='done'||s==='完成'||s==='已完成'){
+      [sent,accepted,making,done].forEach(x=>x&&x.classList.add('done'));
+      if(done) done.classList.add('active');
+      setReminder('done');
+      return;
+    }
+
+    if(s==='making'||s==='製作中'){
+      [sent,accepted].forEach(x=>x&&x.classList.add('done'));
+      if(making) making.classList.add('active');
+      setReminder('making');
+      return;
+    }
+
+    if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
+      if(sent) sent.classList.add('done');
+      if(accepted) accepted.classList.add('active');
+      setReminder('accepted');
+      return;
+    }
+
+    if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
+      if(sent) sent.classList.add('done');
+      if(accepted) accepted.classList.add('active');
+      setReminder('accepted');
+      return;
+    }
+
+    if(sent) sent.classList.add('active');
+    setReminder('sent');
+  }
+
+  let customerAcceptedAt=0;
+  let customerMakingTimer=null;
+
+  function customerAcceptedStorageKey(orderId){
+    return 'gekbi_customerAcceptedAt_' + String(orderId||'unknown');
+  }
+
+  function getTaiwanParts(date){
+    const parts=new Intl.DateTimeFormat('en-US',{
+      timeZone:'Asia/Taipei',
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',
+      hour12:false
+    }).formatToParts(date);
+    const out={};
+    parts.forEach(p=>{if(p.type!=='literal')out[p.type]=Number(p.value);});
+    return out;
+  }
+
+  function taiwanDateToUtc(parts){
+    return Date.UTC(parts.year,parts.month-1,parts.day,parts.hour,parts.minute,parts.second||0)-8*60*60*1000;
+  }
+
+  function getPickupAtFromOrder(saved,pickupTime){
+    const m=String(pickupTime||'').match(/^(\d{1,2}):(\d{2})$/);
+    if(!m || !saved?.createdAt) return 0;
+
+    const created=new Date(Number(saved.createdAt));
+    if(Number.isNaN(created.getTime())) return 0;
+
+    const p=getTaiwanParts(created);
+    const pickupHour=Number(m[1]);
+    const pickupMinute=Number(m[2]);
+
+    let day=p.day;
+    const createdMinutes=p.hour*60+p.minute;
+    const pickupMinutes=pickupHour*60+pickupMinute;
+
+    // 取餐時間若早於下單當下的營業日時間，代表跨日後取餐。
+    if(pickupMinutes<=createdMinutes){
+      const next=new Date(Date.UTC(p.year,p.month-1,p.day)+24*60*60*1000);
+      const np=new Intl.DateTimeFormat('en-US',{
+        timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'
+      }).formatToParts(next);
+      const n={};
+      np.forEach(x=>{if(x.type!=='literal')n[x.type]=Number(x.value);});
+      day=n.day;
+      p.year=n.year;
+      p.month=n.month;
+    }
+
+    return taiwanDateToUtc({
+      year:p.year,month:p.month,day,
+      hour:pickupHour,minute:pickupMinute,second:0
+    });
+  }
+
+  function getCustomerMakingAt(saved,pickupTime){
+    const pickupAt=getPickupAtFromOrder(saved,pickupTime);
+    return pickupAt ? pickupAt-(20*60*1000) : 0;
+  }
+
+  function showCustomerMakingAnimation(){
+    const anim=document.getElementById('customerMakingAnimation');
+    const statusEl=document.getElementById('successStatus');
+    const note=document.getElementById('customerStatusNote');
+    if(anim) anim.classList.add('active');
+    if(statusEl) statusEl.style.display='none';
+    if(note) note.style.display='';
+  }
+
+  function showCustomerAccepted(){
+    const anim=document.getElementById('customerMakingAnimation');
+    const statusEl=document.getElementById('successStatus');
+    const note=document.getElementById('customerStatusNote');
+    if(anim) anim.classList.remove('active');
+    if(statusEl){
+      statusEl.style.display='';
+      statusEl.textContent='🟢 店家已接單';
+    }
+    if(note){
+      note.style.display='';
+      note.textContent='店家已接單，餐點將開始準備。';
+    }
+  }
+
+  function scheduleCustomerMaking(saved,pickupTime){
+    if(customerMakingTimer) clearTimeout(customerMakingTimer);
+    customerMakingTimer=null;
+    if(!customerAcceptedAt) return;
+
+    let targetAt;
+    if(pickupTime){
+      // 指定時間訂單：指定取餐時間前 20 分鐘自動進入「餐點製作中」。
+      targetAt=getCustomerMakingAt(saved,pickupTime);
+    }else{
+      // 不指定時間：維持原本接單後 3 分鐘自動進入「餐點製作中」。
+      targetAt=customerAcceptedAt+180000;
+    }
+
+    if(!targetAt) return;
+
+    const remaining=Math.max(0,targetAt-Date.now());
+    if(remaining===0){
+      showCustomerMakingAnimation();
+      return;
+    }
+
+    customerMakingTimer=setTimeout(function(){
+      showCustomerMakingAnimation();
+      // 不在畫面顯示這個自動跳轉時間點。
+    },remaining);
+  }
+
+  function statusText(status){
+    const s=String(status||'').trim().toLowerCase();
+    if(['done','completed','完成','已完成'].includes(s)) return '🟢 餐點已完成';
+    if(['cancelled','canceled','取消','已取消'].includes(s)) return '🔴 訂單已取消';
+    if(['accepted','accept','已接單','接單'].includes(s)) return '🟢 店家已接單';
+    if(['making','製作中'].includes(s)) return '🟠 餐點製作中';
+    return '🟡 等待店家接單';
+  }
+
+  async function refreshCustomerOrderStatus(){
+    const saved=getSavedOrder();
+    if(!saved) return false;
+    try{
+      const {data,error}=await supabaseClient.rpc('get_customer_order_status',{
+        p_order_id:Number(saved.orderId),
+        p_phone:String(saved.phone)
+      });
+      if(error) throw error;
+      if(!data?.found) return true;
+
+      let status=String(data.status||'').trim().toLowerCase();
+
+      // ===== 指定取餐時間訂單：前端最後一道時間保護 =====
+      // 即使資料庫/舊版後台曾把 status 提前寫成 making，
+      // 在「指定取餐時間 - 20 分鐘」以前，顧客端一律維持「店家已接單」。
+      const reservedPickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+      if(
+        reservedPickupTime &&
+        ['making','製作中'].includes(status)
+      ){
+        const reservedMakingAt=getCustomerMakingAt(
+          {...saved,createdAt:saved.createdAt||data.created_at},
+          reservedPickupTime
+        );
+        if(reservedMakingAt && Date.now()<reservedMakingAt){
+          status='accepted';
+        }
+      }
+
+      const statusEl=document.getElementById('successStatus');
+      const pickupEl=document.getElementById('successPickup');
+      const totalEl=document.getElementById('successTotal');
+      const note=document.getElementById('customerStatusNote');
+
+      if(pickupEl) pickupEl.textContent=data.pickup_time||'不指定';
+      if(totalEl) totalEl.textContent=`$${Number(data.total||saved.total||0).toLocaleString()}`;
+      updateOrderStatusVisual(status);
+      const countdown=document.getElementById('statusCountdown');
+      const pickupDisplay=document.getElementById('statusPickupTime');
+      if(countdown){
+        const pickupTime=reservedPickupTime;
+        if(pickupTime){
+          countdown.style.display='block';
+          if(pickupDisplay) pickupDisplay.textContent=pickupTime;
+        }else{
+          countdown.style.display='none';
+          if(pickupDisplay) pickupDisplay.textContent='--:--';
+        }
+      }
+
+      if(['done','completed','完成','已完成'].includes(status)){
+        // 不指定時間：第一次確認訂單已完成時記錄完成時間，保存至完成後30分鐘。
+        if(!saved.pickupTime && !saved.completedAt){
+          saved.completedAt=Date.now();
+          saved.expiresAt=saved.completedAt+RETENTION_AFTER_COMPLETE_MS;
+          window.saveCustomerActiveOrder(saved);
+        }
+        if(statusEl){
+          statusEl.style.display='';
+          statusEl.textContent='🟢 餐點已完成';
+        }
+        const anim=document.getElementById('customerMakingAnimation');
+        if(anim) anim.classList.remove('active');
+        // 完成狀態提醒文字由 updateOrderStatusVisual() 統一控制。
+        if(customerMakingTimer) clearTimeout(customerMakingTimer);
+        customerMakingTimer=null;
+        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
+        stopCustomerOrderTracking();
+        return true;
+      }
+
+      if(['cancelled','canceled','取消','已取消'].includes(status)){
+        if(statusEl){
+          statusEl.style.display='';
+          statusEl.textContent='🔴 訂單已取消';
+        }
+        const anim=document.getElementById('customerMakingAnimation');
+        if(anim) anim.classList.remove('active');
+        // 取消狀態不覆蓋動態狀態列的提醒文字。
+        if(customerMakingTimer) clearTimeout(customerMakingTimer);
+        customerMakingTimer=null;
+        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
+        stopCustomerOrderTracking();
+        return true;
+      }
+
+      if(['accepted','accept','已接單','接單'].includes(status)){
+        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
+        const acceptedKey=customerAcceptedStorageKey(saved.orderId);
+
+        if(!customerAcceptedAt){
+          customerAcceptedAt=Number(localStorage.getItem(acceptedKey)||0);
+        }
+        if(!customerAcceptedAt){
+          customerAcceptedAt=Date.now();
+          localStorage.setItem(acceptedKey,String(customerAcceptedAt));
+        }
+
+        scheduleCustomerMaking(saved,pickupTime);
+
+        const makingAt=pickupTime ? getCustomerMakingAt(saved,pickupTime) : (customerAcceptedAt+180000);
+        if(makingAt && Date.now()>=makingAt){
+          showCustomerMakingAnimation();
+        }else{
+          const anim=document.getElementById('customerMakingAnimation');
+          if(anim) anim.classList.remove('active');
+          if(statusEl){
+            statusEl.style.display='';
+            statusEl.textContent='🟢 店家已接單';
+          }
+        }
+        return true;
+      }
+
+      // 未接單
+      if(statusEl){
+        statusEl.style.display='';
+        statusEl.textContent='🟡 等待店家接單';
+      }
+      const anim=document.getElementById('customerMakingAnimation');
+      if(anim) anim.classList.remove('active');
+      // 等待接單提醒文字由 updateOrderStatusVisual() 統一控制。
+      if(customerMakingTimer) clearTimeout(customerMakingTimer);
+      return true;
+
+    }catch(e){
+      console.warn('顧客訂單狀態更新失敗',e);
+      return false;
+    }
+  }
+
+  window.startCustomerOrderTracking=function(){
+    stopCustomerOrderTracking();
+    refreshCustomerOrderStatus();
+    trackingTimer=setInterval(function(){
+      if(!getSavedOrder()){stopCustomerOrderTracking();return;}
+      refreshCustomerOrderStatus();
+    },5000);
+  };
+
+  function stopCustomerOrderTracking(){
+    if(trackingTimer){clearInterval(trackingTimer);trackingTimer=null;}
+  }
+
+  window.addEventListener('focus',function(){
+    if(getSavedOrder()) refreshCustomerOrderStatus();
+  });
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden && getSavedOrder()) refreshCustomerOrderStatus();
+  });
+
+  function restoreCustomerOrder(){
+    const saved=getSavedOrder();
+    if(!saved) return;
+
+    const idEl=document.getElementById('successOrderId');
+    const pickupEl=document.getElementById('successPickup');
+    const totalEl=document.getElementById('successTotal');
+    const customerEl=document.getElementById('successCustomer');
+    const statusEl=document.getElementById('successStatus');
+    const success=document.getElementById('successMessage');
+    if(!success) return;
+
+    const digits=String(saved.phone).replace(/\D/g,'');
+    if(idEl) idEl.textContent=`#${digits.slice(-3)||'—'}`;
+    if(pickupEl) pickupEl.textContent=saved.pickupTime||'不指定';
+    if(totalEl) totalEl.textContent=`$${Number(saved.total||0).toLocaleString()}`;
+    if(customerEl) customerEl.textContent=`${saved.customerName||''}｜手機末三碼 ${digits.slice(-3)}`;
+    if(statusEl) statusEl.textContent='🟡 等待店家接單';
+    const sentTime=document.getElementById('statusSentTime');
+    if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
+    renderOrderItems(saved.items||[]);
+    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
+    const countdown=document.getElementById('statusCountdown');
+    const pickupDisplay=document.getElementById('statusPickupTime');
+    if(countdown && saved.pickupTime){
+      countdown.style.display='block';
+      countdown.classList.add('reserved');
+      if(pickupDisplay) pickupDisplay.textContent=saved.pickupTime;
+    }else if(countdown){
+      countdown.style.display='none';
+    }
+
+    const isReservedOrder=!!String(saved.pickupTime||'').trim();
+    document.body.classList.toggle('reserved-order-mode',isReservedOrder);
+    document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
+    const timeline=document.getElementById('orderStatusTimeline');
+    if(timeline){
+      timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
+      timeline.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
+    }
+    enterCustomerOrderStatusMode(saved.orderId);
+    startCustomerOrderTracking();
+  }
+
+  window.addEventListener('load',function(){
+    // 狀態頁現在會綁定實際訂單編號，例如 #order-status=331。
+    // 重新整理後必須依網址中的訂單編號恢復同一筆訂單。
+    if(/^#order-status=\d+$/.test(window.location.hash)){
+      setTimeout(restoreCustomerOrder,50);
+    }
+  });
+})();
+</script>
+
+
+
+
+<script id="store-holiday-modal-v24-js">
+function closeStoreHolidayModalV24(){
+  storeClosedBannerDismissed=true;
+  const modal=document.getElementById('storeHolidayModalV24');
+  if(modal){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  }
+}
+</script>
+
+
+<style id="reserved-order-timeline-final">
+/* 指定取餐時間訂單：狀態列專屬紫色；直接綁定狀態列本身。 */
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+</style>
+
+
+<style id="reserved-order-timeline-hard-final">
+/* 指定訂單：直接依目前訂單的 data-reserved-order 套用紫色，避免被舊黃色樣式覆蓋。 */
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]{
+  --reserved-purple:#a66cff;
+  --reserved-purple-light:#c9a6ff;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active{
+  color:#c9a6ff !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-label,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active small,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline::before,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+}
+</style>
+
+</body>
+</html>
