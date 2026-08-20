@@ -3248,10 +3248,7 @@ document.addEventListener('input',function(e){
         }
         const anim=document.getElementById('customerMakingAnimation');
         if(anim) anim.classList.remove('active');
-        if(note){
-          note.style.display='';
-          note.textContent='餐點已完成，可前往取餐。取餐時請告知手機末三碼取餐時請告知手機末三碼。';
-        }
+        // 完成狀態提醒文字由 updateOrderStatusVisual() 統一控制。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
         stopCustomerOrderTracking();
         return true;
@@ -3264,10 +3261,7 @@ document.addEventListener('input',function(e){
         }
         const anim=document.getElementById('customerMakingAnimation');
         if(anim) anim.classList.remove('active');
-        if(note){
-          note.style.display='';
-          note.textContent='訂單已取消，如有疑問請聯絡店家。';
-        }
+        // 取消狀態不覆蓋動態狀態列的提醒文字。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
         stopCustomerOrderTracking();
         return true;
@@ -3282,8 +3276,13 @@ document.addEventListener('input',function(e){
         if(Date.now()-customerAcceptedAt>=180000){
           showCustomerMakingAnimation();
         }else{
-          showCustomerAccepted();
-        }
+          // 狀態列與提醒文字已由 updateOrderStatusVisual() 同步設定。
+          const anim=document.getElementById('customerMakingAnimation');
+          if(anim) anim.classList.remove('active');
+          if(statusEl){
+            statusEl.style.display='';
+            statusEl.textContent='🟢 店家已接單';
+          }
         return true;
       }
 
@@ -3294,10 +3293,7 @@ document.addEventListener('input',function(e){
       }
       const anim=document.getElementById('customerMakingAnimation');
       if(anim) anim.classList.remove('active');
-      if(note){
-        note.style.display='';
-        note.textContent='送出後請等待店家接單。取餐時請告知手機末三碼。';
-      }
+      // 等待接單提醒文字由 updateOrderStatusVisual() 統一控制。
       if(customerMakingTimer) clearTimeout(customerMakingTimer);
       return true;
 
