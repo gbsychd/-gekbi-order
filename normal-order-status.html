@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隔壁宵夜彰化店｜不指定取餐｜訂單狀態</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:#080b0d;color:#f4f5f5}
+body{padding:0 12px}
+.status-page{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:38px 20px 46px}
+.card{position:relative;overflow:hidden;min-height:calc(100vh - 84px);padding:48px 44px 34px;border:1px solid rgba(255,186,72,.27);border-radius:28px;background:linear-gradient(180deg,#111618 0%,#0c1113 52%,#090d0f 100%);box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04)}
+.card:before{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.025);border-radius:21px;pointer-events:none}
+.card:after{content:"";position:absolute;top:-150px;left:50%;width:520px;height:280px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(255,181,65,.10),transparent 68%);filter:blur(12px);pointer-events:none}
+.hero{position:relative;z-index:2;text-align:center;margin-bottom:34px}
+.hero-badge{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:8px 22px;border:1px solid rgba(255,177,59,.38);border-radius:999px;background:rgba(255,160,24,.08);color:#ffb83e;font-size:21px;font-weight:900}
+.hero-sub{margin-top:10px;color:#aeb5b8;font-size:15px;line-height:1.6}
+.timeline{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 38px;padding:8px 0 0}
+.timeline:before{content:"";position:absolute;left:9%;right:9%;top:65px;height:3px;border-radius:99px;background:linear-gradient(90deg,#f6aa31 0%,#e7a23a 30%,rgba(105,110,108,.35) 65%,rgba(105,110,108,.22) 100%);box-shadow:0 0 15px rgba(255,167,40,.08);z-index:0}
+.step{position:relative;z-index:1;text-align:center;color:#6f777b;font-size:14px;font-weight:700;padding:0 5px}
+.icon{width:104px;height:104px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 34% 28%,#3a3f40 0,#24292b 42%,#151a1c 73%,#0f1315 100%);border:2px solid rgba(183,158,115,.30);color:#dfe2e2;box-shadow:0 0 0 7px rgba(0,0,0,.24),0 14px 32px rgba(0,0,0,.45),inset 0 2px 1px rgba(255,255,255,.08);transition:.35s}
+.icon svg{width:50px;height:50px;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.label{line-height:1.4;min-height:28px;white-space:nowrap}
+.step.done{color:#d8dcdd} .step.done .icon{background:radial-gradient(circle at 35% 28%,#4a5051,#2b3032 46%,#161b1d 100%);border-color:rgba(222,184,117,.52);box-shadow:0 0 0 7px rgba(255,177,48,.035),0 12px 30px rgba(0,0,0,.42),inset 0 2px 1px rgba(255,255,255,.10)}
+.step.active{color:#ffb83e}.step.active .icon{background:radial-gradient(circle at 35% 28%,#fff4d3 0,#ffc24f 34%,#e7941c 66%,#8f560c 100%);border-color:#f8bd51;color:#fff;box-shadow:0 0 0 7px rgba(255,179,54,.09),0 0 42px rgba(255,170,40,.38),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.65);animation:pulse 1.8s infinite ease-in-out}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+.notice{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:14px;min-height:72px;margin-bottom:18px;padding:14px 18px;border:1px solid rgba(255,180,58,.28);border-radius:17px;background:rgba(34,29,21,.88);color:#ffb83e;font-size:18px;font-weight:850;text-align:center;line-height:1.5}
+.notice-icon{width:30px;height:30px;flex:0 0 30px}
+.notice-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pickup{position:relative;z-index:2;margin:0 0 18px;padding:17px;border:1px solid rgba(255,177,59,.25);border-radius:16px;background:linear-gradient(145deg,rgba(255,160,24,.08),#15191b);text-align:center}
+.pickup div:first-child{color:#ffb83e;font-size:15px;font-weight:800}
+.pickup strong{display:block;margin:5px 0;color:#fff;font-size:30px;letter-spacing:.05em}
+.pickup div:last-child{color:#aeb5b8;font-size:13px}
+.summary{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.summary-card,.customer,.items{border:1px solid rgba(255,255,255,.055);border-radius:16px;background:linear-gradient(145deg,#1a1f22,#14181a)}
+.summary-card{padding:18px 20px;min-height:92px}
+.summary-card span{display:block;color:#8e969b;font-size:13px;margin-bottom:7px}
+.summary-card strong{font-size:26px;color:#fff}
+.customer{position:relative;z-index:2;padding:14px 17px;margin-bottom:12px;color:#f0f2f2;font-size:15px;font-weight:750}
+.items{position:relative;z-index:2;padding:16px 17px;margin-top:0}
+.items-title{font-size:17px;font-weight:900;margin-bottom:8px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.item:last-child{border-bottom:0}
+.item-name{font-size:14px;font-weight:800;line-height:1.45} .item-opt{margin-top:3px;color:#8f979b;font-size:11px;line-height:1.45} .qty{color:#b8bec1;font-size:13px} .price{color:#fff;font-size:14px;font-weight:900;white-space:nowrap}
+.footer{position:relative;z-index:2;margin-top:23px;text-align:center;color:#70797d;font-size:13px}
+.loading,.error{position:relative;z-index:2;text-align:center;padding:80px 20px;color:#aeb5b8}
+.error strong{display:block;color:#ff7777;font-size:20px;margin-bottom:8px}
+@media(max-width:700px){
+body{padding:0 8px} .status-page{padding:18px 4px 30px} .card{min-height:calc(100vh - 48px);padding:29px 13px 25px;border-radius:22px}
+.hero{margin-bottom:26px} .hero-badge{font-size:18px;min-height:42px;padding:7px 17px} .hero-sub{font-size:13px}
+.timeline{margin-bottom:25px} .timeline:before{left:7%;right:7%;top:48px;height:2px} .step{padding:0 2px;font-size:11px} .icon{width:68px;height:68px;margin-bottom:13px;box-shadow:0 0 0 5px rgba(0,0,0,.24),0 10px 25px rgba(0,0,0,.42),inset 0 2px 1px rgba(255,255,255,.08)} .icon svg{width:34px;height:34px} .label{white-space:normal;min-height:34px}
+.notice{min-height:61px;font-size:14px;border-radius:15px;padding:10px 12px} .notice-icon{width:27px;height:27px;flex-basis:27px}
+.summary{gap:8px} .summary-card{min-height:82px;padding:14px 13px;border-radius:15px} .summary-card span{font-size:12px} .summary-card strong{font-size:23px} .customer{font-size:14px;padding:12px 14px} .items{border-radius:16px;padding:15px} .pickup{padding:15px} .pickup strong{font-size:27px}
+}
+</style>
+</head>
+<body>
+<main class="status-page">
+<section class="card" id="app">
+<div class="loading" id="loading">正在載入訂單狀態…</div>
+<div id="content" style="display:none">
+<div class="hero">
+  <div class="hero-badge" id="heroBadge">🟡 不指定取餐｜訂單狀態</div>
+  <div class="hero-sub" id="heroSub">訂單狀態會自動更新，請放心等待。</div>
+</div>
+<div class="timeline" id="timeline">
+  <div class="step active" data-step="sent"><div class="icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="9"/><path d="M24 14v10l6 4"/><path d="M24 5v3M24 40v3M5 24h3M40 24h3"/></svg></div><div class="label">等待店家接單</div></div>
+  <div class="step" data-step="accepted"><div class="icon"><svg viewBox="0 0 48 48"><path d="M8 21h32M11 21v17h26V21M9 21l3-8h24l3 8M17 27v7M24 27v7M31 27v7M14 38h20"/></svg></div><div class="label">店家已接單</div></div>
+  <div class="step" data-step="making"><div class="icon"><svg viewBox="0 0 48 48"><path d="M11 29h26M14 29c0 6 4 10 10 10s10-4 10-10"/><path d="M17 23c-2-4 3-5 1-9M24 23c-2-4 3-5 1-9M31 23c-2-4 3-5 1-9"/></svg></div><div class="label">餐點製作中</div></div>
+  <div class="step" data-step="done"><div class="icon"><svg viewBox="0 0 48 48"><path d="M12 19h24v22H12zM16 19v-4a8 8 0 0 1 16 0v4"/><path d="M18 28l4 4 9-10"/></svg></div><div class="label">訂單已完成</div></div>
+</div>
+<div class="notice"><span class="notice-icon"><svg viewBox="0 0 48 48"><path d="M14 21a10 10 0 0 1 20 0v7l4 5H10l4-5v-7Z"/><path d="M20 38h8"/></svg></span><span id="note">送出訂單後，請耐心等待店家接單。</span></div>
+<div class="pickup" id="pickupBox" style="display:none"><div>🕐 指定取餐時間</div><strong id="pickupTime">--:--</strong><div>請於指定時間前往取餐</div></div>
+<div class="summary"><div class="summary-card"><span>訂單編號</span><strong id="orderId">—</strong></div><div class="summary-card"><span>訂單金額</span><strong id="total">$0</strong></div></div>
+<div class="customer" id="customer"></div>
+<div class="items"><div class="items-title">訂單內容</div><div id="items"></div></div>
+<div class="footer">↻　訂單狀態每 5 秒自動更新</div>
+</div>
+<div class="error" id="error" style="display:none"></div>
+</section>
+</main>
+<script>
+const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const RESERVED=false;
+const STORAGE_KEY="gekbi_customer_active_order_v1";
+let saved=null, timer=null, makingTimer=null, acceptedAt=0;
+
+function getSaved(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")}catch(e){return null}}
+function esc(v){return String(v??"").replace(/[&<>"\']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","\'":"&#39;"}[m]))}
+function statusNorm(s){s=String(s||"").trim().toLowerCase(); if(["done","completed","完成","已完成"].includes(s))return"done"; if(["cancelled","canceled","取消","已取消"].includes(s))return"cancelled"; if(["accepted","accept","已接單","接單"].includes(s))return"accepted"; if(["making","製作中"].includes(s))return"making"; return"sent"}
+function taiwanParts(ts){const d=new Date(Number(ts));const p=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(d);const o={};p.forEach(x=>{if(x.type!=="literal")o[x.type]=Number(x.value)});return o}
+function pickupAt(saved,pickup){const m=String(pickup||"").match(/^(\d{1,2}):(\d{2})$/);if(!m||!saved?.createdAt)return 0;const c=new Date(Number(saved.createdAt));if(isNaN(c))return 0;const p=taiwanParts(c);let y=p.year,mo=p.month,day=p.day;const cm=p.hour*60+p.minute,pm=Number(m[1])*60+Number(m[2]);if(pm<=cm){const n=new Date(c.getTime()+86400000);const q=taiwanParts(n);y=q.year;mo=q.month;day=q.day}return Date.UTC(y,mo-1,day,Number(m[1]),Number(m[2]))-8*3600000}
+function renderItems(items){document.getElementById("items").innerHTML=(items||[]).map(it=>`<div class="item"><div><div class="item-name">${esc(it.name)}</div>${(it.options||[]).length?`<div class="item-opt">${it.options.map(o=>esc(o.name)).join("、")}</div>`:""}</div><div class="qty">×${Number(it.qty||1)}</div><div class="price">$${Number(it.price||0).toLocaleString()}</div></div>`).join("")||"<div style='color:#8f979b;padding:8px 0'>無餐點資料</div>"}
+function setTimeline(status){const order=["sent","accepted","making","done"], idx=order.indexOf(status);document.querySelectorAll(".step").forEach((el,i)=>{el.classList.remove("done","active");if(status==="cancelled")return;if(i<idx)el.classList.add("done");if(i===idx)el.classList.add("active")})}
+function noteFor(status){return {sent:"送出訂單後，請耐心等待店家接單。",accepted:"店家已接單，餐點將開始準備。",making:"餐點正在製作中，請稍候。",done:"餐點已完成，請依取餐資訊前往取餐。",cancelled:"此訂單已取消。"}[status]||"訂單狀態會自動更新。"}
+function apply(status,data){setTimeline(status);document.getElementById("note").textContent=noteFor(status);if(status==="cancelled"){document.getElementById("heroBadge").textContent="🔴 訂單已取消"}else if(status==="done"){document.getElementById("heroBadge").textContent="🟢 餐點已完成"}else if(status==="making"){document.getElementById("heroBadge").textContent="🟠 餐點製作中"}else if(status==="accepted"){document.getElementById("heroBadge").textContent="🟢 店家已接單"}else{document.getElementById("heroBadge").textContent="🟡 不指定取餐｜訂單狀態"}}
+async function refresh(){if(!saved)return;try{const r=await supabaseClient.rpc("get_customer_order_status",{p_order_id:Number(saved.orderId),p_phone:String(saved.phone)});if(r.error)throw r.error;if(!r.data?.found)return;let st=statusNorm(r.data.status);const pickup=String(r.data.pickup_time||saved.pickupTime||"").trim();if(RESERVED&&pickup&&st==="making"){const at=pickupAt({...saved,createdAt:saved.createdAt||r.data.created_at},pickup)-20*60000;if(at&&Date.now()<at)st="accepted"}document.getElementById("total").textContent=`$${Number(r.data.total||saved.total||0).toLocaleString()}`;apply(st,r.data);if(pickup){document.getElementById("pickupBox").style.display="block";document.getElementById("pickupTime").textContent=pickup}else document.getElementById("pickupBox").style.display="none";if(st==="done"||st==="cancelled"){if(timer)clearInterval(timer);if(makingTimer)clearTimeout(makingTimer)}}catch(e){console.warn("狀態更新失敗",e)}}
+function init(){saved=getSaved();if(!saved){document.getElementById("loading").style.display="none";document.getElementById("error").style.display="block";document.getElementById("error").innerHTML="<strong>找不到這筆訂單</strong>請從點餐頁重新查詢。";return}if(RESERVED!==!!String(saved.pickupTime||"").trim()){location.replace(RESERVED?"normal-order-status.html#order-status="+saved.orderId:"reserved-order-status.html#order-status="+saved.orderId);return}const d=String(saved.phone||"").replace(/\D/g,"");document.getElementById("orderId").textContent="#"+(d.slice(-3)||"—");document.getElementById("customer").textContent=`${saved.customerName||""}｜手機末三碼 ${d.slice(-3)}`;document.getElementById("total").textContent=`$${Number(saved.total||0).toLocaleString()}`;renderItems(saved.items||[]);if(saved.pickupTime){document.getElementById("pickupBox").style.display="block";document.getElementById("pickupTime").textContent=saved.pickupTime}document.getElementById("loading").style.display="none";document.getElementById("content").style.display="block";refresh();timer=setInterval(refresh,5000)}
+window.addEventListener("load",init);document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
+</script>
+</body></html>
