@@ -2745,59 +2745,68 @@ function initPickupTimes(){
 
   const seen=new Set();
 
-  // 只顯示落在後台營業時段內、且不晚於「營業結束前10分鐘」
-  // 的指定取餐時間。
+  // 只顯示「目前這一個營業時段」內的指定取餐時間。
+  // 例如營業至 02:00，最後可指定 01:50；
+  // 01:50 之後不再跳到隔日營業時段繼續產生選項。
+  const nowWindow=getOrderingWindowForNow();
+  const nowMinutes=now.hour*60+now.minute;
+  const todayDow=getTaipeiWeekday();
+  let targetIntervalStart=null;
+  let targetIntervalEnd=null;
+
+  if(nowWindow.open && nowWindow.row?.enabled){
+    const s=hmToMinutes(nowWindow.row.start), e=hmToMinutes(nowWindow.row.end);
+    const baseDayOffset=nowWindow.day===todayDow ? 0 : -1;
+    const startDay=new Date(Date.UTC(now.year,now.month-1,now.day+baseDayOffset));
+    targetIntervalStart=Date.UTC(
+      startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate(),
+      Math.floor(s/60),s%60,0
+    );
+    if(s>e){
+      targetIntervalEnd=Date.UTC(
+        startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate()+1,
+        Math.floor(e/60),e%60,0
+      );
+    }else if(s<e){
+      targetIntervalEnd=Date.UTC(
+        startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate(),
+        Math.floor(e/60),e%60,0
+      );
+    }
+  }else{
+    // 尚未開店時，允許今天即將開始的營業時段；
+    // 但仍只產生今天這一個營業時段，不跨到隔日的下一個營業時段。
+    const todayRow=orderingHoursSchedule[todayDow];
+    if(todayRow?.enabled){
+      const s=hmToMinutes(todayRow.start), e=hmToMinutes(todayRow.end);
+      if(s!==e && nowMinutes<s){
+        targetIntervalStart=Date.UTC(now.year,now.month-1,now.day,Math.floor(s/60),s%60,0);
+        if(s>e){
+          targetIntervalEnd=Date.UTC(now.year,now.month-1,now.day+1,Math.floor(e/60),e%60,0);
+        }else{
+          targetIntervalEnd=Date.UTC(now.year,now.month-1,now.day,Math.floor(e/60),e%60,0);
+        }
+      }
+    }
+  }
+
+  // 若目前已進入營業時段，最晚指定時間就是該時段結束前10分鐘。
+  // 若目前不在營業時段且今天尚未開店，則只使用今天即將開始的時段。
+  const latestPickup=targetIntervalEnd===null ? null : targetIntervalEnd-10*60*1000;
+
+  // 沒有可用的目標營業時段時，不產生任何指定時間。
+  if(latestPickup===null) return;
+
   for(let offset=0;offset<=24*60;offset+=10){
     const d=new Date(minPickup+offset*60*1000);
-    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
-    const h=d.getUTCHours(), minute=d.getUTCMinutes();
-    const jsDay=new Date(Date.UTC(y,mo-1,day)).getUTCDay();
-    const dow=jsDay===0?7:jsDay;
-    const prev=dow===1?7:dow-1;
-    const mins=h*60+minute;
     const candidateTime=d.getTime();
 
-    let intervalEnd=null;
+    // 關鍵限制：不可超過「目前這一個營業時段」的最後可指定時間。
+    if(candidateTime>latestPickup) break;
+    if(targetIntervalStart!==null && candidateTime<targetIntervalStart) continue;
 
-    // 先判斷「今天」的營業時段。
-    const row=orderingHoursSchedule[dow];
-    if(row?.enabled){
-      const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
-
-      if(s<e){
-        // 同日營業，例如 18:00～23:30。
-        if(mins>=s && mins<e){
-          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(e/60),e%60,0);
-        }
-      }else if(s>e){
-        // 跨日營業，例如 18:00～01:30。
-        // 今天開始的營業，結束時間在隔日。
-        if(mins>=s){
-          intervalEnd=Date.UTC(y,mo-1,day+1,Math.floor(e/60),e%60,0);
-        }
-      }else{
-        // s === e 不代表24小時營業。
-        // 本系統沒有固定24小時營業模式，完全依後台設定判斷。
-        intervalEnd=null;
-      }
-    }
-    // 如果今天的營業時段沒有涵蓋，就判斷「昨天跨日」延續到今天凌晨。
-    if(intervalEnd===null){
-      const prevRow=orderingHoursSchedule[prev];
-      if(prevRow?.enabled){
-        const ps=hmToMinutes(prevRow.start), pe=hmToMinutes(prevRow.end);
-        if(ps>pe && mins<pe){
-          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(pe/60),pe%60,0);
-        }
-      }
-    }
-
-    if(intervalEnd===null)continue;
-
-    // 最晚指定時間 = 營業結束時間往前10分鐘。
-    const latestPickup=intervalEnd-10*60*1000;
-    if(candidateTime>latestPickup)continue;
-
+    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
+    const h=d.getUTCHours(), minute=d.getUTCMinutes();
     const value=`${String(h).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
     if(seen.has(value))continue;
     seen.add(value);
