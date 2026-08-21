@@ -723,17 +723,17 @@ body.customer-order-status-mode #successMessage{max-width:680px!important;paddin
 body.customer-order-status-mode .order-status-hero{display:block;position:relative;z-index:2;text-align:center;margin-bottom:22px}
 body.customer-order-status-mode .order-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 18px;border:1px solid rgba(255,177,59,.38);border-radius:999px;background:rgba(255,160,24,.08);color:#ffb23e;font-size:18px;font-weight:900;box-shadow:0 0 24px rgba(255,160,24,.08)}
 body.customer-order-status-mode .order-status-subtitle{margin-top:9px;color:#aeb4b7;font-size:15px;line-height:1.6}
-body.customer-order-status-mode .order-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:start;margin:8px 0 18px;padding:0 3px}
-body.customer-order-status-mode .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
-body.customer-order-status-mode .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
 
 
 
-body.customer-order-status-mode .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
+
+
+
+
 
 
 @keyframes statusActivePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-body.customer-order-status-mode .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
+
 
 body.customer-order-status-mode .status-countdown{position:relative;z-index:2;margin:0 0 14px;padding:14px 14px;border:1px solid rgba(255,255,255,.055);border-radius:15px;background:linear-gradient(145deg,#1b2023,#15191b);text-align:center;color:#b7bdc0;font-size:13px;line-height:1.55}
 body.customer-order-status-mode .status-countdown strong{display:block;margin-top:2px;color:#ffb23e;font-size:25px;letter-spacing:.04em}
@@ -748,7 +748,7 @@ body.customer-order-status-mode .order-items-title{display:flex;align-items:cent
 body.customer-order-status-mode .order-item-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 body.customer-order-status-mode .order-item-row:last-child{border-bottom:0;padding-bottom:2px}
 body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;font-weight:800;line-height:1.45}.order-item-options{margin-top:3px;color:#8f979b;font-size:12px;line-height:1.5}.order-item-qty{color:#b8bec1;font-size:13px}.order-item-price{color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
-@media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
+@media(max-width:480px){.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
 
 
 /* 指定取餐時間：只顯示顧客指定的時間，不顯示系統自動跳轉的製作時間。 */
@@ -1164,246 +1164,34 @@ body.customer-order-status-mode .auto-update-icon{
   body.customer-order-status-mode #successMessage{padding-left:9px!important;padding-right:9px!important}body.customer-order-status-mode .status-svg{width:29px;height:29px}body.customer-order-status-mode .status-notice{font-size:12px}
 }
 </style>
-
-<style id="reserved-status-timeline-isolated-purple">
-/* =========================================================
-   reserved-order-status.html
-   指定單專用紫色狀態列
-   只作用於本頁 reserved-order-mode + 1~4 狀態列
-   不修改其他頁面/共用狀態列
-   ========================================================= */
-
-body.reserved-order-mode .premium-status-timeline{
-  position:relative;
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:0!important;
-  margin:0 0 48px!important;
-  padding:10px 0 0!important;
-  border:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-}
-
-body.reserved-order-mode .premium-status-timeline::before{
-  content:"";
-  position:absolute;
-  left:9.5%;
-  right:9.5%;
-  top:69px;
-  height:3px;
-  border-radius:99px;
-  background:linear-gradient(
-    90deg,#9b6cff 0%,#8b62dc 50%,#6b5a8e 100%
-  )!important;
-  box-shadow:0 0 16px rgba(154,100,255,.14)!important;
-  z-index:0;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step{
-  position:relative;
-  z-index:1;
-  min-width:0;
-  padding:0 8px;
-  text-align:center;
-  color:#737b84;
-  font-size:16px;
-  font-weight:650;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-icon{
-  position:relative;
-  width:112px!important;
-  height:112px!important;
-  margin:0 auto 24px!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  border-radius:50%!important;
-  box-sizing:border-box;
-  background:radial-gradient(
-    circle at 34% 28%,
-    #3a3f48 0,#242930 42%,#15181e 73%,#0f1217 100%
-  )!important;
-  border:2px solid #3b3f49!important;
-  color:#e4e7ec!important;
-  box-shadow:
-    0 0 0 7px rgba(0,0,0,.24),
-    0 0 0 9px rgba(154,100,255,.07),
-    0 17px 36px rgba(0,0,0,.45),
-    inset 0 2px 1px rgba(255,255,255,.08)!important;
-  transition:all .4s cubic-bezier(.2,.8,.2,1);
-}
-
-body.reserved-order-mode .premium-status-timeline .status-icon::before{
-  content:"";
-  position:absolute;
-  inset:9px;
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:50%;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-icon::after{
-  content:"";
-  position:absolute;
-  inset:-8px;
-  border-radius:50%;
-  border:1px solid rgba(154,100,255,.12);
-  opacity:.7;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step.active{
-  color:#c8a8ff!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
-  color:#fff!important;
-  background:radial-gradient(
-    circle at 35% 28%,
-    #f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%
-  )!important;
-  border-color:#c49aff!important;
-  box-shadow:
-    0 0 0 7px rgba(164,112,255,.10),
-    0 0 0 10px rgba(164,112,255,.04),
-    0 0 46px rgba(154,100,255,.42),
-    0 18px 40px rgba(0,0,0,.48),
-    inset 0 2px 2px rgba(255,255,255,.68)!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
-  color:#c49aff!important;
-  font-weight:900!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step.active small{
-  color:#a88bcf!important;
-}
-
-/* 已完成／未進行：熄滅，但保留立體圖示質感 */
-body.reserved-order-mode .premium-status-timeline .status-step:not(.active) .status-icon{
-  color:#d9dde4!important;
-  background:radial-gradient(
-    circle at 34% 28%,
-    #343942 0,#242930 46%,#15181e 100%
-  )!important;
-  border-color:#3b3f49!important;
-  box-shadow:
-    0 0 0 7px rgba(0,0,0,.24),
-    0 17px 36px rgba(0,0,0,.40),
-    inset 0 2px 1px rgba(255,255,255,.08)!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step:not(.active) .status-label{
-  color:#c8cdd4!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step:not(.active) small{
-  color:#707780!important;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step:not(:last-child)::after{
-  content:"";
-  position:absolute;
-  top:69px;
-  left:62%;
-  width:76%;
-  height:3px;
-  border-radius:10px;
-  background:#343840!important;
-  z-index:-1;
-}
-
-body.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#7652c7,#4c4659)!important;
-}
-
-/* 原本的 1~4 立體動態保留 */
-body.reserved-order-mode .status-step.active:nth-child(1) .status-icon{
-  animation:clockGlow 2.4s ease-in-out infinite;
-}
-body.reserved-order-mode .status-step.active:nth-child(2) .status-icon{
-  animation:storeLift 2s ease-in-out infinite;
-}
-body.reserved-order-mode .status-step.active:nth-child(3) .status-icon{
-  animation:cookFloat 1.65s ease-in-out infinite;
-}
-body.reserved-order-mode .status-step.active:nth-child(4) .status-icon{
-  animation:readyGlow 2.1s ease-in-out infinite;
-}
-
-@media(max-width:800px){
-  body.reserved-order-mode .premium-status-timeline{
-    margin-bottom:32px!important;
-  }
-  body.reserved-order-mode .premium-status-timeline::before{
-    left:8%;right:8%;top:57px;height:2px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-icon{
-    width:88px!important;height:88px!important;margin-bottom:18px!important;
-  }
-  body.reserved-order-mode .status-svg{
-    width:43px;height:43px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-label{
-    font-size:13px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-step small{
-    font-size:10px!important;margin-top:7px!important;
-  }
-}
-
-@media(max-width:600px){
-  body.reserved-order-mode .premium-status-timeline{
-    margin-bottom:25px!important;
-  }
-  body.reserved-order-mode .premium-status-timeline::before{
-    left:7%;right:7%;top:48px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-step{
-    padding:0 2px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-icon{
-    width:68px!important;height:68px!important;margin-bottom:13px!important;
-    box-shadow:
-      0 0 0 5px rgba(0,0,0,.24),
-      0 0 0 7px rgba(154,100,255,.07),
-      0 10px 25px rgba(0,0,0,.42),
-      inset 0 2px 1px rgba(255,255,255,.08)!important;
-  }
-  body.reserved-order-mode .status-svg{
-    width:34px;height:34px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-label{
-    font-size:11px;min-height:37px;white-space:normal;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-step small{
-    display:none!important;
-  }
-}
-
-@media(max-width:380px){
-  body.reserved-order-mode .premium-status-timeline .status-icon{
-    width:58px!important;height:58px!important;
-  }
-  body.reserved-order-mode .status-svg{
-    width:29px;height:29px;
-  }
-  body.reserved-order-mode .premium-status-timeline::before{
-    top:43px;
-  }
-  body.reserved-order-mode .premium-status-timeline .status-label{
-    font-size:10px;
-  }
-}
+<style id="reserved-status-timeline-purple-only">
+/* 指定單 1~4 狀態列：完全獨立紫色，不覆蓋、不依賴金色狀態列。 */
+body[data-status-page="reserved"] .reserved-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;margin:8px 0 18px;padding:0 3px}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step{position:relative;z-index:1;text-align:center;color:#747b80;font-size:15px;font-weight:700}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step:not(:last-child)::after{content:"";position:absolute;top:56px;left:62%;width:76%;height:3px;background:#343840;border-radius:10px;z-index:-1}
+body[data-status-page="reserved"] .reserved-status-timeline .status-icon{position:relative;width:112px;height:112px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;background:radial-gradient(circle at 34% 28%,#3b4049 0,#262b32 45%,#15191f 78%,#0f1217 100%);border:2px solid #424750;color:#e4e7ec;box-shadow:0 0 0 7px rgba(0,0,0,.24),0 0 0 9px rgba(157,105,255,.05),0 18px 40px rgba(0,0,0,.46),inset 0 2px 1px rgba(255,255,255,.09);transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease,background .35s ease}
+body[data-status-page="reserved"] .reserved-status-timeline .status-icon::before{content:"";position:absolute;inset:9px;border:1px solid rgba(255,255,255,.09);border-radius:50%}
+body[data-status-page="reserved"] .reserved-status-timeline .status-icon::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(157,105,255,.10)}
+body[data-status-page="reserved"] .reserved-status-timeline .status-svg{width:53px;height:53px;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+body[data-status-page="reserved"] .reserved-status-timeline .status-label{min-height:30px;line-height:1.45;letter-spacing:.025em;white-space:nowrap}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step small{display:block;margin-top:10px;color:#757d86;font-size:13px;font-weight:450;line-height:1.45;white-space:nowrap}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step.active{color:#c8a8ff}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step.active .status-icon{color:#fff;background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%);border-color:#c49aff;box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68)}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step.active .status-label{color:#c49aff;font-weight:900}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step.active small{color:#a88bcf}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step:not(.active) .status-icon{color:#d9dde4;background:radial-gradient(circle at 34% 28%,#343942 0,#242930 46%,#15181e 100%);border-color:#3b3f49;box-shadow:0 0 0 7px rgba(0,0,0,.24),0 17px 36px rgba(0,0,0,.40),inset 0 2px 1px rgba(255,255,255,.08)}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step:not(.active) .status-label{color:#777b83}
+body[data-status-page="reserved"] .reserved-status-timeline .status-step:not(.active) small{color:#707780}
+@media(max-width:800px){body[data-status-page="reserved"] .reserved-status-timeline .status-icon{width:88px;height:88px;margin-bottom:15px}body[data-status-page="reserved"] .reserved-status-timeline .status-svg{width:43px;height:43px}body[data-status-page="reserved"] .reserved-status-timeline .status-label{font-size:13px}}
+@media(max-width:600px){body[data-status-page="reserved"] .reserved-status-timeline .status-icon{width:68px;height:68px;margin-bottom:11px}body[data-status-page="reserved"] .reserved-status-timeline .status-svg{width:34px;height:34px}body[data-status-page="reserved"] .reserved-status-timeline .status-label{min-height:36px;font-size:11px;white-space:normal}}
+@media(max-width:380px){body[data-status-page="reserved"] .reserved-status-timeline .status-icon{width:58px;height:58px}body[data-status-page="reserved"] .reserved-status-timeline .status-svg{width:29px;height:29px}body[data-status-page="reserved"] .reserved-status-timeline .status-label{font-size:10px}}
 </style>
-
 </head>
 <body class="customer-order-status-mode reserved-order-mode" data-status-page="reserved">
 <main class="container">
 <div id="successMessage" class="success" style="display:block">
-  <div id="orderStatusTimeline" class="order-status-timeline premium-status-timeline" aria-label="訂單進度">
-    <div class="status-step" data-step="sent">
+  <div id="orderStatusTimeline" class="reserved-status-timeline" aria-label="訂單進度">
+    <div class="status-step active" data-step="sent">
       <div class="status-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" class="status-svg"><circle cx="24" cy="24" r="9"/><path d="M24 14v10l6 4"/><path d="M24 5v3M24 40v3M5 24h3M40 24h3"/></svg>
       </div>
@@ -1618,7 +1406,6 @@ function enterCustomerOrderStatusMode(orderId){
     const making=steps.find(x=>x.dataset.step==='making');
     const done=steps.find(x=>x.dataset.step==='done');
 
-    // 每次狀態更新先全部熄滅，再只點亮「目前正在進行的唯一一步」。
     steps.forEach(x=>x.classList.remove('active','done'));
 
     const setReminder = (key) => {
@@ -1638,32 +1425,32 @@ function enterCustomerOrderStatusMode(orderId){
       if(box) box.style.display='';
     };
 
-    let currentStep=null;
-
     if(s==='done'||s==='完成'||s==='已完成'){
-      currentStep=done;
+      if(done) done.classList.add('active');
       setReminder('done');
-    }else if(s==='making'||s==='製作中'){
-      currentStep=making;
-      setReminder('making');
-    }else if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
-      currentStep=accepted;
-      setReminder('accepted');
-    }else if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
-      // 取消不屬於 1~4 的進行狀態，維持第 2 步作為最後已接單狀態。
-      currentStep=accepted;
-      setReminder('accepted');
-    }else{
-      currentStep=sent;
-      setReminder('sent');
+      return;
     }
 
-    if(currentStep) currentStep.classList.add('active');
+    if(s==='making'||s==='製作中'){
+      if(making) making.classList.add('active');
+      setReminder('making');
+      return;
+    }
 
-    // 最後再強制保險：任何時候 DOM 只允許一個 active。
-    steps.forEach(step=>{
-      if(step!==currentStep) step.classList.remove('active');
-    });
+    if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
+      if(accepted) accepted.classList.add('active');
+      setReminder('accepted');
+      return;
+    }
+
+    if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
+      if(accepted) accepted.classList.add('active');
+      setReminder('accepted');
+      return;
+    }
+
+    if(sent) sent.classList.add('active');
+    setReminder('sent');
   }
 
   let customerAcceptedAt=0;
@@ -1962,7 +1749,7 @@ function enterCustomerOrderStatusMode(orderId){
     const sentTime=document.getElementById('statusSentTime');
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
-    document.body.classList.toggle('reserved-order-mode', STATUS_PAGE_RESERVED || !!String(saved.pickupTime||'').trim());
+    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
     const countdown=document.getElementById('statusCountdown');
     const pickupDisplay=document.getElementById('statusPickupTime');
     if(countdown && saved.pickupTime){
@@ -1973,7 +1760,7 @@ function enterCustomerOrderStatusMode(orderId){
       countdown.style.display='none';
     }
 
-    const isReservedOrder=STATUS_PAGE_RESERVED || !!String(saved.pickupTime||'').trim();
+    const isReservedOrder=!!String(saved.pickupTime||'').trim();
     document.body.classList.toggle('reserved-order-mode',isReservedOrder);
     document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
     const timeline=document.getElementById('orderStatusTimeline');
@@ -1994,6 +1781,5 @@ function enterCustomerOrderStatusMode(orderId){
   });
 })();
 </script>
-
 </body>
 </html>
