@@ -2956,8 +2956,7 @@ const orderId=Number(data?.id);
       const sentTime=document.getElementById('statusSentTime');
       if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
       renderOrderItems(items);
-      enterCustomerOrderStatusMode(orderId);
-      if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
+      redirectToIndependentOrderStatusPage(submittedOrderData);
     }
 
 return true;
@@ -4048,11 +4047,20 @@ document.addEventListener('input',function(e){
     startCustomerOrderTracking();
   }
 
+  function redirectToIndependentOrderStatusPage(saved){
+    if(!saved) return;
+    const isReserved=!!String(saved.pickupTime||'').trim();
+    const page=isReserved ? 'reserved-order-status.html' : 'normal-order-status.html';
+    const id=Number(saved.orderId||0);
+    const target=id ? `${page}#order-status=${id}` : page;
+    window.location.replace(target);
+  }
+
   window.addEventListener('load',function(){
-    // 狀態頁現在會綁定實際訂單編號，例如 #order-status=331。
-    // 重新整理後必須依網址中的訂單編號恢復同一筆訂單。
+    // 舊版網址仍帶有狀態頁 hash 時，直接導向對應的獨立狀態頁。
     if(/^#order-status=\d+$/.test(window.location.hash)){
-      setTimeout(restoreCustomerOrder,50);
+      const saved=getSavedOrder();
+      if(saved) setTimeout(function(){ redirectToIndependentOrderStatusPage(saved); },50);
     }
   });
 })();
