@@ -791,6 +791,11 @@ body.customer-order-status-mode #statusCountdown > div:last-child{
   outline:none!important;
   box-shadow:0 0 0 2px rgba(33,150,243,.15)!important;
 }
+
+<style id="customer-status-small-text-hidden">
+/* 顧客狀態列：移除紅框內的輔助小字，只保留主要狀態名稱。 */
+body.customer-order-status-mode .premium-status-timeline .status-step small{display:none!important}
+</style>
 </style>
 <style id="store-holiday-v21">
 #storeClosedBanner{display:none;position:relative;width:100%;box-sizing:border-box;min-height:64px;align-items:center;justify-content:center;text-align:center;padding:12px 58px 12px 18px;background:#fff0f0;border:1px solid #f0b7b7;border-radius:10px;margin:8px 0;}
@@ -1774,10 +1779,10 @@ function enterCustomerOrderStatusMode(orderId){
     const s=String(status||'').trim().toLowerCase();
 
     const steps=[...document.querySelectorAll('#orderStatusTimeline .status-step')];
-    const sent=steps.find(x=>x.dataset.step==='sent');
-    const accepted=steps.find(x=>x.dataset.step==='accepted');
-    const making=steps.find(x=>x.dataset.step==='making');
-    const done=steps.find(x=>x.dataset.step==='done');
+    const sent=steps.filter(x=>x.dataset.step==='sent');
+    const accepted=steps.filter(x=>x.dataset.step==='accepted');
+    const making=steps.filter(x=>x.dataset.step==='making');
+    const done=steps.filter(x=>x.dataset.step==='done');
 
     steps.forEach(x=>x.classList.remove('active','done'));
 
@@ -1799,34 +1804,34 @@ function enterCustomerOrderStatusMode(orderId){
     };
 
     if(s==='done'||s==='完成'||s==='已完成'){
-      [sent,accepted,making,done].forEach(x=>x&&x.classList.add('done'));
-      if(done) done.classList.add('active');
+      [...sent,...accepted,...making,...done].forEach(x=>x.classList.add('done'));
+      done.forEach(x=>x.classList.add('active'));
       setReminder('done');
       return;
     }
 
     if(s==='making'||s==='製作中'){
-      [sent,accepted].forEach(x=>x&&x.classList.add('done'));
-      if(making) making.classList.add('active');
+      [...sent,...accepted].forEach(x=>x.classList.add('done'));
+      making.forEach(x=>x.classList.add('active'));
       setReminder('making');
       return;
     }
 
     if(s==='accepted'||s==='accept'||s==='已接單'||s==='接單'){
-      if(sent) sent.classList.add('done');
-      if(accepted) accepted.classList.add('active');
+      sent.forEach(x=>x.classList.add('done'));
+      accepted.forEach(x=>x.classList.add('active'));
       setReminder('accepted');
       return;
     }
 
     if(s==='cancelled'||s==='canceled'||s==='取消'||s==='已取消'){
-      if(sent) sent.classList.add('done');
-      if(accepted) accepted.classList.add('active');
+      sent.forEach(x=>x.classList.add('done'));
+      accepted.forEach(x=>x.classList.add('active'));
       setReminder('accepted');
       return;
     }
 
-    if(sent) sent.classList.add('active');
+    sent.forEach(x=>x.classList.add('active'));
     setReminder('sent');
   }
 
@@ -1934,6 +1939,7 @@ function enterCustomerOrderStatusMode(orderId){
 
     const remaining=Math.max(0,targetAt-Date.now());
     if(remaining===0){
+      updateOrderStatusVisual('making');
       showCustomerMakingAnimation();
       return;
     }
