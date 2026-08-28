@@ -724,17 +724,17 @@ body.customer-order-status-mode .order-status-hero{display:block;position:relati
 body.customer-order-status-mode .order-status-badge{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 18px;border:1px solid rgba(255,177,59,.38);border-radius:999px;background:rgba(255,160,24,.08);color:#ffb23e;font-size:18px;font-weight:900;box-shadow:0 0 24px rgba(255,160,24,.08)}
 body.customer-order-status-mode .order-status-subtitle{margin-top:9px;color:#aeb4b7;font-size:15px;line-height:1.6}
 body.customer-order-status-mode .order-status-timeline{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:start;margin:8px 0 18px;padding:0 3px}
-body.customer-order-status-mode .premium-status-timeline .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
-body.customer-order-status-mode .premium-status-timeline .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
-body.customer-order-status-mode .premium-status-timeline .status-step.done:not(:last-child)::after{background:linear-gradient(90deg,#ffb23e,#ff9c18)}
-body.customer-order-status-mode .premium-status-timeline .status-step.active{color:#ffb23e}
-body.customer-order-status-mode .premium-status-timeline .status-step.done{color:#d9dde0}
-body.customer-order-status-mode .premium-status-timeline .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
-body.customer-order-status-mode .premium-status-timeline .status-step.done .status-icon{background:#ffad2f;border-color:#ffbf5d;color:#16191a;box-shadow:0 0 22px rgba(255,169,42,.28)}
-body.customer-order-status-mode .premium-status-timeline .status-step.active .status-icon{background:#ffad2f;border-color:#ffd18a;color:#17191a;box-shadow:0 0 30px rgba(255,169,42,.48);animation:statusActivePulse 1.8s infinite ease-in-out}
+body.customer-order-status-mode .status-step{position:relative;text-align:center;color:#747b80;font-size:12px;font-weight:700}
+body.customer-order-status-mode .status-step:not(:last-child)::after{content:"";position:absolute;top:20px;left:62%;width:76%;height:3px;background:#343a3e;border-radius:10px;z-index:-1}
+body.customer-order-status-mode .status-step.done:not(:last-child)::after{background:linear-gradient(90deg,#ffb23e,#ff9c18)}
+body.customer-order-status-mode .status-step.active{color:#ffb23e}
+body.customer-order-status-mode .status-step.done{color:#d9dde0}
+body.customer-order-status-mode .status-icon{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a3034;border:1px solid #42494e;color:#c9ced1;font-size:17px;box-shadow:0 5px 16px rgba(0,0,0,.25)}
+body.customer-order-status-mode .status-step.done .status-icon{background:#ffad2f;border-color:#ffbf5d;color:#16191a;box-shadow:0 0 22px rgba(255,169,42,.28)}
+body.customer-order-status-mode .status-step.active .status-icon{background:#ffad2f;border-color:#ffd18a;color:#17191a;box-shadow:0 0 30px rgba(255,169,42,.48);animation:statusActivePulse 1.8s infinite ease-in-out}
 @keyframes statusActivePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-body.customer-order-status-mode .premium-status-timeline .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
-body.customer-order-status-mode .premium-status-timeline .status-step.active small{color:#ffb23e}
+body.customer-order-status-mode .status-step small{display:block;margin-top:3px;color:#7f878b;font-size:11px;font-weight:500}
+body.customer-order-status-mode .status-step.active small{color:#ffb23e}
 body.customer-order-status-mode .status-countdown{position:relative;z-index:2;margin:0 0 14px;padding:14px 14px;border:1px solid rgba(255,255,255,.055);border-radius:15px;background:linear-gradient(145deg,#1b2023,#15191b);text-align:center;color:#b7bdc0;font-size:13px;line-height:1.55}
 body.customer-order-status-mode .status-countdown strong{display:block;margin-top:2px;color:#ffb23e;font-size:25px;letter-spacing:.04em}
 body.customer-order-status-mode .status-countdown.reserved{border-color:rgba(255,177,59,.25);background:linear-gradient(145deg,rgba(255,160,24,.08),#15191b)}
@@ -750,35 +750,6 @@ body.customer-order-status-mode .order-item-row:last-child{border-bottom:0;paddi
 body.customer-order-status-mode .order-item-name{color:#f2f3f3;font-size:15px;font-weight:800;line-height:1.45}.order-item-options{margin-top:3px;color:#8f979b;font-size:12px;line-height:1.5}.order-item-qty{color:#b8bec1;font-size:13px}.order-item-price{color:#fff;font-size:15px;font-weight:900;white-space:nowrap}
 @media(max-width:480px){body.customer-order-status-mode .order-status-timeline{padding:0}.order-status-detail-row{font-size:13px}.order-item-row{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}.order-item-name{font-size:14px}.order-item-price{font-size:14px}}
 
-
-/* 指定取餐時間：只顯示顧客指定的時間，不顯示系統自動跳轉的製作時間。 */
-body.customer-order-status-mode #statusCountdown{
-  margin:14px 0 22px;
-  padding:18px 16px;
-  border:1px solid rgba(173,124,255,.34);
-  border-radius:16px;
-  background:linear-gradient(145deg,rgba(132,82,220,.10),rgba(20,24,27,.96));
-  text-align:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 28px rgba(0,0,0,.16);
-}
-body.customer-order-status-mode #statusCountdown > div:first-child{
-  color:#c7a4ff;
-  font-size:15px;
-  font-weight:800;
-  letter-spacing:.04em;
-}
-body.customer-order-status-mode #statusCountdown strong{
-  display:block;
-  margin:5px 0 3px;
-  color:#fff;
-  font-size:30px;
-  line-height:1.15;
-  letter-spacing:.06em;
-}
-body.customer-order-status-mode #statusCountdown > div:last-child{
-  color:#aeb5b8;
-  font-size:13px;
-}
 
 /* 取餐時間：只恢復原本藍色視覺，不修改取餐時間邏輯。 */
 #pickupTime{
@@ -985,7 +956,7 @@ body.customer-order-status-mode .status-label{
   letter-spacing:.025em;
   white-space:nowrap;
 }
-body.customer-order-status-mode .premium-status-timeline .status-step small{
+body.customer-order-status-mode .status-step small{
   display:block!important;
   margin-top:10px!important;
   color:#757d80!important;
@@ -993,50 +964,6 @@ body.customer-order-status-mode .premium-status-timeline .status-step small{
   font-weight:450!important;
   line-height:1.45;
   white-space:nowrap;
-}
-
-/* ===== 指定取餐時間：整條狀態列改用紫色識別 ===== */
-body.customer-order-status-mode.reserved-order-mode{
-  background:
-    radial-gradient(circle at 50% 18%, rgba(151,91,255,.11), transparent 34%),
-    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline::before{
-  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
-  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
-  color:#c8a8ff !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done{
-  color:#ddd4ed !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
-  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
-  border-color:#c49aff !important;
-  box-shadow:
-    0 0 0 7px rgba(164,112,255,.10),
-    0 0 0 10px rgba(164,112,255,.04),
-    0 0 46px rgba(154,100,255,.42),
-    0 18px 40px rgba(0,0,0,.48),
-    inset 0 2px 2px rgba(255,255,255,.68) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
-  color:#c49aff !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
-  color:#a88bcf !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
-  border-color:#ae8ce0 !important;
-  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
-}
-body.customer-order-status-mode.reserved-order-mode #successStatus{
-  color:#c49aff !important;
 }
 
 /* active / completed */
@@ -1074,10 +1001,10 @@ body.customer-order-status-mode .premium-status-timeline .status-step.done .stat
 }
 
 /* active icon micro motion */
-body.customer-order-status-mode .premium-status-timeline .status-step.active:nth-child(1) .status-icon{animation:clockGlow 2.4s ease-in-out infinite}
-body.customer-order-status-mode .premium-status-timeline .status-step.active:nth-child(2) .status-icon{animation:storeLift 2s ease-in-out infinite}
-body.customer-order-status-mode .premium-status-timeline .status-step.active:nth-child(3) .status-icon{animation:cookFloat 1.65s ease-in-out infinite}
-body.customer-order-status-mode .premium-status-timeline .status-step.active:nth-child(4) .status-icon{animation:readyGlow 2.1s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(1) .status-icon{animation:clockGlow 2.4s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(2) .status-icon{animation:storeLift 2s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(3) .status-icon{animation:cookFloat 1.65s ease-in-out infinite}
+body.customer-order-status-mode .status-step.active:nth-child(4) .status-icon{animation:readyGlow 2.1s ease-in-out infinite}
 @keyframes clockGlow{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.035) rotate(-5deg)}}
 @keyframes storeLift{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes cookFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
@@ -1442,178 +1369,17 @@ body.customer-order-status-mode .premium-status-timeline .status-step.active[dat
 </style>
 
 
-<style id="reserved-status-final-override">
-/* ===== 指定取餐時間訂單：狀態列最終紫色覆蓋層 ===== */
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
-  color:#c8a8ff !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
-  color:#fff !important;
-  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
-  border-color:#c49aff !important;
-  box-shadow:
-    0 0 0 7px rgba(164,112,255,.10),
-    0 0 0 10px rgba(164,112,255,.04),
-    0 0 46px rgba(154,100,255,.42),
-    0 18px 40px rgba(0,0,0,.48),
-    inset 0 2px 2px rgba(255,255,255,.68) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
-  color:#c49aff !important;
-  font-weight:900 !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
-  color:#a88bcf !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
-  color:#f7f3ff !important;
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
-  border-color:#ae8ce0 !important;
-  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-label{
-  color:#d8d0e6 !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-icon{
-  background:radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%) !important;
-  border-color:rgba(154,126,190,.34) !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-label{
-  color:#88838f !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) small{
-  color:#77717f !important;
-}
-body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(:last-child)::after{
-  background:linear-gradient(90deg,rgba(157,110,226,.70),rgba(93,78,116,.28)) !important;
-}
+<style id="customer-order-query-css">
+.cart-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.cart-title-row h2{margin:0!important}.order-query-btn{border:2px solid #111;background:#fff;color:#111;border-radius:12px;padding:11px 16px;font-size:17px;font-weight:900;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}.order-query-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:none;align-items:center;justify-content:center;padding:14px}.order-query-modal.show{display:flex}.order-query-card{width:min(94vw,500px);max-height:82vh;overflow:auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 15px 45px rgba(0,0,0,.3)}.order-query-card h3{text-align:center;margin:0 0 7px;font-size:21px}.order-query-desc{text-align:center;color:#777;font-size:13px;line-height:1.5;margin:0 0 14px}.order-query-card input{margin-top:0}.order-query-actions{display:flex;gap:8px;margin-top:12px}.order-query-actions button{flex:1;border:0;border-radius:11px;padding:12px;font-size:16px;font-weight:800;cursor:pointer}.order-query-search{background:#111;color:#fff}.order-query-close{background:#eee;color:#333}.order-query-msg{display:none;margin-top:10px;padding:10px;border-radius:10px;background:#fff4e8;color:#8f4300;font-size:14px;line-height:1.5}.order-query-result{margin-top:14px}.query-order{border:1px solid #eee;border-radius:13px;padding:13px;margin-top:10px}.query-order-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.query-order-id{font-weight:900}.query-order-status{font-weight:900}.query-wait{color:#c69200}.query-accepted{color:#24934a}.query-making{color:#d76d00}.query-done{color:#24934a}.query-meta{margin-top:7px;color:#666;font-size:13px;line-height:1.7}.query-items{border-top:1px solid #eee;margin-top:8px;padding-top:7px}.query-item{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0}.query-total{text-align:right;font-size:17px;font-weight:900;margin-top:7px}
 </style>
 
-
-<style id="reserved-status-timeline-independent-purple">
-/* 指定單專用：獨立紫色狀態列。金色 premium-status-timeline 不會匹配這些規則。 */
-body.customer-order-status-mode .reserved-status-timeline{
-  position:relative;z-index:2;display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:0!important;margin:0 0 48px!important;padding:10px 0 0!important;
-  border:0!important;background:transparent!important;box-shadow:none!important;
-}
-body.customer-order-status-mode .reserved-status-timeline::before{
-  content:"";position:absolute;left:9.5%;right:9.5%;top:69px;height:3px;
-  border-radius:99px;
-  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%);
-  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12);
-  z-index:0;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step{
-  position:relative;z-index:1;min-width:0;padding:0 8px;
-  text-align:center;color:#73707e;font-size:16px;font-weight:650;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-icon{
-  position:relative;width:112px!important;height:112px!important;margin:0 auto 24px!important;
-  display:flex!important;align-items:center;justify-content:center;border-radius:50%!important;
-  box-sizing:border-box;
-  background:radial-gradient(circle at 34% 28%,#3a3542 0,#25212c 42%,#15121b 73%,#0f0d14 100%)!important;
-  border:2px solid rgba(157,126,190,.30)!important;color:#e7e1ee!important;
-  box-shadow:0 0 0 7px rgba(0,0,0,.24),0 0 0 9px rgba(157,126,190,.10),
-             0 17px 36px rgba(0,0,0,.45),inset 0 2px 1px rgba(255,255,255,.08)!important;
-  transition:all .4s cubic-bezier(.2,.8,.2,1);
-}
-body.customer-order-status-mode .reserved-status-timeline .status-icon::before{
-  content:"";position:absolute;inset:9px;border:1px solid rgba(255,255,255,.10);border-radius:50%;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-icon::after{
-  content:"";position:absolute;inset:-8px;border-radius:50%;
-  border:1px solid rgba(157,110,226,.18);opacity:.7;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-svg{
-  width:53px;height:53px;fill:none;stroke:currentColor;stroke-width:2.25;
-  stroke-linecap:round;stroke-linejoin:round;
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));
-}
-body.customer-order-status-mode .reserved-status-timeline .status-label{
-  min-height:30px;line-height:1.45;letter-spacing:.025em;white-space:nowrap;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step small{
-  display:block!important;margin-top:10px!important;color:#75707f!important;
-  font-size:13px!important;font-weight:450!important;line-height:1.45;white-space:nowrap;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.active{
-  color:#c8a8ff!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.active .status-icon{
-  color:#fff!important;
-  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%)!important;
-  border-color:#c49aff!important;
-  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),
-             0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),
-             inset 0 2px 2px rgba(255,255,255,.68)!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.active .status-label{
-  color:#c49aff!important;font-weight:900!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.active small{
-  color:#a88bcf!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.done{
-  color:#d8d0e6!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.done .status-icon{
-  color:#f7f3ff!important;
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%)!important;
-  border-color:#ae8ce0!important;
-  box-shadow:0 0 22px rgba(148,99,238,.28)!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#a87cff,#8d62dc)!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step:not(.active):not(.done) .status-icon{
-  background:radial-gradient(circle at 35% 28%,#33303a 0,#24232b 52%,#15161b 100%)!important;
-  border-color:rgba(154,126,190,.34)!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step:not(.active):not(.done) .status-label{
-  color:#88838f!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step:not(.active):not(.done) small{
-  color:#77717f!important;
-}
-body.customer-order-status-mode .reserved-status-timeline .status-step:not(:last-child)::after{
-  content:"";position:absolute;top:69px;left:62%;width:76%;height:3px;
-  background:linear-gradient(90deg,rgba(157,110,226,.70),rgba(93,78,116,.28))!important;
-  border-radius:99px;z-index:-1;
-}
-@media(max-width:800px){
-  body.customer-order-status-mode .reserved-status-timeline{margin-bottom:32px!important}
-  body.customer-order-status-mode .reserved-status-timeline::before{left:8%;right:8%;top:57px;height:2px}
-  body.customer-order-status-mode .reserved-status-timeline .status-icon{width:88px!important;height:88px!important;margin-bottom:18px!important}
-  body.customer-order-status-mode .reserved-status-timeline .status-svg{width:43px;height:43px}
-  body.customer-order-status-mode .reserved-status-timeline .status-label{font-size:13px}
-  body.customer-order-status-mode .reserved-status-timeline .status-step small{font-size:10px!important;margin-top:7px!important}
-}
-@media(max-width:600px){
-  body.customer-order-status-mode .reserved-status-timeline{margin-bottom:25px!important}
-  body.customer-order-status-mode .reserved-status-timeline::before{left:7%;right:7%;top:48px}
-  body.customer-order-status-mode .reserved-status-timeline .status-step{padding:0 2px}
-  body.customer-order-status-mode .reserved-status-timeline .status-icon{
-    width:68px!important;height:68px!important;margin-bottom:13px!important;
-    box-shadow:0 0 0 5px rgba(0,0,0,.24),0 0 0 7px rgba(157,126,190,.10),
-               0 10px 25px rgba(0,0,0,.42),inset 0 2px 1px rgba(255,255,255,.08)!important;
-  }
-  body.customer-order-status-mode .reserved-status-timeline .status-svg{width:34px;height:34px}
-  body.customer-order-status-mode .reserved-status-timeline .status-label{font-size:11px;min-height:37px;white-space:normal}
-  body.customer-order-status-mode .reserved-status-timeline .status-step small{display:none!important}
-}
-@media(max-width:380px){
-  body.customer-order-status-mode .reserved-status-timeline .status-icon{width:58px!important;height:58px!important}
-  body.customer-order-status-mode .reserved-status-timeline .status-svg{width:29px;height:29px}
-  body.customer-order-status-mode .reserved-status-timeline::before{top:43px}
-  body.customer-order-status-mode .reserved-status-timeline .status-label{font-size:10px}
-}
+<style id="customer-order-query-v2-css">
+.order-query-empty{margin:10px 0 0;padding:28px 20px 24px;border:1px solid #ece6dc;border-radius:18px;background:linear-gradient(145deg,#fffdf9,#f8f3eb);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.order-query-empty-icon{width:58px;height:58px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:27px;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.order-query-empty-title{font-size:22px;font-weight:900;color:#222;margin-bottom:7px}
+.order-query-empty-text{font-size:14px;line-height:1.7;color:#777}
+.order-query-empty-hint{margin-top:13px;padding:10px 12px;border-radius:10px;background:#fff;color:#8a6b55;font-size:13px;line-height:1.6}
 </style>
-
 </head>
 <body>
 
@@ -1670,11 +1436,11 @@ body.customer-order-status-mode .reserved-status-timeline .status-step:not(:last
 </div>
 <div id="menu"></div>
 <div class="cart" id="cartBox">
-<h2>🛒 訂單</h2><div id="cartItems">尚未選擇餐點</div>
+<div class="cart-title-row"><h2>🛒 訂單</h2><button class="order-query-btn" type="button" onclick="openCustomerOrderQuery()">🔍 查詢訂單</button></div><div id="cartItems">尚未選擇餐點</div>
 <div class="total">合計：$<span id="total">0</span></div>
 <div class="order-form">
-<label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
-<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" autocomplete="off" inputmode="numeric" placeholder="請輸入手機號碼">
+<label>姓／先生or小姐</label><input id="customerName" type="text" placeholder="請輸入姓氏＋先生或小姐">
+<label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" placeholder="請輸入手機號碼">
 <label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
 <select id="pickupTime"><option value="">不指定取餐時間</option></select>
 <label>是否需要餐具</label>
@@ -2745,68 +2511,59 @@ function initPickupTimes(){
 
   const seen=new Set();
 
-  // 只顯示「目前這一個營業時段」內的指定取餐時間。
-  // 例如營業至 02:00，最後可指定 01:50；
-  // 01:50 之後不再跳到隔日營業時段繼續產生選項。
-  const nowWindow=getOrderingWindowForNow();
-  const nowMinutes=now.hour*60+now.minute;
-  const todayDow=getTaipeiWeekday();
-  let targetIntervalStart=null;
-  let targetIntervalEnd=null;
+  // 只顯示落在後台營業時段內、且不晚於「營業結束前10分鐘」
+  // 的指定取餐時間。
+  for(let offset=0;offset<=24*60;offset+=10){
+    const d=new Date(minPickup+offset*60*1000);
+    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
+    const h=d.getUTCHours(), minute=d.getUTCMinutes();
+    const jsDay=new Date(Date.UTC(y,mo-1,day)).getUTCDay();
+    const dow=jsDay===0?7:jsDay;
+    const prev=dow===1?7:dow-1;
+    const mins=h*60+minute;
+    const candidateTime=d.getTime();
 
-  if(nowWindow.open && nowWindow.row?.enabled){
-    const s=hmToMinutes(nowWindow.row.start), e=hmToMinutes(nowWindow.row.end);
-    const baseDayOffset=nowWindow.day===todayDow ? 0 : -1;
-    const startDay=new Date(Date.UTC(now.year,now.month-1,now.day+baseDayOffset));
-    targetIntervalStart=Date.UTC(
-      startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate(),
-      Math.floor(s/60),s%60,0
-    );
-    if(s>e){
-      targetIntervalEnd=Date.UTC(
-        startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate()+1,
-        Math.floor(e/60),e%60,0
-      );
-    }else if(s<e){
-      targetIntervalEnd=Date.UTC(
-        startDay.getUTCFullYear(),startDay.getUTCMonth(),startDay.getUTCDate(),
-        Math.floor(e/60),e%60,0
-      );
+    let intervalEnd=null;
+
+    // 先判斷「今天」的營業時段。
+    const row=orderingHoursSchedule[dow];
+    if(row?.enabled){
+      const s=hmToMinutes(row.start), e=hmToMinutes(row.end);
+
+      if(s<e){
+        // 同日營業，例如 18:00～23:30。
+        if(mins>=s && mins<e){
+          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(e/60),e%60,0);
+        }
+      }else if(s>e){
+        // 跨日營業，例如 18:00～01:30。
+        // 今天開始的營業，結束時間在隔日。
+        if(mins>=s){
+          intervalEnd=Date.UTC(y,mo-1,day+1,Math.floor(e/60),e%60,0);
+        }
+      }else{
+        // s === e 不代表24小時營業。
+        // 本系統沒有固定24小時營業模式，完全依後台設定判斷。
+        intervalEnd=null;
+      }
     }
-  }else{
-    // 尚未開店時，允許今天即將開始的營業時段；
-    // 但仍只產生今天這一個營業時段，不跨到隔日的下一個營業時段。
-    const todayRow=orderingHoursSchedule[todayDow];
-    if(todayRow?.enabled){
-      const s=hmToMinutes(todayRow.start), e=hmToMinutes(todayRow.end);
-      if(s!==e && nowMinutes<s){
-        targetIntervalStart=Date.UTC(now.year,now.month-1,now.day,Math.floor(s/60),s%60,0);
-        if(s>e){
-          targetIntervalEnd=Date.UTC(now.year,now.month-1,now.day+1,Math.floor(e/60),e%60,0);
-        }else{
-          targetIntervalEnd=Date.UTC(now.year,now.month-1,now.day,Math.floor(e/60),e%60,0);
+    // 如果今天的營業時段沒有涵蓋，就判斷「昨天跨日」延續到今天凌晨。
+    if(intervalEnd===null){
+      const prevRow=orderingHoursSchedule[prev];
+      if(prevRow?.enabled){
+        const ps=hmToMinutes(prevRow.start), pe=hmToMinutes(prevRow.end);
+        if(ps>pe && mins<pe){
+          intervalEnd=Date.UTC(y,mo-1,day,Math.floor(pe/60),pe%60,0);
         }
       }
     }
-  }
 
-  // 若目前已進入營業時段，最晚指定時間就是該時段結束前10分鐘。
-  // 若目前不在營業時段且今天尚未開店，則只使用今天即將開始的時段。
-  const latestPickup=targetIntervalEnd===null ? null : targetIntervalEnd-10*60*1000;
+    if(intervalEnd===null)continue;
 
-  // 沒有可用的目標營業時段時，不產生任何指定時間。
-  if(latestPickup===null) return;
+    // 最晚指定時間 = 營業結束時間往前10分鐘。
+    const latestPickup=intervalEnd-10*60*1000;
+    if(candidateTime>latestPickup)continue;
 
-  for(let offset=0;offset<=24*60;offset+=10){
-    const d=new Date(minPickup+offset*60*1000);
-    const candidateTime=d.getTime();
-
-    // 關鍵限制：不可超過「目前這一個營業時段」的最後可指定時間。
-    if(candidateTime>latestPickup) break;
-    if(targetIntervalStart!==null && candidateTime<targetIntervalStart) continue;
-
-    const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, day=d.getUTCDate();
-    const h=d.getUTCHours(), minute=d.getUTCMinutes();
     const value=`${String(h).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
     if(seen.has(value))continue;
     seen.add(value);
@@ -2863,6 +2620,8 @@ async function confirmAndSubmitOrder(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='送出中…';submitBtn.style.opacity='.6';}
 
   try{
+    if(!isOrderingOpen()) throw new Error('目前非線上點餐時間，目前非線上點餐時間，請依頁面顯示時間再下單。');
+
     const cutlery=document.querySelector('input[name="cutlery"]:checked')?.value||'需要';
     const name=document.getElementById('customerName').value.trim();
     const phone=document.getElementById('phone').value.trim().replace(/[\s-]/g,'');
@@ -2929,12 +2688,11 @@ const orderId=Number(data?.id);
     closeOrderConfirm();
     cart=[];
     clearCustomerCartStorage();
-    if(window.clearCustomerFormDraft) window.clearCustomerFormDraft();
     renderCart();
 
     // 訂單保留 1 小時；獨立訂單狀態頁會使用這筆資料。
     const createdAt=Date.now();
-    const submittedOrderData={
+    window.saveCustomerActiveOrder({
       orderId,
       phone,
       customerName:name,
@@ -2943,9 +2701,7 @@ const orderId=Number(data?.id);
       items,
       createdAt,
       expiresAt:window.getOrderExpiryAt(pickup,createdAt)
-    };
-    window.__customerLastSubmittedOrder=submittedOrderData;
-    window.saveCustomerActiveOrder(submittedOrderData);
+    });
 
   
     // 訂單成功後直接在目前頁面顯示訂單狀態。
@@ -2965,7 +2721,8 @@ const orderId=Number(data?.id);
       const sentTime=document.getElementById('statusSentTime');
       if(sentTime){ const n=getTaipeiNow(); sentTime.textContent=`${pad2(n.hour)}:${pad2(n.minute)}`; }
       renderOrderItems(items);
-      window.redirectToIndependentOrderStatusPage(submittedOrderData);
+      enterCustomerOrderStatusMode();
+      if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
     }
 
 return true;
@@ -2981,44 +2738,13 @@ return true;
 }
 
 
-function enterCustomerOrderStatusMode(orderId){
-  // 狀態頁必須綁定「這一張訂單」，避免下一張訂單覆蓋上一張的狀態頁。
-  const id=Number(orderId||0);
-  if(id){
-    const targetHash='#order-status='+id;
-    if(window.location.hash!==targetHash){
-      history.replaceState(null,'',window.location.pathname+window.location.search+targetHash);
-    }
+function enterCustomerOrderStatusMode(){
+  // 同一個 index.html 進入訂單狀態模式；用 hash 記住目前是狀態頁。
+  // 這樣直接開啟乾淨網址時，仍會進入全新的點餐系統。
+  if(window.location.hash!=='#order-status'){
+    history.replaceState(null,'',window.location.pathname+window.location.search+'#order-status');
   }
   document.body.classList.add('customer-order-status-mode');
-  // 狀態頁已經有「這一筆訂單」的保存資料時，直接以目前狀態頁資料判斷是否為指定單。
-  // 不再只依賴 orderId 重新拼 localStorage key，避免重新整理/切頁時把紫色模式誤清掉。
-  // 指定單只依目前這張訂單的資料判斷，直接讀 orderId 對應的獨立保存資料。
-  let savedForTheme=null;
-  try{
-    const exactKey = id && typeof getOrderStorageKey==='function' ? getOrderStorageKey(id) : '';
-    const rawExact = exactKey ? localStorage.getItem(exactKey) : null;
-    if(rawExact) savedForTheme=JSON.parse(rawExact);
-  }catch(e){}
-  if(!savedForTheme && window.__customerLastSubmittedOrder &&
-     Number(window.__customerLastSubmittedOrder.orderId||0)===id){
-    savedForTheme=window.__customerLastSubmittedOrder;
-  }
-  if(!savedForTheme && typeof getSavedOrder==='function'){
-    try{ savedForTheme=getSavedOrder(); }catch(e){}
-  }
-
-  const isReservedForTheme=!!String(savedForTheme?.pickupTime||'').trim();
-  document.body.classList.toggle('reserved-order-mode',isReservedForTheme);
-  document.body.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
-
-  const themeTimeline=document.getElementById('orderStatusTimeline');
-  if(themeTimeline){
-    themeTimeline.classList.toggle('reserved-order-timeline',isReservedForTheme);
-    themeTimeline.classList.toggle('premium-status-timeline',!isReservedForTheme);
-    themeTimeline.classList.toggle('reserved-status-timeline',isReservedForTheme);
-    themeTimeline.setAttribute('data-reserved-order',isReservedForTheme?'1':'0');
-  }
   const success=document.getElementById('successMessage');
   const container=document.querySelector('.container');
   if(success && container && success.parentElement!==container){
@@ -3032,9 +2758,7 @@ function showCustomerOrderSuccess(){
   const success=document.getElementById('successMessage');
   if(!success) return;
 
-  const saved=window.__customerLastSubmittedOrder || (()=>{
-    try{return JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');}catch(e){return {};}
-  })();
+  const saved=JSON.parse(localStorage.getItem('gekbi_customer_active_order_v1')||'{}');
   const digits=String(saved.phone||'').replace(/\\D/g,'');
   const idEl=document.getElementById('successOrderId');
   const pickupEl=document.getElementById('successPickup');
@@ -3229,28 +2953,28 @@ document.addEventListener('input',function(e){
         <svg viewBox="0 0 48 48" class="status-svg"><circle cx="24" cy="24" r="9"/><path d="M24 14v10l6 4"/><path d="M24 5v3M24 40v3M5 24h3M40 24h3"/></svg>
       </div>
       <div class="status-label">等待店家接單中</div>
-      <small><span style="display:none !important">店家尚未接單</span></small>
+      <small>店家尚未接單</small>
     </div>
     <div class="status-step" data-step="accepted">
       <div class="status-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" class="status-svg"><path d="M8 21h32M11 21v17h26V21M9 21l3-8h24l3 8M17 27v7M24 27v7M31 27v7M14 38h20"/></svg>
       </div>
       <div class="status-label">店家已接受訂單</div>
-      <small><span style="display:none !important">店家已接單</span></small>
+      <small>店家已接單</small>
     </div>
     <div class="status-step" data-step="making">
       <div class="status-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" class="status-svg"><path d="M11 29h26M14 29c0 6 4 10 10 10s10-4 10-10"/><path d="M17 23c-2-4 3-5 1-9M24 23c-2-4 3-5 1-9M31 23c-2-4 3-5 1-9"/></svg>
       </div>
       <div class="status-label">餐點製作中</div>
-      <small><span style="display:none !important">料理中，請稍候</span></small>
+      <small>料理中，請稍候</small>
     </div>
     <div class="status-step" data-step="done">
       <div class="status-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" class="status-svg"><path d="M12 19h24v22H12zM16 19v-4a8 8 0 0 1 16 0v4"/><path d="M18 28l4 4 9-10"/></svg>
       </div>
-      <div class="status-label">訂單已完成</div>
-      <small><span style="display:none !important">請依取餐時間前往取餐</span></small>
+      <div class="status-label">餐點已完成可前往取餐</div>
+      <small>請依取餐時間前往取餐</small>
     </div>
   </div>
 
@@ -3259,12 +2983,6 @@ document.addEventListener('input',function(e){
       <svg viewBox="0 0 48 48"><path d="M14 21a10 10 0 0 1 20 0v7l4 5H10l4-5v-7Z"/><path d="M20 38h8"/></svg>
     </span>
     <span id="customerStatusNoteText">送出訂單後，請耐心等待店家接單。</span>
-  </div>
-
-  <div id="statusCountdown" class="status-countdown reserved" style="display:none" aria-live="polite">
-    <div>🕐 指定取餐時間</div>
-    <strong id="statusPickupTime">--:--</strong>
-    <div>請於指定時間前往取餐</div>
   </div>
 
   <div class="order-summary-grid">
@@ -3398,237 +3116,34 @@ document.addEventListener('input',function(e){
 </script>
 
 <script>
-/* 顧客端輸入資料暫存：最後一次輸入後最多保留10分鐘；訂單送出後立即清除，避免個資被下一次開頁恢復。 */
-(function(){
-  const DRAFT_KEY='gekbi_customer_form_draft_v1';
-  const DRAFT_KEEP_MS=10*60*1000;
-  const DRAFT_BLOCK_KEY='gekbi_customer_form_draft_block_until_v1';
-  let restoring=false;
-
-  function isDraftBlocked(){
-    try{
-      const until=Number(localStorage.getItem(DRAFT_BLOCK_KEY)||0);
-      if(until && Date.now()<until) return true;
-      if(until) localStorage.removeItem(DRAFT_BLOCK_KEY);
-    }catch(e){}
-    return false;
-  }
-
-  function getDraft(){
-    try{
-      if(isDraftBlocked()){
-        localStorage.removeItem(DRAFT_KEY);
-        return null;
-      }
-      const raw=localStorage.getItem(DRAFT_KEY);
-      if(!raw)return null;
-      const data=JSON.parse(raw);
-      if(!data?.savedAt || Date.now()-Number(data.savedAt)>=DRAFT_KEEP_MS){
-        localStorage.removeItem(DRAFT_KEY);
-        return null;
-      }
-      return data;
-    }catch(e){
-      localStorage.removeItem(DRAFT_KEY);
-      return null;
-    }
-  }
-
-  function saveDraft(){
-    if(restoring)return;
-    if(isDraftBlocked())return;
-    try{
-      const name=document.getElementById('customerName');
-      const phone=document.getElementById('phone');
-      const pickup=document.getElementById('pickupTime');
-      const cutlery=document.querySelector('input[name="cutlery"]:checked');
-
-      const data={
-        customerName:name?.value||'',
-        phone:phone?.value||'',
-        pickupTime:pickup?.value||'',
-        cutlery:cutlery?.value||'需要',
-        savedAt:Date.now()
-      };
-
-      // 沒有任何輸入時不建立暫存。
-      if(!data.customerName && !data.phone && !data.pickupTime && data.cutlery==='需要'){
-        localStorage.removeItem(DRAFT_KEY);
-        return;
-      }
-      localStorage.setItem(DRAFT_KEY,JSON.stringify(data));
-    }catch(e){
-      console.warn('無法保存顧客輸入暫存',e);
-    }
-  }
-
-  function restoreDraft(){
-    const data=getDraft();
-    if(!data)return;
-
-    restoring=true;
-    try{
-      const name=document.getElementById('customerName');
-      const phone=document.getElementById('phone');
-      const pickup=document.getElementById('pickupTime');
-
-      if(name && data.customerName)name.value=data.customerName;
-      if(phone && data.phone)phone.value=data.phone;
-
-      if(data.cutlery){
-        const radio=document.querySelector(`input[name="cutlery"][value="${CSS.escape(String(data.cutlery))}"]`);
-        if(radio)radio.checked=true;
-      }
-
-      // 取餐時間選項可能正在等待後台營業時間載入，
-      // 因此只有選項已存在時才還原，不改動取餐時間產生邏輯。
-      if(pickup && data.pickupTime &&
-         [...pickup.options].some(o=>o.value===data.pickupTime)){
-        pickup.value=data.pickupTime;
-      }
-    }finally{
-      restoring=false;
-    }
-  }
-
-  window.clearCustomerFormDraft=function(){
-    try{
-      localStorage.removeItem(DRAFT_KEY);
-      // 送出訂單後至少 10 分鐘內，不允許 pagehide/beforeunload 將舊個資重新寫回。
-      localStorage.setItem(DRAFT_BLOCK_KEY,String(Date.now()+DRAFT_KEEP_MS));
-    }catch(e){}
-  };
-
-  window.restoreCustomerFormDraft=restoreDraft;
-
-  let userStartedNewEntry=false;
-
-  // 送出上一筆訂單後，瀏覽器可能自行觸發 input（例如自動填入）。
-  // 在顧客真正點擊/觸碰輸入框以前，不允許這種 input 解除10分鐘封鎖。
-  function beginNewEntry(e){
-    const el=e.target;
-    if(!el || (el.id!=='customerName' && el.id!=='phone'))return;
-    userStartedNewEntry=true;
-    try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
-    el.value='';
-    try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(err){}
-  }
-
-  document.addEventListener('pointerdown',beginNewEntry,true);
-  document.addEventListener('touchstart',beginNewEntry,true);
-  document.addEventListener('keydown',function(e){
-    if((e.target?.id==='customerName'||e.target?.id==='phone') && !e.isComposing){
-      if(!userStartedNewEntry){
-        userStartedNewEntry=true;
-        try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
-        e.target.value='';
-      }
-      saveDraft();
-    }
-  },true);
-
-  document.addEventListener('input',function(e){
-    if(e.target && (e.target.id==='customerName'||e.target.id==='phone')){
-      if(!userStartedNewEntry)return;
-      saveDraft();
-    }
-  });
-
-  document.addEventListener('change',function(e){
-    if(e.target && (
-      e.target.id==='pickupTime' ||
-      (e.target.name==='cutlery')
-    )){
-      try{localStorage.removeItem(DRAFT_BLOCK_KEY);}catch(err){}
-      saveDraft();
-    }
-  });
-
-  window.addEventListener('pagehide',saveDraft);
-  window.addEventListener('beforeunload',saveDraft);
-
-  // 姓名、手機可立即恢復；取餐時間若稍後才載入，稍後再嘗試一次。
-  function clearBlockedFormFields(){
-    if(!isDraftBlocked())return;
-    userStartedNewEntry=false;
-    const name=document.getElementById('customerName');
-    const phone=document.getElementById('phone');
-    if(name)name.value='';
-    if(phone)phone.value='';
-  }
-
-  function restoreWhenReady(){
-    clearBlockedFormFields();
-    restoreDraft();
-    setTimeout(function(){
-      clearBlockedFormFields();
-      restoreDraft();
-    },500);
-    setTimeout(function(){
-      clearBlockedFormFields();
-      restoreDraft();
-    },1500);
-  }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',restoreWhenReady);
-  }else{
-    restoreWhenReady();
-  }
-})(); 
-
-/* 顧客端訂單保存：不指定時間保存至「訂單完成＋30分鐘」；指定時間保存至「指定取餐時間＋30分鐘」。 */
+/* 顧客端訂單保存：不指定時間 1 小時；指定取餐時間保存至「取餐時間＋1 小時」。 */
 
 (function(){
   const STORAGE_KEY='gekbi_customer_active_order_v1';
-  const ORDER_KEY_PREFIX='gekbi_customer_order_v1_';
-  const RETENTION_AFTER_COMPLETE_MS=30*60*1000;
-  const RETENTION_AFTER_PICKUP_MS=30*60*1000;
+  const KEEP_MS=60*60*1000;
   let trackingTimer=null;
-
-  function getOrderIdFromHash(){
-    const m=String(window.location.hash||'').match(/^#order-status=(\d+)$/);
-    return m ? Number(m[1]) : 0;
-  }
-
-  function getOrderStorageKey(orderId){
-    return ORDER_KEY_PREFIX+String(Number(orderId)||'');
-  }
 
   function getSavedOrder(){
     try{
-      const hashOrderId=getOrderIdFromHash();
-      const key=hashOrderId ? getOrderStorageKey(hashOrderId) : STORAGE_KEY;
-      const raw=localStorage.getItem(key);
+      const raw=localStorage.getItem(STORAGE_KEY);
       if(!raw) return null;
       const data=JSON.parse(raw);
       if(!data?.orderId || !data?.phone || !data?.createdAt) return null;
       const expiresAt=Number(data.expiresAt||0);
-      const expireTime=expiresAt || (
-        data.pickupTime
-          ? (getPickupAtMs(data.pickupTime) || (Number(data.createdAt)+RETENTION_AFTER_PICKUP_MS)) + RETENTION_AFTER_PICKUP_MS
-          : Number(data.createdAt) + RETENTION_AFTER_COMPLETE_MS
-      );
+      const expireTime=expiresAt || (Number(data.createdAt)+KEEP_MS);
       if(Date.now()>=expireTime){
-        localStorage.removeItem(key);
-        if(!hashOrderId){
-          try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
-        }
+        localStorage.removeItem(STORAGE_KEY);
         return null;
       }
       return data;
     }catch(e){
+      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
   }
 
   window.saveCustomerActiveOrder=function(data){
     try{
-      const orderId=Number(data?.orderId||0);
-      if(!orderId) return;
-      // 每張訂單各自保存，避免新訂單覆蓋舊訂單的狀態頁。
-      localStorage.setItem(getOrderStorageKey(orderId),JSON.stringify(data));
-      // 只把「最後送出的訂單」記為新點餐頁的目前訂單，不會改寫舊訂單資料。
       localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     }catch(e){
       console.warn('無法保存顧客端訂單資訊',e);
@@ -3652,12 +3167,9 @@ document.addEventListener('input',function(e){
     return Date.parse(`${year}-${month}-${day}T${String(parts[0]).padStart(2,'0')}:${String(parts[1]).padStart(2,'0')}:00+08:00`);
   }
 
-  window.getOrderExpiryAt=function(pickupTime,createdAt,completedAt){
+  window.getOrderExpiryAt=function(pickupTime,createdAt){
     const pickupAt=getPickupAtMs(pickupTime);
-    if(pickupAt) return pickupAt+RETENTION_AFTER_PICKUP_MS;
-    if(completedAt) return Number(completedAt)+RETENTION_AFTER_COMPLETE_MS;
-    // 尚未完成時先保留；一旦狀態進入「訂單已完成」，會立即改為完成時間＋30分鐘。
-    return Number(createdAt)+RETENTION_AFTER_COMPLETE_MS;
+    return pickupAt ? pickupAt+KEEP_MS : Number(createdAt)+KEEP_MS;
   }
 
   function renderOrderItems(items){
@@ -3689,13 +3201,9 @@ document.addEventListener('input',function(e){
     const setReminder = (key) => {
       const el=document.getElementById('customerStatusNoteText');
       const box=document.getElementById('customerStatusNote');
-      const savedOrder = (typeof getSavedOrder==='function') ? getSavedOrder() : null;
-      const hasPickupTime = !!String(savedOrder?.pickupTime||'').trim();
       const map={
         sent:'送出訂單後，請耐心等待店家接單。',
-        accepted: hasPickupTime
-          ? '店家已接單，將於取餐時間前準備餐點。'
-          : '店家已接單，餐點開始準備。',
+        accepted:'店家已接單，餐點將開始準備。',
         making:'餐點製作中，請耐心等候。',
         done:'餐點已完成，可前往取餐。取餐時請告知手機末三碼'
       };
@@ -3735,67 +3243,8 @@ document.addEventListener('input',function(e){
     setReminder('sent');
   }
 
-  let customerAcceptedAt=0;
+  let customerAcceptedAt=Number(localStorage.getItem('customerAcceptedAt')||0);
   let customerMakingTimer=null;
-
-  function customerAcceptedStorageKey(orderId){
-    return 'gekbi_customerAcceptedAt_' + String(orderId||'unknown');
-  }
-
-  function getTaiwanParts(date){
-    const parts=new Intl.DateTimeFormat('en-US',{
-      timeZone:'Asia/Taipei',
-      year:'numeric',month:'2-digit',day:'2-digit',
-      hour:'2-digit',minute:'2-digit',second:'2-digit',
-      hour12:false
-    }).formatToParts(date);
-    const out={};
-    parts.forEach(p=>{if(p.type!=='literal')out[p.type]=Number(p.value);});
-    return out;
-  }
-
-  function taiwanDateToUtc(parts){
-    return Date.UTC(parts.year,parts.month-1,parts.day,parts.hour,parts.minute,parts.second||0)-8*60*60*1000;
-  }
-
-  function getPickupAtFromOrder(saved,pickupTime){
-    const m=String(pickupTime||'').match(/^(\d{1,2}):(\d{2})$/);
-    if(!m || !saved?.createdAt) return 0;
-
-    const created=new Date(Number(saved.createdAt));
-    if(Number.isNaN(created.getTime())) return 0;
-
-    const p=getTaiwanParts(created);
-    const pickupHour=Number(m[1]);
-    const pickupMinute=Number(m[2]);
-
-    let day=p.day;
-    const createdMinutes=p.hour*60+p.minute;
-    const pickupMinutes=pickupHour*60+pickupMinute;
-
-    // 取餐時間若早於下單當下的營業日時間，代表跨日後取餐。
-    if(pickupMinutes<=createdMinutes){
-      const next=new Date(Date.UTC(p.year,p.month-1,p.day)+24*60*60*1000);
-      const np=new Intl.DateTimeFormat('en-US',{
-        timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'
-      }).formatToParts(next);
-      const n={};
-      np.forEach(x=>{if(x.type!=='literal')n[x.type]=Number(x.value);});
-      day=n.day;
-      p.year=n.year;
-      p.month=n.month;
-    }
-
-    return taiwanDateToUtc({
-      year:p.year,month:p.month,day,
-      hour:pickupHour,minute:pickupMinute,second:0
-    });
-  }
-
-  function getCustomerMakingAt(saved,pickupTime){
-    const pickupAt=getPickupAtFromOrder(saved,pickupTime);
-    return pickupAt ? pickupAt-(20*60*1000) : 0;
-  }
 
   function showCustomerMakingAnimation(){
     const anim=document.getElementById('customerMakingAnimation');
@@ -3817,41 +3266,26 @@ document.addEventListener('input',function(e){
     }
     if(note){
       note.style.display='';
-      note.textContent='店家已接單，餐點將開始準備。';
+      note.textContent='店家已接單，請稍候。取餐時請告知手機末三碼。';
     }
   }
 
-  function scheduleCustomerMaking(saved,pickupTime){
-    if(customerMakingTimer) clearTimeout(customerMakingTimer);
-    customerMakingTimer=null;
+  function scheduleCustomerMaking(){
     if(!customerAcceptedAt) return;
-
-    let targetAt;
-    if(pickupTime){
-      // 指定時間訂單：指定取餐時間前 20 分鐘自動進入「餐點製作中」。
-      targetAt=getCustomerMakingAt(saved,pickupTime);
-    }else{
-      // 不指定時間：維持原本接單後 3 分鐘自動進入「餐點製作中」。
-      targetAt=customerAcceptedAt+180000;
-    }
-
-    if(!targetAt) return;
-
-    const remaining=Math.max(0,targetAt-Date.now());
+    const remaining=Math.max(0,180000-(Date.now()-customerAcceptedAt));
+    if(customerMakingTimer) clearTimeout(customerMakingTimer);
     if(remaining===0){
       showCustomerMakingAnimation();
       return;
     }
-
     customerMakingTimer=setTimeout(function(){
       showCustomerMakingAnimation();
-      // 不在畫面顯示這個自動跳轉時間點。
     },remaining);
   }
 
   function statusText(status){
     const s=String(status||'').trim().toLowerCase();
-    if(['done','completed','完成','已完成'].includes(s)) return '🟢 餐點已完成';
+    if(['done','完成','已完成'].includes(s)) return '🟢 餐點已完成';
     if(['cancelled','canceled','取消','已取消'].includes(s)) return '🔴 訂單已取消';
     if(['accepted','accept','已接單','接單'].includes(s)) return '🟢 店家已接單';
     if(['making','製作中'].includes(s)) return '🟠 餐點製作中';
@@ -3869,25 +3303,7 @@ document.addEventListener('input',function(e){
       if(error) throw error;
       if(!data?.found) return true;
 
-      let status=String(data.status||'').trim().toLowerCase();
-
-      // ===== 指定取餐時間訂單：前端最後一道時間保護 =====
-      // 即使資料庫/舊版後台曾把 status 提前寫成 making，
-      // 在「指定取餐時間 - 20 分鐘」以前，顧客端一律維持「店家已接單」。
-      const reservedPickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
-      if(
-        reservedPickupTime &&
-        ['making','製作中'].includes(status)
-      ){
-        const reservedMakingAt=getCustomerMakingAt(
-          {...saved,createdAt:saved.createdAt||data.created_at},
-          reservedPickupTime
-        );
-        if(reservedMakingAt && Date.now()<reservedMakingAt){
-          status='accepted';
-        }
-      }
-
+      const status=String(data.status||'').trim().toLowerCase();
       const statusEl=document.getElementById('successStatus');
       const pickupEl=document.getElementById('successPickup');
       const totalEl=document.getElementById('successTotal');
@@ -3897,25 +3313,24 @@ document.addEventListener('input',function(e){
       if(totalEl) totalEl.textContent=`$${Number(data.total||saved.total||0).toLocaleString()}`;
       updateOrderStatusVisual(status);
       const countdown=document.getElementById('statusCountdown');
-      const pickupDisplay=document.getElementById('statusPickupTime');
       if(countdown){
-        const pickupTime=reservedPickupTime;
-        if(pickupTime){
-          countdown.style.display='block';
-          if(pickupDisplay) pickupDisplay.textContent=pickupTime;
+        if(data.pickup_time){
+          countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${data.pickup_time}</strong>`;
         }else{
-          countdown.style.display='none';
-          if(pickupDisplay) pickupDisplay.textContent='--:--';
+          countdown.style.display='none'; countdown.classList.remove('reserved'); countdown.innerHTML='';
         }
       }
 
-      if(['done','completed','完成','已完成'].includes(status)){
-        // 不指定時間：第一次確認訂單已完成時記錄完成時間，保存至完成後30分鐘。
-        if(!saved.pickupTime && !saved.completedAt){
-          saved.completedAt=Date.now();
-          saved.expiresAt=saved.completedAt+RETENTION_AFTER_COMPLETE_MS;
-          window.saveCustomerActiveOrder(saved);
-        }
+      if(['done','完成','已完成'].includes(status)){
+        // 訂單完成後，顧客端只再保留 30 分鐘。
+        try{
+          const current=getSavedOrder();
+          if(current){
+            current.completedAt=Date.now();
+            current.expiresAt=Date.now()+30*60*1000;
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(current));
+          }
+        }catch(e){}
         if(statusEl){
           statusEl.style.display='';
           statusEl.textContent='🟢 餐點已完成';
@@ -3924,8 +3339,6 @@ document.addEventListener('input',function(e){
         if(anim) anim.classList.remove('active');
         // 完成狀態提醒文字由 updateOrderStatusVisual() 統一控制。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
-        customerMakingTimer=null;
-        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
         stopCustomerOrderTracking();
         return true;
       }
@@ -3939,30 +3352,20 @@ document.addEventListener('input',function(e){
         if(anim) anim.classList.remove('active');
         // 取消狀態不覆蓋動態狀態列的提醒文字。
         if(customerMakingTimer) clearTimeout(customerMakingTimer);
-        customerMakingTimer=null;
-        try{localStorage.removeItem(customerAcceptedStorageKey(saved.orderId));}catch(e){}
         stopCustomerOrderTracking();
         return true;
       }
 
       if(['accepted','accept','已接單','接單'].includes(status)){
-        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
-        const acceptedKey=customerAcceptedStorageKey(saved.orderId);
-
-        if(!customerAcceptedAt){
-          customerAcceptedAt=Number(localStorage.getItem(acceptedKey)||0);
-        }
         if(!customerAcceptedAt){
           customerAcceptedAt=Date.now();
-          localStorage.setItem(acceptedKey,String(customerAcceptedAt));
+          localStorage.setItem('customerAcceptedAt',String(customerAcceptedAt));
         }
-
-        scheduleCustomerMaking(saved,pickupTime);
-
-        const makingAt=pickupTime ? getCustomerMakingAt(saved,pickupTime) : (customerAcceptedAt+180000);
-        if(makingAt && Date.now()>=makingAt){
+        scheduleCustomerMaking();
+        if(Date.now()-customerAcceptedAt>=180000){
           showCustomerMakingAnimation();
         }else{
+          // 狀態列與提醒文字已由 updateOrderStatusVisual() 同步設定。
           const anim=document.getElementById('customerMakingAnimation');
           if(anim) anim.classList.remove('active');
           if(statusEl){
@@ -4031,45 +3434,18 @@ document.addEventListener('input',function(e){
     const sentTime=document.getElementById('statusSentTime');
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
-    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
     const countdown=document.getElementById('statusCountdown');
-    const pickupDisplay=document.getElementById('statusPickupTime');
-    if(countdown && saved.pickupTime){
-      countdown.style.display='block';
-      countdown.classList.add('reserved');
-      if(pickupDisplay) pickupDisplay.textContent=saved.pickupTime;
-    }else if(countdown){
-      countdown.style.display='none';
-    }
+    if(countdown && saved.pickupTime){ countdown.style.display='block'; countdown.classList.add('reserved'); countdown.innerHTML=`🕒 預約取餐時間<br><strong>${saved.pickupTime}</strong>`; }
 
-    const isReservedOrder=!!String(saved.pickupTime||'').trim();
-    document.body.classList.toggle('reserved-order-mode',isReservedOrder);
-    document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
-    const timeline=document.getElementById('orderStatusTimeline');
-    if(timeline){
-      timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
-      timeline.classList.toggle('premium-status-timeline',!isReservedOrder);
-      timeline.classList.toggle('reserved-status-timeline',isReservedOrder);
-      timeline.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
-    }
-    enterCustomerOrderStatusMode(saved.orderId);
+    enterCustomerOrderStatusMode();
     startCustomerOrderTracking();
   }
 
-  window.redirectToIndependentOrderStatusPage = function(saved){
-    if(!saved) return;
-    const isReserved=!!String(saved.pickupTime||'').trim();
-    const page=isReserved ? 'reserved-order-status.html' : 'normal-order-status.html';
-    const id=Number(saved.orderId||0);
-    const target=id ? `${page}#order-status=${id}` : page;
-    window.location.replace(target);
-  };
-
   window.addEventListener('load',function(){
-    // 舊版網址仍帶有狀態頁 hash 時，直接導向對應的獨立狀態頁。
-    if(/^#order-status=\d+$/.test(window.location.hash)){
-      const saved=getSavedOrder();
-      if(saved) setTimeout(function(){ window.redirectToIndependentOrderStatusPage(saved); },50);
+    // 只有網址帶 #order-status 才恢復訂單狀態頁。
+    // 直接開啟網站根網址則維持正常點餐系統，不受上一筆訂單影響。
+    if(window.location.hash==='#order-status'){
+      setTimeout(restoreCustomerOrder,50);
     }
   });
 })();
@@ -4090,90 +3466,29 @@ function closeStoreHolidayModalV24(){
 </script>
 
 
-<style id="reserved-order-timeline-final">
-/* 指定取餐時間訂單：狀態列專屬紫色；直接綁定狀態列本身。 */
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline::before{
-  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
-  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active{
-  color:#c8a8ff !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-icon{
-  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
-  border-color:#c49aff !important;
-  color:#fff !important;
-  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-label{
-  color:#c49aff !important;
-  font-weight:900 !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active small{
-  color:#a88bcf !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done{
-  color:#ddd4ed !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done .status-icon{
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
-  border-color:#ae8ce0 !important;
-  color:#f7f3ff !important;
-  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
-}
-body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
-}
-</style>
+<div class="order-query-modal" id="customerOrderQueryModal" aria-hidden="true">
+  <div class="order-query-card">
+    <h3>🔍 查詢訂單</h3>
+    <p class="order-query-desc">輸入下單時留下的手機號碼，即可查詢目前訂單狀態。</p>
+    <input id="customerOrderQueryPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="請輸入手機號碼">
+    <div class="order-query-actions"><button class="order-query-search" type="button" onclick="searchCustomerOrders()">查詢訂單</button><button class="order-query-close" type="button" onclick="closeCustomerOrderQuery()">關閉</button></div>
+    <div class="order-query-msg" id="customerOrderQueryMsg"></div>
+    <div class="order-query-result" id="customerOrderQueryResult"></div>
+  </div>
+</div>
 
 
-<style id="reserved-order-timeline-hard-final">
-/* 指定訂單：直接依目前訂單的 data-reserved-order 套用紫色，避免被舊黃色樣式覆蓋。 */
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]{
-  --reserved-purple:#a66cff;
-  --reserved-purple-light:#c9a6ff;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active{
-  color:#c9a6ff !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-icon,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-icon{
-  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
-  border-color:#c49aff !important;
-  color:#fff !important;
-  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-label,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-label{
-  color:#c49aff !important;
-  font-weight:900 !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active small,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active small{
-  color:#a88bcf !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done{
-  color:#ddd4ed !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
-  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
-  border-color:#ae8ce0 !important;
-  color:#f7f3ff !important;
-  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
-  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
-}
-body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline::before,
-body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]::before{
-  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
-}
-</style>
+<script id="customer-order-query-js">
+function openCustomerOrderQuery(){const m=document.getElementById('customerOrderQueryModal');if(!m)return;m.classList.add('show');m.setAttribute('aria-hidden','false');const p=document.getElementById('customerOrderQueryPhone');if(p){p.value='';setTimeout(()=>p.focus(),50)}document.getElementById('customerOrderQueryResult').innerHTML='';showCustomerOrderQueryMsg('')}
+function closeCustomerOrderQuery(){const m=document.getElementById('customerOrderQueryModal');if(m){m.classList.remove('show');m.setAttribute('aria-hidden','true')}}
+function showCustomerOrderQueryMsg(t){const e=document.getElementById('customerOrderQueryMsg');if(!e)return;e.textContent=t;e.style.display=t?'block':'none'}
+function customerOrderStatus(s){const x=String(s||'').toLowerCase();if(['making','製作中'].includes(x))return ['餐點製作中','query-making'];if(['accepted','accept','已接單','接單','店家已接單'].includes(x))return ['店家已接單','query-accepted'];if(['done','完成','已完成'].includes(x))return ['訂單已完成','query-done'];return ['等待店家接單','query-wait']}
+function escapeCustomerOrderQuery(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]))}
+function showCustomerOrderQueryEmpty(){document.getElementById('customerOrderQueryResult').innerHTML=`<div class="order-query-empty"><div class="order-query-empty-icon">✓</div><div class="order-query-empty-title">目前尚無訂購紀錄</div><div class="order-query-empty-text">這支手機目前沒有可查詢的未完成訂單。</div><div class="order-query-empty-hint">若剛剛的訂單已完成，系統會在保留時間結束後自動移除查詢紀錄。</div></div>`}
+function goCustomerOrderStatus(o,p){try{const digits=String(p||'').replace(/\D/g,'');const createdAt=Date.now();const pickup=String(o.pickup_time||'');const pickupAt=(typeof window.getOrderExpiryAt==='function')?window.getOrderExpiryAt(pickup,createdAt):createdAt+60*60*1000;const items=(o.items||[]).map(i=>({name:i.name,qty:Number(i.qty||1),price:Number(i.price||0),options:Array.isArray(i.options)?i.options:[]}));window.saveCustomerActiveOrder({orderId:Number(o.id),phone:p,customerName:o.customer_name||'',pickupTime:pickup,total:Number(o.total||0),items,createdAt,expiresAt:pickupAt});renderOrderItems(items);closeCustomerOrderQuery();enterCustomerOrderStatusMode();if(window.startCustomerOrderTracking)window.startCustomerOrderTracking();}catch(e){console.error('導回訂單狀態頁失敗',e);showCustomerOrderQueryMsg('無法開啟訂單狀態，請稍後再試。')}}
+async function searchCustomerOrders(){const p=document.getElementById('customerOrderQueryPhone').value.trim();const digits=p.replace(/\D/g,'');const btn=document.querySelector('#customerOrderQueryModal .order-query-search');showCustomerOrderQueryMsg('');document.getElementById('customerOrderQueryResult').innerHTML='';if(digits.length<8){showCustomerOrderQueryMsg('請輸入正確的手機號碼。');return}btn.disabled=true;btn.textContent='查詢中…';try{const {data,error}=await supabaseClient.rpc('get_customer_orders_by_phone',{p_phone:p});if(error)throw error;const orders=Array.isArray(data?.orders)?data.orders:[];const active=orders.filter(o=>!['done','完成','已完成','cancelled','canceled','取消','已取消'].includes(String(o.status||'').toLowerCase()));if(active.length){goCustomerOrderStatus(active[0],p);return}showCustomerOrderQueryEmpty();}catch(e){console.error('手機查詢訂單失敗',e);showCustomerOrderQueryMsg('查詢失敗，請稍後再試。')}finally{btn.disabled=false;btn.textContent='查詢訂單'}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCustomerOrderQuery()});
+</script>
 
 </body>
 </html>
