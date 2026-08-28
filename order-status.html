@@ -1564,6 +1564,7 @@ body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline::b
 body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]::before{
   background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
 }
+body.customer-order-status-mode .status-step small{display:none!important}
 </style>
 </head>
 <body class="customer-order-status-mode" data-status-page="normal">
@@ -1938,6 +1939,7 @@ function enterCustomerOrderStatusMode(orderId){
     }
 
     customerMakingTimer=setTimeout(function(){
+      updateOrderStatusVisual('making');
       showCustomerMakingAnimation();
       // 不在畫面顯示這個自動跳轉時間點。
     },remaining);
@@ -2055,6 +2057,7 @@ function enterCustomerOrderStatusMode(orderId){
 
         const makingAt=pickupTime ? getCustomerMakingAt(saved,pickupTime) : (customerAcceptedAt+180000);
         if(makingAt && Date.now()>=makingAt){
+          updateOrderStatusVisual('making');
           showCustomerMakingAnimation();
         }else{
           const anim=document.getElementById('customerMakingAnimation');
