@@ -1712,7 +1712,35 @@ async function loadOrders(){
       if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at){
         const acceptedAt=Date.parse(order.accepted_at);
         if(Number.isFinite(acceptedAt)){
-          const remaining=3*60*1000-(now-acceptedAt);
+          /*
+            指定取餐時間訂單：不再沿用「接單後 3 分鐘自動製作」。
+            改為指定取餐時間前 20 分鐘進入製作中。
+            一般不指定時間訂單則維持原本接單後 3 分鐘的邏輯。
+          */
+          const pickupText=String(order.pickup_time||'').trim();
+          let makeAt=acceptedAt + 3*60*1000;
+
+          if(pickupText && pickupText !== "不指定" && pickupText !== "完成後通知"){
+            let pickupAt=Date.parse(pickupText);
+
+            // pickup_time 若只有 HH:mm，依營業日推算實際日期。
+            if(!Number.isFinite(pickupAt) && /^\d{1,2}:\d{2}$/.test(pickupText)){
+              const businessDate=String(order.business_date||'').trim();
+              if(businessDate){
+                const [hh,mm]=pickupText.split(":").map(Number);
+                const base=new Date(`${businessDate}T${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}:00+08:00`);
+                if(Number.isFinite(base.getTime())){
+                  // 營業日的 00:00～01:09 屬於隔日曆日。
+                  if(hh<1 || (hh===1 && mm<10)) base.setDate(base.getDate()+1);
+                  pickupAt=base.getTime();
+                }
+              }
+            }
+
+            if(Number.isFinite(pickupAt)) makeAt=pickupAt - 20*60*1000;
+          }
+
+          const remaining=makeAt-now;
           if(remaining<=0){
             client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted").then(({error})=>{
               if(error) console.warn("自動轉製作中失敗：",error.message);
@@ -1720,14 +1748,17 @@ async function loadOrders(){
             });
             return {...order,status:"making"};
           }
-          if(!acceptedTimers.has(order.id)){
+
+          const existingTimer=acceptedTimers.get(order.id);
+          if(!existingTimer || existingTimer.makeAt!==makeAt){
+            if(existingTimer) clearTimeout(existingTimer.timer);
             const timer=setTimeout(async()=>{
               acceptedTimers.delete(order.id);
               const {error}=await client.from("orders").update({status:"making"}).eq("id",order.id).eq("status","accepted");
               if(error) console.warn("自動轉製作中失敗：",error.message);
               queueAdminOrdersRefresh(50);
             },remaining);
-            acceptedTimers.set(order.id,timer);
+            acceptedTimers.set(order.id,{timer,makeAt});
           }
         }
       }
