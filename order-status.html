@@ -19,7 +19,7 @@ header p{margin:8px 0 0;color:#ccc;font-size:16px}
 .item{background:#fff;border-radius:16px;padding:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 2px 9px rgba(0,0,0,.06)}
 .item-info{flex:1;min-width:0}.item-name{font-size:18px;font-weight:700;line-height:1.5}.price{margin-top:5px;font-size:19px;color:#d35400;font-weight:800}
 .add-btn{border:0;background:#111;color:#fff;border-radius:12px;padding:12px 17px;font-size:16px;min-width:76px;cursor:pointer}.add-btn:active{transform:scale(.96)}
-.menu-card{cursor:pointer;user-select:none;touch-action:manipulation;position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.menu-card:active{transform:scale(.99)}
+.menu-card{cursor:pointer;user-select:none;touch-action:manipulation};position:relative}.sold-out-item{opacity:.58;cursor:not-allowed}.sold-badge{display:inline-flex;align-items:center;justify-content:center;background:#777;color:#fff;border-radius:8px;padding:5px 9px;font-size:14px;font-weight:800;white-space:nowrap}.menu-card:active{transform:scale(.99)}
 .category-toggle{display:flex;align-items:center;justify-content:space-between;background:#111;color:#fff;border-radius:13px;padding:15px 17px;margin:16px 0 8px;font-size:18px;font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;z-index:50}
 .category-toggle:active{transform:scale(.99)}
 .category-arrow{font-size:14px;transition:transform .2s ease}
@@ -991,6 +991,50 @@ body.customer-order-status-mode .status-step small{
   white-space:nowrap;
 }
 
+/* ===== 指定取餐時間：整條狀態列改用紫色識別 ===== */
+body.customer-order-status-mode.reserved-order-mode{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(151,91,255,.11), transparent 34%),
+    linear-gradient(180deg,#080a0b 0%,#0d1012 52%,#090b0c 100%) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode #successStatus{
+  color:#c49aff !important;
+}
+
 /* active / completed */
 body.customer-order-status-mode .premium-status-timeline .status-step.active .status-icon{
   color:#fff!important;
@@ -1390,6 +1434,137 @@ body.customer-order-status-mode .premium-status-timeline .status-step.active[dat
   50%{transform:scale(1.09);opacity:1}
 }
 </style>
+<style id="reserved-status-final-override">
+/* ===== 指定取餐時間訂單：狀態列最終紫色覆蓋層 ===== */
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-icon{
+  color:#fff !important;
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  box-shadow:
+    0 0 0 7px rgba(164,112,255,.10),
+    0 0 0 10px rgba(164,112,255,.04),
+    0 0 46px rgba(154,100,255,.42),
+    0 18px 40px rgba(0,0,0,.48),
+    inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-icon{
+  color:#f7f3ff !important;
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done .status-label{
+  color:#d8d0e6 !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-icon{
+  background:radial-gradient(circle at 35% 28%,#33303a 0%,#24232b 52%,#15161b 100%) !important;
+  border-color:rgba(154,126,190,.34) !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) .status-label{
+  color:#88838f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(.active):not(.done) small{
+  color:#77717f !important;
+}
+body.customer-order-status-mode.reserved-order-mode .premium-status-timeline .status-step:not(:last-child)::after{
+  background:linear-gradient(90deg,rgba(157,110,226,.70),rgba(93,78,116,.28)) !important;
+}
+</style>
+<style id="reserved-order-timeline-final">
+/* 指定取餐時間訂單：狀態列專屬紫色；直接綁定狀態列本身。 */
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 0 16px rgba(148,103,255,.12) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active{
+  color:#c8a8ff !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode #orderStatusTimeline.reserved-order-timeline .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+</style>
+<style id="reserved-order-timeline-hard-final">
+/* 指定訂單：直接依目前訂單的 data-reserved-order 套用紫色，避免被舊黃色樣式覆蓋。 */
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]{
+  --reserved-purple:#a66cff;
+  --reserved-purple-light:#c9a6ff;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active{
+  color:#c9a6ff !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-icon{
+  background:radial-gradient(circle at 35% 28%,#f2eaff 0%,#c69cff 34%,#8954d8 66%,#4e2b88 100%) !important;
+  border-color:#c49aff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 7px rgba(164,112,255,.10),0 0 0 10px rgba(164,112,255,.04),0 0 46px rgba(154,100,255,.42),0 18px 40px rgba(0,0,0,.48),inset 0 2px 2px rgba(255,255,255,.68) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active .status-label,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active .status-label{
+  color:#c49aff !important;
+  font-weight:900 !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.active small,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.active small{
+  color:#a88bcf !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done{
+  color:#ddd4ed !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done .status-icon,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done .status-icon{
+  background:radial-gradient(circle at 35% 28%,#e8dcff 0%,#b98aff 38%,#7650b5 70%,#39265c 100%) !important;
+  border-color:#ae8ce0 !important;
+  color:#f7f3ff !important;
+  box-shadow:0 0 22px rgba(148,99,238,.28) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline .status-step.done:not(:last-child)::after,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"] .status-step.done:not(:last-child)::after{
+  background:linear-gradient(90deg,#a87cff,#8d62dc) !important;
+}
+body.customer-order-status-mode[data-reserved-order="1"] #orderStatusTimeline::before,
+body.customer-order-status-mode #orderStatusTimeline[data-reserved-order="1"]::before{
+  background:linear-gradient(90deg,#9b6cff 0%,#8b62dc 24%,rgba(139,98,220,.45) 52%,rgba(105,110,108,.25) 100%) !important;
+}
+</style>
 </head>
 <body class="customer-order-status-mode" data-status-page="normal">
 <main class="container">
@@ -1480,11 +1655,11 @@ function getTaipeiNow(){
 const STATUS_PAGE_RESERVED = document.body.getAttribute('data-status-page') === 'reserved';
 function enterCustomerOrderStatusMode(orderId){
   document.body.classList.add('customer-order-status-mode');
-  document.body.classList.remove('reserved-order-mode');
+  document.body.classList.toggle('reserved-order-mode', STATUS_PAGE_RESERVED);
   document.body.setAttribute('data-reserved-order', STATUS_PAGE_RESERVED ? '1' : '0');
   const timeline=document.getElementById('orderStatusTimeline');
   if(timeline){
-    timeline.classList.remove('reserved-order-timeline');
+    timeline.classList.toggle('reserved-order-timeline', STATUS_PAGE_RESERVED);
     timeline.setAttribute('data-reserved-order', STATUS_PAGE_RESERVED ? '1' : '0');
   }
   const id=Number(orderId||0);
@@ -1950,7 +2125,7 @@ function enterCustomerOrderStatusMode(orderId){
     const sentTime=document.getElementById('statusSentTime');
     if(sentTime){ const n=new Date(Number(saved.createdAt)); sentTime.textContent=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(n); }
     renderOrderItems(saved.items||[]);
-    document.body.classList.remove('reserved-order-mode');
+    document.body.classList.toggle('reserved-order-mode',!!String(saved.pickupTime||'').trim());
     const countdown=document.getElementById('statusCountdown');
     const pickupDisplay=document.getElementById('statusPickupTime');
     if(countdown && saved.pickupTime){
@@ -1962,12 +2137,12 @@ function enterCustomerOrderStatusMode(orderId){
     }
 
     const isReservedOrder=!!String(saved.pickupTime||'').trim();
-    document.body.classList.remove('reserved-order-mode');
-    document.body.setAttribute('data-reserved-order','0');
+    document.body.classList.toggle('reserved-order-mode',isReservedOrder);
+    document.body.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
     const timeline=document.getElementById('orderStatusTimeline');
     if(timeline){
-      timeline.classList.remove('reserved-order-timeline');
-      timeline.setAttribute('data-reserved-order','0');
+      timeline.classList.toggle('reserved-order-timeline',isReservedOrder);
+      timeline.setAttribute('data-reserved-order',isReservedOrder?'1':'0');
     }
     enterCustomerOrderStatusMode(saved.orderId);
     startCustomerOrderTracking();
