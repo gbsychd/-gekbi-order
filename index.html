@@ -3945,30 +3945,21 @@ document.addEventListener('input',function(e){
         return true;
       }
 
+      if(['making','製作中'].includes(status)){
+        showCustomerMakingAnimation();
+        return true;
+      }
+
       if(['accepted','accept','已接單','接單'].includes(status)){
-        const pickupTime=String(data.pickup_time||saved.pickupTime||'').trim();
-        const acceptedKey=customerAcceptedStorageKey(saved.orderId);
-
-        if(!customerAcceptedAt){
-          customerAcceptedAt=Number(localStorage.getItem(acceptedKey)||0);
+        if(customerMakingTimer){
+          clearTimeout(customerMakingTimer);
+          customerMakingTimer=null;
         }
-        if(!customerAcceptedAt){
-          customerAcceptedAt=Date.now();
-          localStorage.setItem(acceptedKey,String(customerAcceptedAt));
-        }
-
-        scheduleCustomerMaking(saved,pickupTime);
-
-        const makingAt=pickupTime ? getCustomerMakingAt(saved,pickupTime) : (customerAcceptedAt+180000);
-        if(makingAt && Date.now()>=makingAt){
-          showCustomerMakingAnimation();
-        }else{
-          const anim=document.getElementById('customerMakingAnimation');
-          if(anim) anim.classList.remove('active');
-          if(statusEl){
-            statusEl.style.display='';
-            statusEl.textContent='🟢 店家已接單';
-          }
+        const anim=document.getElementById('customerMakingAnimation');
+        if(anim) anim.classList.remove('active');
+        if(statusEl){
+          statusEl.style.display='';
+          statusEl.textContent='🟢 店家已接單';
         }
         return true;
       }

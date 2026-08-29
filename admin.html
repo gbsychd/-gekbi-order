@@ -1709,7 +1709,7 @@ async function loadOrders(){
     const now=Date.now();
     const effectiveOrders=(orders||[]).map(order=>{
       const raw=String(order.status||'').trim().toLowerCase();
-      if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at){
+      if(['accepted','已接收','店家已接收'].includes(raw) && order.accepted_at && !String(order.pickup_time||'').trim()){
         const acceptedAt=Date.parse(order.accepted_at);
         if(Number.isFinite(acceptedAt)){
           const remaining=3*60*1000-(now-acceptedAt);
