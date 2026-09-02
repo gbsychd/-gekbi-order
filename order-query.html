@@ -55,7 +55,6 @@ input:focus{border-color:#222;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
 
   <div class="notice">
     請輸入下單時使用的手機號碼，即可查詢目前訂單。<br>
-    不需要記住訂單編號。
   </div>
 
   <label for="phone">手機號碼</label>
@@ -290,7 +289,7 @@ async function searchOrders(){
   }catch(e){
     console.error(e);
     error.textContent=
-      "目前無法查詢訂單，請稍後再試。若持續發生，請確認手機號碼是否正確。";
+      "目前無法訂單紀錄，或訂單已完成。若已下單無紀錄，請確認手機號碼是否正確。";
     error.style.display="block";
     result.innerHTML="";
   }finally{
