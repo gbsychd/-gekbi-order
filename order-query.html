@@ -177,17 +177,42 @@ function saveOrderForStatusPage(order,phone){
 
 function renderOrders(orders,phone){
   const el=document.getElementById("orders");
-  if(!orders.length){
+
+  // 查詢頁只顯示目前可查詢的訂單：
+  // 進行中的訂單，或店家完成後 30 分鐘內的最後一筆訂單。
+  // 不顯示更早的歷史訂單。
+  const queryableOrders=orders.filter(order=>{
+    const s=String(order.status||"").trim().toLowerCase();
+    if(["cancelled","canceled","取消","已取消"].includes(s))return false;
+    if(["done","completed","完成","已完成"].includes(s)){
+      const completedAt=Date.parse(order.archived_at)||0;
+      return completedAt>0 && (Date.now()-completedAt)<=30*60*1000;
+    }
+    return true;
+  });
+
+  queryableOrders.sort((a,b)=>{
+    const ta=Date.parse(a.archived_at||a.created_at)||0;
+    const tb=Date.parse(b.archived_at||b.created_at)||0;
+    if(tb!==ta)return tb-ta;
+    return Number(b.id||0)-Number(a.id||0);
+  });
+
+  if(!queryableOrders.length){
     document.getElementById("result").innerHTML=
-      "<strong>目前尚無訂購紀錄</strong>請確認手機號碼是否為下單時使用的號碼。";
+      "<strong>目前尚無訂單紀錄或已完成訂單</strong>";
     el.innerHTML="";
     return;
   }
 
-  document.getElementById("result").innerHTML=
-    "<strong>找到 "+orders.length+" 筆訂單</strong>以下顯示最近的訂單紀錄。";
+  const currentOrder=queryableOrders[0];
 
-  el.innerHTML=orders.map(order=>{
+  document.getElementById("result").innerHTML=
+    ["done","completed","完成","已完成"].includes(String(currentOrder.status||"").trim().toLowerCase())
+      ? "<strong>最近完成的訂單</strong>此筆訂單完成後 30 分鐘內仍可查詢。"
+      : "<strong>目前進行中的訂單</strong>以下顯示目前尚未完成的訂單狀態。";
+
+  el.innerHTML=[currentOrder].map(order=>{
     const info=statusInfo(order.status,order.pickup_time);
     const reserved=!!String(order.pickup_time||"").trim();
 
