@@ -1614,6 +1614,46 @@ body.customer-order-status-mode .reserved-status-timeline .status-step:not(:last
 }
 </style>
 
+
+<style id="customer-order-query-button-v1">
+/* ===== 顧客查詢訂單入口：僅新增按鈕 ===== */
+#cartBox{
+  position:relative;
+}
+#customerOrderQueryBtn{
+  position:absolute;
+  top:20px;
+  right:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:7px 14px;
+  border:2px solid #d93025;
+  border-radius:9px;
+  background:#fff;
+  color:#d93025;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.2;
+  text-decoration:none;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+#customerOrderQueryBtn:active{
+  transform:scale(.97);
+}
+@media(max-width:480px){
+  #customerOrderQueryBtn{
+    top:18px;
+    right:16px;
+    min-height:38px;
+    padding:6px 11px;
+    font-size:15px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1670,7 +1710,9 @@ body.customer-order-status-mode .reserved-status-timeline .status-step:not(:last
 </div>
 <div id="menu"></div>
 <div class="cart" id="cartBox">
-<h2>🛒 訂單</h2><div id="cartItems">尚未選擇餐點</div>
+<h2>🛒 訂單</h2>
+<a id="customerOrderQueryBtn" href="order-query.html" aria-label="查詢訂單">查詢訂單</a>
+<div id="cartItems">尚未選擇餐點</div>
 <div class="total">合計：$<span id="total">0</span></div>
 <div class="order-form">
 <label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
