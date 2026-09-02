@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隔壁宵夜彰化店｜查詢訂單</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+.container{width:min(760px,100%);margin:auto;padding:24px 16px 50px}
+.card{background:#fff;border-radius:18px;padding:22px 20px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.header h1{margin:0;font-size:26px;font-weight:900}
+.back{margin-left:auto;border:0;background:#111;color:#fff;border-radius:10px;padding:9px 13px;font-size:14px;cursor:pointer}
+.notice{padding:13px 14px;border-radius:11px;background:#fff4e8;color:#8f4300;font-size:14px;line-height:1.6;margin-bottom:16px}
+label{display:block;margin:0 0 7px;font-size:16px;font-weight:800}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:11px;font-size:17px;background:#fff;outline:none}
+input:focus{border-color:#222;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
+.search-btn{width:100%;border:0;background:#d35400;color:#fff;border-radius:12px;padding:15px;font-size:18px;font-weight:900;margin-top:12px;cursor:pointer}
+.search-btn:disabled{opacity:.55;cursor:not-allowed}
+.message{text-align:center;padding:28px 12px;color:#777;line-height:1.7}
+.message strong{display:block;color:#222;font-size:20px;margin-bottom:6px}
+.order-list{margin-top:18px}
+.order-card{border:1px solid #e5e5e5;border-radius:15px;padding:16px;margin-bottom:12px;background:#fff}
+.order-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.order-number{font-size:18px;font-weight:900}
+.badge{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:900;white-space:nowrap}
+.badge.purple{background:#f0e8ff;color:#7040b8}
+.badge.gold{background:#fff0cf;color:#9a6500}
+.badge.done{background:#e9f7ec;color:#217a35}
+.info{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-box{background:#f7f7f7;border-radius:10px;padding:10px}
+.info-box span{display:block;color:#777;font-size:12px;margin-bottom:3px}
+.info-box strong{font-size:16px}
+.view-btn{width:100%;border:0;background:#111;color:#fff;border-radius:10px;padding:12px;font-size:16px;font-weight:800;margin-top:12px;cursor:pointer}
+.error{padding:12px;border-radius:10px;background:#fff1f1;color:#b00000;font-weight:700;line-height:1.5;margin-top:12px}
+@media(max-width:480px){
+  .container{padding:16px 10px 35px}
+  .card{padding:18px 14px}
+  .header h1{font-size:23px}
+  .info{grid-template-columns:1fr 1fr}
+  .order-number{font-size:16px}
+}
+</style>
+</head>
+<body>
+<main class="container">
+<section class="card">
+  <div class="header">
+    <div style="font-size:30px">🔍</div>
+    <h1>查詢訂單</h1>
+    <button class="back" type="button" onclick="location.href='index.html'">返回點餐</button>
+  </div>
+
+  <div class="notice">
+    請輸入下單時使用的手機號碼，即可查詢目前訂單。<br>
+    不需要記住訂單編號。
+  </div>
+
+  <label for="phone">手機號碼</label>
+  <input id="phone" type="tel" inputmode="numeric" autocomplete="tel"
+         maxlength="10" placeholder="請輸入 09 開頭共 10 碼">
+
+  <button id="searchBtn" class="search-btn" type="button" onclick="searchOrders()">
+    🔍 查詢訂單
+  </button>
+
+  <div id="error" class="error" style="display:none"></div>
+  <div id="result" class="message">
+    <strong>輸入手機號碼即可查詢</strong>
+    查詢後會顯示最近的訂單紀錄。
+  </div>
+  <div id="orders" class="order-list"></div>
+</section>
+</main>
+
+<script>
+const SUPABASE_URL="https://xoyxtgqamzdxbboxhcdu.supabase.co";
+const SUPABASE_KEY="sb_publishable_tMYuq4stsYyHJaTuF-LMrg_hUmOXuB5";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const ORDER_KEY_PREFIX="gekbi_customer_order_v1_";
+const ACTIVE_ORDER_KEY="gekbi_customer_active_order_v1";
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+function normalizePhone(v){
+  return String(v||"").replace(/\D/g,"");
+}
+
+function validPhone(v){
+  return /^09\d{8}$/.test(v);
+}
+
+function statusInfo(status,pickupTime){
+  const s=String(status||"").trim().toLowerCase();
+
+  if(["done","completed","完成","已完成"].includes(s)){
+    return {text:"訂單已完成",cls:"done"};
+  }
+  if(["cancelled","canceled","取消","已取消"].includes(s)){
+    return {text:"訂單已取消",cls:"done"};
+  }
+  if(["making","製作中"].includes(s)){
+    return {
+      text:"餐點製作中",
+      cls:String(pickupTime||"").trim()?"purple":"gold"
+    };
+  }
+  if(["accepted","accept","已接單","接單"].includes(s)){
+    return {
+      text:"店家已接單",
+      cls:String(pickupTime||"").trim()?"purple":"gold"
+    };
+  }
+  return {
+    text:"等待店家接單",
+    cls:String(pickupTime||"").trim()?"purple":"gold"
+  };
+}
+
+function formatTime(v){
+  if(!v)return "不指定";
+  return String(v);
+}
+
+function formatDate(v){
+  if(!v)return "—";
+  const d=new Date(v);
+  if(Number.isNaN(d.getTime()))return "—";
+  return new Intl.DateTimeFormat("zh-TW",{
+    timeZone:"Asia/Taipei",
+    month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",
+    hour12:false
+  }).format(d);
+}
+
+function saveOrderForStatusPage(order,phone){
+  const id=Number(order.id||0);
+  if(!id)return;
+
+  const saved={
+    orderId:id,
+    phone:phone,
+    customerName:order.customer_name||"",
+    pickupTime:order.pickup_time||null,
+    total:Number(order.total||0),
+    items:Array.isArray(order.items)?order.items:[],
+    createdAt:Date.parse(order.created_at)||Date.now(),
+    expiresAt:0
+  };
+
+  try{
+    /*
+      使用目前系統既有的每筆訂單保存格式。
+      不修改任何既有狀態頁，只把查詢到的這筆訂單交給它。
+    */
+    localStorage.setItem(ORDER_KEY_PREFIX+String(id),JSON.stringify(saved));
+    localStorage.setItem(ACTIVE_ORDER_KEY,JSON.stringify(saved));
+  }catch(e){
+    console.warn("無法保存查詢到的訂單",e);
+  }
+
+  const page=String(order.pickup_time||"").trim()
+    ? "reserved-order-status.html"
+    : "normal-order-status.html";
+
+  location.href=page+"#order-status="+id;
+}
+
+function renderOrders(orders,phone){
+  const el=document.getElementById("orders");
+  if(!orders.length){
+    document.getElementById("result").innerHTML=
+      "<strong>目前尚無訂購紀錄</strong>請確認手機號碼是否為下單時使用的號碼。";
+    el.innerHTML="";
+    return;
+  }
+
+  document.getElementById("result").innerHTML=
+    "<strong>找到 "+orders.length+" 筆訂單</strong>以下顯示最近的訂單紀錄。";
+
+  el.innerHTML=orders.map(order=>{
+    const info=statusInfo(order.status,order.pickup_time);
+    const reserved=!!String(order.pickup_time||"").trim();
+
+    return `
+      <article class="order-card">
+        <div class="order-top">
+          <div class="order-number">訂單 #${esc(order.id)}</div>
+          <div class="badge ${info.cls}">${esc(info.text)}</div>
+        </div>
+
+        <div class="info">
+          <div class="info-box">
+            <span>顧客</span>
+            <strong>${esc(order.customer_name||"—")}</strong>
+          </div>
+          <div class="info-box">
+            <span>金額</span>
+            <strong>$${Number(order.total||0).toLocaleString()}</strong>
+          </div>
+          <div class="info-box">
+            <span>取餐時間</span>
+            <strong>${esc(formatTime(order.pickup_time))}</strong>
+          </div>
+          <div class="info-box">
+            <span>下單時間</span>
+            <strong>${esc(formatDate(order.created_at))}</strong>
+          </div>
+        </div>
+
+        <button class="view-btn" type="button"
+          onclick='openOrder(${JSON.stringify(order).replace(/'/g,"&#39;")}, "${phone}")'>
+          查看訂單狀態
+        </button>
+      </article>
+    `;
+  }).join("");
+}
+
+function openOrder(order,phone){
+  saveOrderForStatusPage(order,phone);
+}
+
+async function searchOrders(){
+  const phoneEl=document.getElementById("phone");
+  const btn=document.getElementById("searchBtn");
+  const error=document.getElementById("error");
+  const result=document.getElementById("result");
+
+  const phone=normalizePhone(phoneEl.value);
+  error.style.display="none";
+
+  if(!validPhone(phone)){
+    error.textContent="請輸入正確的台灣手機號碼：09 開頭，共 10 碼。";
+    error.style.display="block";
+    phoneEl.focus();
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="查詢中…";
+  result.innerHTML="<strong>正在查詢</strong>請稍候…";
+  document.getElementById("orders").innerHTML="";
+
+  try{
+    const {data,error:rpcError}=await supabaseClient.rpc(
+      "get_customer_orders_by_phone",
+      {p_phone:phone}
+    );
+
+    if(rpcError)throw rpcError;
+
+    const orders=Array.isArray(data?.orders)?data.orders:[];
+    renderOrders(orders,phone);
+
+  }catch(e){
+    console.error(e);
+    error.textContent=
+      "目前無法查詢訂單，請稍後再試。若持續發生，請確認手機號碼是否正確。";
+    error.style.display="block";
+    result.innerHTML="";
+  }finally{
+    btn.disabled=false;
+    btn.textContent="🔍 查詢訂單";
+  }
+}
+
+document.getElementById("phone").addEventListener("input",function(){
+  this.value=this.value.replace(/\D/g,"").slice(0,10);
+});
+
+document.getElementById("phone").addEventListener("keydown",function(e){
+  if(e.key==="Enter")searchOrders();
+});
+</script>
+</body>
+</html>
