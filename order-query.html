@@ -69,9 +69,8 @@ input:focus{border-color:#222;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
   <div id="error" class="error" style="display:none"></div>
   <div id="result" class="message">
     <strong>輸入手機號碼即可查詢</strong>
-    查詢後會顯示最近的訂單紀錄。
+    輸入手機號碼即可查詢目前進行中的訂單。
   </div>
-  <div id="orders" class="order-list"></div>
 </section>
 </main>
 
@@ -192,78 +191,6 @@ function saveOrderForStatusPage(order,phone){
   window.location.assign(page+"#order-status="+id);
 }
 
-function renderOrders(orders,phone){
-  const el=document.getElementById("orders");
-
-  // RPC 已經只回傳目前有效訂單，以及完成後 30 分鐘內的訂單。
-  // 查詢頁直接顯示回傳結果，不再把已完成訂單錯誤過濾掉。
-  const activeOrders=orders.filter(order=>{
-    const s=String(order.status||"").trim().toLowerCase();
-    return !["cancelled","canceled","取消","已取消"].includes(s);
-  });
-
-  activeOrders.sort((a,b)=>{
-    const ta=Date.parse(a.created_at)||0;
-    const tb=Date.parse(b.created_at)||0;
-    if(tb!==ta)return tb-ta;
-    return Number(b.id||0)-Number(a.id||0);
-  });
-
-  if(!activeOrders.length){
-    document.getElementById("result").innerHTML=
-      "<strong>目前尚無訂單紀錄或已完成訂單</strong>";
-    el.innerHTML="";
-    return;
-  }
-
-  const currentOrder=activeOrders[0];
-
-  document.getElementById("result").innerHTML=
-    "<strong>查詢結果</strong>以下顯示目前有效的訂單狀態。";
-
-  el.innerHTML=[currentOrder].map(order=>{
-    const info=statusInfo(order.status,order.pickup_time);
-    const reserved=!!String(order.pickup_time||"").trim();
-
-    return `
-      <article class="order-card">
-        <div class="order-top">
-          <div class="order-number">訂單 #${esc(String(phone).slice(-3))}</div>
-          <div class="badge ${info.cls}">${esc(info.text)}</div>
-        </div>
-
-        <div class="info">
-          <div class="info-box">
-            <span>顧客</span>
-            <strong>${esc(order.customer_name||"—")}</strong>
-          </div>
-          <div class="info-box">
-            <span>金額</span>
-            <strong>$${Number(order.total||0).toLocaleString()}</strong>
-          </div>
-          <div class="info-box">
-            <span>取餐時間</span>
-            <strong>${esc(formatTime(order.pickup_time))}</strong>
-          </div>
-          <div class="info-box">
-            <span>下單時間</span>
-            <strong>${esc(formatDate(order.created_at))}</strong>
-          </div>
-        </div>
-
-        <button class="view-btn" type="button"
-          onclick='openOrder(${JSON.stringify(order).replace(/'/g,"&#39;")}, "${phone}")'>
-          查看訂單狀態
-        </button>
-      </article>
-    `;
-  }).join("");
-}
-
-function openOrder(order,phone){
-  saveOrderForStatusPage(order,phone);
-}
-
 async function searchOrders(){
   const phoneEl=document.getElementById("phone");
   const btn=document.getElementById("searchBtn");
@@ -283,7 +210,6 @@ async function searchOrders(){
   btn.disabled=true;
   btn.textContent="查詢中…";
   result.innerHTML="<strong>正在查詢</strong>請稍候…";
-  document.getElementById("orders").innerHTML="";
 
   try{
     const {data,error:rpcError}=await supabaseClient.rpc(
@@ -316,10 +242,27 @@ async function searchOrders(){
       throw new Error("訂單查詢回傳格式異常");
     }
 
-    // 只交給畫面層真正的訂單物件。
-    orders=orders.filter(order=>order && typeof order==="object" && Number(order.id)>0);
+    // 只找目前正在進行中的訂單。
+    const activeOrders=orders.filter(order=>{
+      if(!order || typeof order!=="object" || Number(order.id)<=0)return false;
+      const status=String(order.status||"").trim().toLowerCase();
+      return !["done","completed","完成","已完成","cancelled","canceled","取消","已取消"].includes(status);
+    });
 
-    renderOrders(orders,phone);
+    if(!activeOrders.length){
+      result.innerHTML="<strong>目前沒有未完成的訂單</strong>";
+      return;
+    }
+
+    // 有未完成訂單：依最新一筆判斷指定單／非指定單，直接導入原本的狀態頁。
+    activeOrders.sort((a,b)=>{
+      const ta=Date.parse(a.created_at)||0;
+      const tb=Date.parse(b.created_at)||0;
+      if(tb!==ta)return tb-ta;
+      return Number(b.id||0)-Number(a.id||0);
+    });
+
+    saveOrderForStatusPage(activeOrders[0],phone);
 
   }catch(e){
     console.error(e);
