@@ -242,27 +242,37 @@ async function searchOrders(){
       throw new Error("訂單查詢回傳格式異常");
     }
 
-    // 只找目前正在進行中的訂單。
-    const activeOrders=orders.filter(order=>{
+    // 只找「目前有效」的訂單：
+    // ① 未完成：仍在原本保存期限內（RPC 已先完成期限判斷）
+    // ② 已完成：完成後 30 分鐘內，讓顧客仍可查到「訂單已完成」
+    // ③ 已取消：不提供查詢
+    const validOrders=orders.filter(order=>{
       if(!order || typeof order!=="object" || Number(order.id)<=0)return false;
       const status=String(order.status||"").trim().toLowerCase();
-      return !["done","completed","完成","已完成","cancelled","canceled","取消","已取消"].includes(status);
+      if(["cancelled","canceled","取消","已取消"].includes(status))return false;
+
+      if(["done","completed","完成","已完成"].includes(status)){
+        const completedAt=Date.parse(order.archived_at)||0;
+        return completedAt>0 && (Date.now()-completedAt) <= (30*60*1000);
+      }
+
+      return true;
     });
 
-    if(!activeOrders.length){
-      result.innerHTML="<strong>目前沒有未完成的訂單</strong>";
+    if(!validOrders.length){
+      result.innerHTML="<strong>目前沒有可查詢的訂單</strong>";
       return;
     }
 
-    // 有未完成訂單：依最新一筆判斷指定單／非指定單，直接導入原本的狀態頁。
-    activeOrders.sort((a,b)=>{
+    // 有有效訂單：依最新一筆判斷指定單／非指定單，直接導入原本的狀態頁。
+    validOrders.sort((a,b)=>{
       const ta=Date.parse(a.created_at)||0;
       const tb=Date.parse(b.created_at)||0;
       if(tb!==ta)return tb-ta;
       return Number(b.id||0)-Number(a.id||0);
     });
 
-    saveOrderForStatusPage(activeOrders[0],phone);
+    saveOrderForStatusPage(validOrders[0],phone);
 
   }catch(e){
     console.error(e);
