@@ -289,7 +289,7 @@ async function searchOrders(){
   }catch(e){
     console.error(e);
     error.textContent=
-      "目前無法訂單紀錄，或訂單已完成。若已下單無紀錄，請確認手機號碼是否正確。";
+      "目前無訂單紀錄，或訂單已完成。若已下單無紀錄，請確認手機號碼是否正確。";
     error.style.display="block";
     result.innerHTML="";
   }finally{
