@@ -2988,14 +2988,16 @@ function initPickupTimes(){
   first.textContent='不指定（等候店家點選完成訂單即可取餐）';
   select.appendChild(first);
 
-  // 最早可指定時間：營業開始時間 + 30 分鐘。
+  // 最早可指定時間：以「這一個營業時段的開始時間 + 30 分鐘」為基準。
+  // 若目前正在跨日營業時段（例如昨日 18:00 ～ 今日 01:10），
+  // 必須使用昨日的開店日，不能重新以今天的 18:00 當基準。
   const now=getTaipeiNow();
-  const minPickupBase=new Date(Date.UTC(now.year,now.month-1,now.day,0,0,0));
   const todayRow=orderingHoursSchedule[getTaipeiWeekday()];
   const openingTime=todayRow?.enabled ? String(todayRow.start||'18:00') : '18:00';
   const openingMinutes=hmToMinutes(openingTime);
+  let minPickupBase=new Date(Date.UTC(now.year,now.month-1,now.day,0,0,0));
   minPickupBase.setUTCMinutes(openingMinutes,0,0);
-  const minPickup=minPickupBase.getTime()+30*60*1000;
+  let minPickup=minPickupBase.getTime()+30*60*1000;
 
   const seen=new Set();
 
@@ -3048,14 +3050,24 @@ function initPickupTimes(){
   // 若目前不在營業時段且今天尚未開店，則只使用今天即將開始的時段。
   const latestPickup=targetIntervalEnd===null ? null : targetIntervalEnd-10*60*1000;
 
+  // 若目前正在營業，最早基準必須跟著「目前這一個營業時段」的開店日走。
+  if(targetIntervalStart!==null && nowWindow.open){
+    minPickup=targetIntervalStart+30*60*1000;
+  }
+
   // 沒有可用的目標營業時段時，不產生任何指定時間。
   if(latestPickup===null) return;
+
+  const nowMs=Date.UTC(now.year,now.month-1,now.day,now.hour,now.minute,0);
 
   for(let offset=0;offset<=24*60;offset+=10){
     const d=new Date(minPickup+offset*60*1000);
     const candidateTime=d.getTime();
 
-    // 關鍵限制：不可超過「目前這一個營業時段」的最後可指定時間。
+    // 關鍵限制：
+    // 1. 不可選已經過去的時間。
+    // 2. 不可超過「目前這一個營業時段」的最後可指定時間。
+    if(candidateTime<nowMs) continue;
     if(candidateTime>latestPickup) break;
     if(targetIntervalStart!==null && candidateTime<targetIntervalStart) continue;
 
