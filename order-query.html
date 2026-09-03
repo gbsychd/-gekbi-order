@@ -242,21 +242,14 @@ async function searchOrders(){
       throw new Error("訂單查詢回傳格式異常");
     }
 
-    // 只找「目前有效」的訂單：
-    // ① 未完成：仍在原本保存期限內（RPC 已先完成期限判斷）
-    // ② 已完成：完成後 30 分鐘內，讓顧客仍可查到「訂單已完成」
-    // ③ 已取消：不提供查詢
+    // RPC 已經在資料庫端完成有效期限判斷：
+    // 未完成依原本保存期限、已完成保留 30 分鐘、取消不回傳。
+    // 這裡不能再用瀏覽器時間重算完成期限，避免時區／時間格式造成誤判。
+    // 已完成但未滿 30 分鐘的訂單必須保留，讓顧客進入狀態頁確認「已完成」。
     const validOrders=orders.filter(order=>{
       if(!order || typeof order!=="object" || Number(order.id)<=0)return false;
       const status=String(order.status||"").trim().toLowerCase();
-      if(["cancelled","canceled","取消","已取消"].includes(status))return false;
-
-      if(["done","completed","完成","已完成"].includes(status)){
-        const completedAt=Date.parse(order.archived_at)||0;
-        return completedAt>0 && (Date.now()-completedAt) <= (30*60*1000);
-      }
-
-      return true;
+      return !["cancelled","canceled","取消","已取消"].includes(status);
     });
 
     if(!validOrders.length){
