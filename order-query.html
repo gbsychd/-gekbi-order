@@ -145,6 +145,54 @@ function saveOrderForStatusPage(order,phone){
   const id=Number(order.id||0);
   if(!id)return;
 
+  const createdAt=Date.parse(order.created_at)||Date.now();
+  const status=String(order.status||"").trim().toLowerCase();
+  const completedAt=Date.parse(order.archived_at)||0;
+
+  /*
+    查詢頁要直接接回既有訂單狀態頁。
+    狀態頁會檢查 expiresAt，因此不能再寫入 0，
+    否則從「查詢訂單」進入狀態頁時會被當成已過期訂單。
+  */
+  let expiresAt=0;
+
+  if(["done","completed","完成","已完成"].includes(status) && completedAt>0){
+    // 已完成訂單：沿用查詢頁的 30 分鐘可查詢期限。
+    expiresAt=completedAt+(30*60*1000);
+  }else{
+    const pickup=String(order.pickup_time||"").trim();
+    if(pickup){
+      // 指定單：狀態頁原本的保存邏輯以指定取餐時間為基準。
+      const m=pickup.match(/^(\\d{1,2}):(\\d{2})$/);
+      if(m){
+        const base=new Date(createdAt);
+        const parts=new Intl.DateTimeFormat("en-US",{
+          timeZone:"Asia/Taipei",
+          year:"numeric",month:"2-digit",day:"2-digit",
+          hour:"2-digit",minute:"2-digit",hour12:false
+        }).formatToParts(base);
+        const p={};
+        parts.forEach(x=>{if(x.type!=="literal")p[x.type]=Number(x.value)});
+        let y=p.year, mo=p.month, d=p.day;
+        const createdMinutes=p.hour*60+p.minute;
+        const pickupMinutes=Number(m[1])*60+Number(m[2]);
+        if(pickupMinutes<=createdMinutes){
+          const next=new Date(base.getTime()+86400000);
+          const np=new Intl.DateTimeFormat("en-US",{
+            timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"
+          }).formatToParts(next);
+          const q={};
+          np.forEach(x=>{if(x.type!=="literal")q[x.type]=Number(x.value)});
+          y=q.year; mo=q.month; d=q.day;
+        }
+        expiresAt=Date.UTC(y,mo-1,d,Number(m[1]),Number(m[2]))+(60*60*1000);
+      }
+    }
+
+    // 無法解析指定時間時，至少保留目前訂單 1 小時，避免狀態頁誤判過期。
+    if(!expiresAt)expiresAt=createdAt+(60*60*1000);
+  }
+
   const saved={
     orderId:id,
     phone:phone,
@@ -152,15 +200,11 @@ function saveOrderForStatusPage(order,phone){
     pickupTime:order.pickup_time||null,
     total:Number(order.total||0),
     items:Array.isArray(order.items)?order.items:[],
-    createdAt:Date.parse(order.created_at)||Date.now(),
-    expiresAt:0
+    createdAt:createdAt,
+    expiresAt:expiresAt
   };
 
   try{
-    /*
-      使用目前系統既有的每筆訂單保存格式。
-      不修改任何既有狀態頁，只把查詢到的這筆訂單交給它。
-    */
     localStorage.setItem(ORDER_KEY_PREFIX+String(id),JSON.stringify(saved));
     localStorage.setItem(ACTIVE_ORDER_KEY,JSON.stringify(saved));
   }catch(e){
@@ -289,7 +333,7 @@ async function searchOrders(){
   }catch(e){
     console.error(e);
     error.textContent=
-      "目前無訂單紀錄，或訂單已完成。若已下單無紀錄，請確認手機號碼是否正確。";
+      "目前無訂單紀錄，或訂單已完成，若已下單無紀錄，請確認手機號碼是否正確。";
     error.style.display="block";
     result.innerHTML="";
   }finally{
