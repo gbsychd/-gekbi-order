@@ -1840,6 +1840,25 @@ header h1{
 }
 </style>
 </style>
+<style id="customer-name-title-v1">
+.customer-name-row{display:flex;gap:8px;align-items:center;}
+.customer-name-row #customerSurname{flex:1;min-width:0;}
+.customer-name-row #customerTitle{width:92px;flex:0 0 92px;}
+@media(max-width:480px){.customer-name-row{gap:6px;}.customer-name-row #customerTitle{width:82px;flex-basis:82px;}}
+</style>
+
+<style id="customer-order-query-font-size">
+#customerOrderQueryBtn{font-size:18px;}
+</style>
+
+
+<style id="cutlery-inline-layout">
+.cutlery-inline{display:flex;align-items:center;gap:22px;flex-wrap:nowrap;min-height:32px;margin-top:10px;}
+.cutlery-inline .cutlery-label{font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;}
+.cutlery-inline label{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;margin:0;line-height:32px;}
+.cutlery-inline input[type="radio"]{margin:0;vertical-align:middle;}
+</style>
+
 </head>
 <body>
 
@@ -1888,16 +1907,17 @@ header h1{
 <div id="menu"></div>
 <div class="cart" id="cartBox">
 <h2>🛒 訂單</h2>
-<a id="customerOrderQueryBtn" href="order-query.html" aria-label="查詢訂單">查詢訂單</a>
+<a id="customerOrderQueryBtn" href="order-query.html" aria-label="查詢訂單">🔎 查詢訂單</a>
 <div id="cartItems">尚未選擇餐點</div>
 <div class="total">合計：$<span id="total">0</span></div>
 <div class="order-form">
-<label>姓／先生or小姐</label><input id="customerName" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏＋先生或小姐">
+<label>顧客姓名</label>
+<div class="customer-name-row"><input id="customerSurname" type="text" autocomplete="off" autocapitalize="off" placeholder="請輸入姓氏"><select id="customerTitle" aria-label="稱謂"><option value="先生">先生</option><option value="小姐">小姐</option></select><input id="customerName" type="hidden"></div>
 <label>手機號碼(09開頭共10碼)</label><input id="phone" type="tel" autocomplete="off" inputmode="numeric" placeholder="請輸入手機號碼">
 <label>取餐時間(若不指定，請等候店家點選完成訂單即可取餐)</label>
 <select id="pickupTime"><option value="">不指定取餐時間</option></select>
-<label>是否需要餐具</label>
-<div class="cutlery-choice">
+<div class="cutlery-inline">
+  <span class="cutlery-label">是否需要餐具</span>
   <label><input type="radio" name="cutlery" value="需要" checked> 需要</label>
   <label><input type="radio" name="cutlery" value="不需要"> 不需要</label>
 </div>
@@ -2968,18 +2988,14 @@ function initPickupTimes(){
   first.textContent='不指定（等候店家點選完成訂單即可取餐）';
   select.appendChild(first);
 
-  // 最早可指定時間：
-  // 目前時間先進位到下一個10分鐘，再往後30分鐘。
+  // 最早可指定時間：營業開始時間 + 30 分鐘。
   const now=getTaipeiNow();
-  const nowDate=new Date(Date.UTC(now.year,now.month-1,now.day,now.hour,now.minute,0));
-  const rounded=new Date(nowDate.getTime());
-  const roundedMinutes=Math.ceil(rounded.getUTCMinutes()/10)*10;
-  if(roundedMinutes>=60){
-    rounded.setUTCHours(rounded.getUTCHours()+1,0,0,0);
-  }else{
-    rounded.setUTCMinutes(roundedMinutes,0,0);
-  }
-  const minPickup=rounded.getTime()+30*60*1000;
+  const minPickupBase=new Date(Date.UTC(now.year,now.month-1,now.day,0,0,0));
+  const todayRow=orderingHoursSchedule[getTaipeiWeekday()];
+  const openingTime=todayRow?.enabled ? String(todayRow.start||'18:00') : '18:00';
+  const openingMinutes=hmToMinutes(openingTime);
+  minPickupBase.setUTCMinutes(openingMinutes,0,0);
+  const minPickup=minPickupBase.getTime()+30*60*1000;
 
   const seen=new Set();
 
@@ -3290,6 +3306,21 @@ function showCustomerOrderSuccess(){
   success.scrollIntoView({behavior:'smooth',block:'start'});
   if(window.startCustomerOrderTracking) window.startCustomerOrderTracking();
 }
+
+function syncCustomerName(){
+  const surname=document.getElementById('customerSurname')?.value.trim() || '';
+  const title=document.getElementById('customerTitle')?.value || '先生';
+  const nameInput=document.getElementById('customerName');
+  if(nameInput) nameInput.value=surname ? surname + title : '';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const surname=document.getElementById('customerSurname');
+  const title=document.getElementById('customerTitle');
+  if(surname) surname.addEventListener('input',syncCustomerName);
+  if(title) title.addEventListener('change',syncCustomerName);
+  syncCustomerName();
+});
 
 function submitOrder(){
   if(!isOrderingOpen())return;
