@@ -142,118 +142,83 @@ function formatDate(v){
 }
 
 function saveOrderForStatusPage(order,phone){
-  const id=Number(order.id||0);
+  const id=Number(order?.id||0);
   if(!id)return;
 
   const createdAt=Date.parse(order.created_at)||Date.now();
   const status=String(order.status||"").trim().toLowerCase();
   const completedAt=Date.parse(order.archived_at)||0;
+  const pickup=String(order.pickup_time||"").trim();
 
-  /*
-    查詢頁要直接接回既有訂單狀態頁。
-    狀態頁會檢查 expiresAt，因此不能再寫入 0，
-    否則從「查詢訂單」進入狀態頁時會被當成已過期訂單。
-  */
-  let expiresAt=0;
-
+  let expiresAt=createdAt+(30*60*1000);
   if(["done","completed","完成","已完成"].includes(status) && completedAt>0){
-    // 已完成訂單：沿用查詢頁的 30 分鐘可查詢期限。
     expiresAt=completedAt+(30*60*1000);
-  }else{
-    const pickup=String(order.pickup_time||"").trim();
-    if(pickup){
-      // 指定單：狀態頁原本的保存邏輯以指定取餐時間為基準。
-      const m=pickup.match(/^(\\d{1,2}):(\\d{2})$/);
-      if(m){
-        const base=new Date(createdAt);
-        const parts=new Intl.DateTimeFormat("en-US",{
-          timeZone:"Asia/Taipei",
-          year:"numeric",month:"2-digit",day:"2-digit",
-          hour:"2-digit",minute:"2-digit",hour12:false
-        }).formatToParts(base);
-        const p={};
-        parts.forEach(x=>{if(x.type!=="literal")p[x.type]=Number(x.value)});
-        let y=p.year, mo=p.month, d=p.day;
-        const createdMinutes=p.hour*60+p.minute;
-        const pickupMinutes=Number(m[1])*60+Number(m[2]);
-        if(pickupMinutes<=createdMinutes){
-          const next=new Date(base.getTime()+86400000);
-          const np=new Intl.DateTimeFormat("en-US",{
-            timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"
-          }).formatToParts(next);
-          const q={};
-          np.forEach(x=>{if(x.type!=="literal")q[x.type]=Number(x.value)});
-          y=q.year; mo=q.month; d=q.day;
-        }
-        expiresAt=Date.UTC(y,mo-1,d,Number(m[1]),Number(m[2]))+(60*60*1000);
+  }else if(pickup){
+    const m=pickup.match(/^(\d{1,2}):(\d{2})$/);
+    if(m){
+      const base=new Date(createdAt);
+      const parts=new Intl.DateTimeFormat("en-US",{
+        timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit",
+        hour:"2-digit",minute:"2-digit",hour12:false
+      }).formatToParts(base);
+      const q={}; parts.forEach(x=>{if(x.type!=="literal")q[x.type]=Number(x.value)});
+      let y=q.year,mo=q.month,d=q.day;
+      const createdMinutes=q.hour*60+q.minute;
+      const pickupMinutes=Number(m[1])*60+Number(m[2]);
+      if(pickupMinutes<=createdMinutes){
+        const next=new Date(base.getTime()+86400000);
+        const np=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(next);
+        const n={}; np.forEach(x=>{if(x.type!=="literal")n[x.type]=Number(x.value)});
+        y=n.year;mo=n.month;d=n.day;
       }
+      expiresAt=Date.UTC(y,mo-1,d,Number(m[1]),Number(m[2]))+(30*60*1000);
     }
-
-    // 無法解析指定時間時，至少保留目前訂單 1 小時，避免狀態頁誤判過期。
-    if(!expiresAt)expiresAt=createdAt+(60*60*1000);
   }
 
   const saved={
-    orderId:id,
-    phone:phone,
-    customerName:order.customer_name||"",
-    pickupTime:order.pickup_time||null,
-    total:Number(order.total||0),
-    items:Array.isArray(order.items)?order.items:[],
-    createdAt:createdAt,
+    orderId:id, phone:String(phone||""), customerName:order.customer_name||"",
+    pickupTime:order.pickup_time||null, total:Number(order.total||0),
+    items:Array.isArray(order.items)?order.items:[], createdAt:createdAt,
     expiresAt:expiresAt
   };
 
   try{
     localStorage.setItem(ORDER_KEY_PREFIX+String(id),JSON.stringify(saved));
     localStorage.setItem(ACTIVE_ORDER_KEY,JSON.stringify(saved));
-  }catch(e){
-    console.warn("無法保存查詢到的訂單",e);
-  }
+  }catch(e){ console.warn("無法保存查詢到的訂單",e); }
 
-  const page=String(order.pickup_time||"").trim()
-    ? "reserved-order-status.html"
-    : "normal-order-status.html";
-
-  location.href=page+"#order-status="+id;
+  const page=pickup ? "reserved-order-status.html" : "normal-order-status.html";
+  window.location.assign(page+"#order-status="+id);
 }
 
 function renderOrders(orders,phone){
   const el=document.getElementById("orders");
 
-  // 查詢頁只顯示目前可查詢的訂單：
-  // 進行中的訂單，或店家完成後 30 分鐘內的最後一筆訂單。
-  // 不顯示更早的歷史訂單。
-  const queryableOrders=orders.filter(order=>{
+  // 查詢頁只顯示目前進行中的訂單，不顯示過去訂單或已完成訂單。
+  // 依回傳的歷史紀錄找出仍在進行中的訂單，若有多筆只顯示最新的一筆。
+  const activeOrders=orders.filter(order=>{
     const s=String(order.status||"").trim().toLowerCase();
-    if(["cancelled","canceled","取消","已取消"].includes(s))return false;
-    if(["done","completed","完成","已完成"].includes(s)){
-      const completedAt=Date.parse(order.archived_at)||0;
-      return completedAt>0 && (Date.now()-completedAt)<=30*60*1000;
-    }
-    return true;
+    return !["done","completed","完成","已完成","cancelled","canceled","取消","已取消"].includes(s);
   });
 
-  queryableOrders.sort((a,b)=>{
-    const ta=Date.parse(a.archived_at||a.created_at)||0;
-    const tb=Date.parse(b.archived_at||b.created_at)||0;
+  activeOrders.sort((a,b)=>{
+    const ta=Date.parse(a.created_at)||0;
+    const tb=Date.parse(b.created_at)||0;
     if(tb!==ta)return tb-ta;
     return Number(b.id||0)-Number(a.id||0);
   });
 
-  if(!queryableOrders.length){
+  if(!activeOrders.length){
     document.getElementById("result").innerHTML=
       "<strong>目前尚無訂單紀錄或已完成訂單</strong>";
     el.innerHTML="";
     return;
   }
 
-  const currentOrder=queryableOrders[0];
+  const currentOrder=activeOrders[0];
 
   document.getElementById("result").innerHTML=
-    ["done","completed","完成","已完成"].includes(String(currentOrder.status||"").trim().toLowerCase())
-      ? "<strong>最近完成的訂單</strong>此筆訂單完成後 30 分鐘內仍可查詢。"
-      : "<strong>目前進行中的訂單</strong>以下顯示目前尚未完成的訂單狀態。";
+    "<strong>目前進行中的訂單</strong>以下顯示目前尚未完成的訂單狀態。";
 
   el.innerHTML=[currentOrder].map(order=>{
     const info=statusInfo(order.status,order.pickup_time);
@@ -327,13 +292,17 @@ async function searchOrders(){
 
     if(rpcError)throw rpcError;
 
-    const orders=Array.isArray(data?.orders)?data.orders:[];
+    let payload=data;
+    if(typeof payload==="string"){
+      try{ payload=JSON.parse(payload); }catch(e){ payload=null; }
+    }
+    const orders=Array.isArray(payload?.orders)?payload.orders:[];
     renderOrders(orders,phone);
 
   }catch(e){
     console.error(e);
     error.textContent=
-      "目前無訂單紀錄，或訂單已完成，若已下單無紀錄，請確認手機號碼是否正確。";
+      "目前無法查詢訂單，請稍後再試。若持續發生，請確認手機號碼是否正確。";
     error.style.display="block";
     result.innerHTML="";
   }finally{
