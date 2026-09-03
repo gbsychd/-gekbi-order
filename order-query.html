@@ -292,17 +292,40 @@ async function searchOrders(){
 
     if(rpcError)throw rpcError;
 
+    // Supabase RPC 正常回傳為 {found:boolean, orders:[]}
+    // 不再把異常格式默默當成「沒有訂單」。
     let payload=data;
+
     if(typeof payload==="string"){
-      try{ payload=JSON.parse(payload); }catch(e){ payload=null; }
+      try{
+        payload=JSON.parse(payload);
+      }catch(parseError){
+        throw new Error("查詢資料解析失敗");
+      }
     }
-    const orders=Array.isArray(payload?.orders)?payload.orders:[];
+
+    // 相容部分環境可能直接回傳陣列的情況。
+    let orders;
+    if(Array.isArray(payload)){
+      orders=payload;
+    }else if(payload && Array.isArray(payload.orders)){
+      orders=payload.orders;
+    }else{
+      console.error("訂單查詢回傳格式異常:", payload);
+      throw new Error("訂單查詢回傳格式異常");
+    }
+
+    // 只交給畫面層真正的訂單物件。
+    orders=orders.filter(order=>order && typeof order==="object" && Number(order.id)>0);
+
     renderOrders(orders,phone);
 
   }catch(e){
     console.error(e);
     error.textContent=
-      "目前無法查詢訂單，請稍後再試。若持續發生，請確認手機號碼是否正確。";
+      e?.message==="訂單查詢回傳格式異常" || e?.message==="查詢資料解析失敗"
+        ? "訂單資料已回傳，但查詢頁解析異常，請重新整理後再試。"
+        : "目前無法查詢訂單，請稍後再試。";
     error.style.display="block";
     result.innerHTML="";
   }finally{
